@@ -60,7 +60,7 @@ export default {
     exclude: [],
   },
   'EP、MV': {
-    keyword: ['音乐动态视频', '《原神》EP', 'MV'],
+    keyword: ['音乐动态视频', '《原神》EP', '特别EP', 'MV'],
     include: [],
     exclude: [],
   },
@@ -189,7 +189,12 @@ export default {
     include: [],
     exclude: [],
   },
-  '角色趣闻小记': {
+  '角色逸闻': {
+    keyword: ['角色逸闻'],
+    include: [],
+    exclude: [],
+  },
+  '角色小记': {
     keyword: ['小记'],
     include: [],
     exclude: [],
