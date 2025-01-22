@@ -62,15 +62,18 @@ const filteredNewsData = computed(() => {
     data = data.filter(news => new Date(news.startTime).getTime() <= new Date(`${filterEndDate.value} 23:59:59`).getTime())
   }
 
-  if (sortByDate.value) {
-    data = data.sort((a, b) => {
-      const bt = new Date(b.startTime).getTime()
-      const at = new Date(a.startTime).getTime()
-      if (bt === at)
-        return Number(b.id) - Number(a.id)
-      return bt - at
-    })
-  }
+  return data
+})
+
+const sortedNewsData = computed(() => {
+  const data = filteredNewsData.value.slice().sort((a, b) => {
+    const bt = new Date(b.startTime).getTime()
+    const at = new Date(a.startTime).getTime()
+    if (bt === at)
+      return Number(b.id) - Number(a.id)
+    return bt - at
+  })
+
   if (sortBy.value === 'asc')
     data.reverse()
 
@@ -88,7 +91,7 @@ const itemRenderList = computed(() => {
   }
   const renderRangeTop = -containerTop.value - renderRange.up * window.innerHeight
   const renderRangeBottom = -containerTop.value + window.innerHeight + renderRange.down * window.innerHeight
-  return filteredNewsData.value.filter((item: NewsItemData) => {
+  return sortedNewsData.value.filter((item: NewsItemData) => {
     return (item.top + itemHeight.value > renderRangeTop && item.top < renderRangeBottom)
   })
 })
@@ -104,7 +107,6 @@ onMounted(() => {
   settings.register('showCover', showCover, SettingType.Bool)
   settings.register('showDateWeek', showDateWeek, SettingType.Bool)
   settings.register('sortNews', sortByDate, SettingType.Bool)
-  settings.register('sortBy', sortBy, SettingType.Str)
   if (params.filterTag)
     filterTag.value = params.filterTag as string
   if (params.source)
@@ -223,7 +225,7 @@ function formatTime(timestamp: number) {
 
 function exportVideos() {
   let result = ''
-  filteredNewsData.value.filter(news => news.video).forEach((news: any) => {
+  sortedNewsData.value.filter(news => news.video).forEach((news: any) => {
     const fileExt = news.video.split('.').pop()
     result += `${news.video}\n  out=${news.title}.${fileExt}\n`
   })
@@ -247,7 +249,7 @@ function scrollTo(target: 'top' | 'bottom') {
 <template>
   <div class="min-h-screen bg-gray-200">
     <div class="fixed bottom-4 right-4 z-10">
-      <button class="block rounded-t-lg border border-gray-300 bg-white p-2 text-black hover:border-blue-500" @click="scrollTo('top')">
+      <button class="block rounded-t-lg border border-gray-300 bg-white p-2 text-black  transition-colors hover:border-blue-500" @click="scrollTo('top')">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
           <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 10.5 12 3m0 0 7.5 7.5M12 3v18" />
         </svg>
@@ -300,7 +302,7 @@ function scrollTo(target: 'top' | 'bottom') {
         新闻源：
         <select
           v-model="source"
-          class="rounded-md border border-black/20 bg-transparent px-1"
+          class="rounded-md border border-black/20 bg-transparent px-1 transition-colors hover:border-blue-500"
           :disabled="loading"
           @change="handleSourceChange"
         >
@@ -311,7 +313,7 @@ function scrollTo(target: 'top' | 'bottom') {
 
         <select
           v-model="channal"
-          class="my-1 ml-2 rounded-md border border-black/20 bg-transparent px-1"
+          class="my-1 ml-2 rounded-md border border-black/20 bg-transparent px-1 transition-colors hover:border-blue-500"
           :disabled="loading"
           @change="handleSourceChange"
         >
@@ -347,9 +349,9 @@ function scrollTo(target: 'top' | 'bottom') {
       </div>
       <input
         v-model="searchStr" type="text" placeholder="搜些什么吧"
-        class="mb-4 w-full rounded-full border px-4 py-2 outline-blue-500 transition-colors hover:border-blue-500"
+        class="mb-2 w-full rounded-full border px-4 py-2 outline-blue-500 transition-colors hover:border-blue-500"
       >
-      <details v-show="!searchEnabled" class="mb-4" open>
+      <details v-show="!searchEnabled" class="mb-2" open>
         <summary>分类</summary>
         <ul class="mt-2 flex flex-wrap gap-1">
           <li
@@ -370,7 +372,7 @@ function scrollTo(target: 'top' | 'bottom') {
           排序：
           <select
             v-model="sortBy"
-            class="rounded-md border border-black/20 bg-transparent px-1"
+            class="rounded-md border border-black/20 bg-transparent px-1 transition-colors hover:border-blue-500"
           >
             <option value="desc">
               降序
@@ -383,18 +385,22 @@ function scrollTo(target: 'top' | 'bottom') {
 
         <span>
           开始日期：
-          <input v-model="filterStartDate" type="date" class="rounded-md border border-black/20 bg-transparent px-1" :max="filterEndDate">
+          <input v-model="filterStartDate" type="date" class="rounded-md border border-black/20 bg-transparent px-1 transition-colors hover:border-blue-500" :max="filterEndDate">
         </span>
 
         <span>
           结束日期：
-          <input v-model="filterEndDate" type="date" class="rounded-md border border-black/20 bg-transparent px-1" :min="filterStartDate">
+          <input v-model="filterEndDate" type="date" class="rounded-md border border-black/20 bg-transparent px-1 transition-colors hover:border-blue-500" :min="filterStartDate">
         </span>
+
+        <button v-if="filterStartDate || filterEndDate" class="hover:text-blue-500" @click="filterStartDate = '';filterEndDate = ''">
+          取消筛选
+        </button>
       </div>
 
-      <div v-show="searchEnabled" class="pb-4">
+      <div v-show="searchEnabled" class="pb-2">
         <span class="pr-4">
-          搜索结果：{{ filteredNewsData.length }}
+          搜索结果：{{ sortedNewsData.length }}
         </span>
         <button class="hover:text-blue-500" @click="searchStr = ''">
           取消搜索
@@ -432,7 +438,7 @@ function scrollTo(target: 'top' | 'bottom') {
         ref="container"
         class="relative overflow-hidden"
         :style="{
-          height: `${filteredNewsData.length * (itemHeight + 8) - 8}px`,
+          height: `${sortedNewsData.length * (itemHeight + 8) - 8}px`,
         }"
       >
         <NewsItem

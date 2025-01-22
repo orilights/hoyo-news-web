@@ -19,4 +19,4 @@ export const LOAD_DELAY = 300
 
 export const TAG_ALL = '全部'
 export const TAG_VIDEO = '视频'
-export const TAG_OTHER = '其他'
+export const TAG_OTHER = '未分类'
