@@ -138,7 +138,6 @@ function fetchData(force_refresh = false) {
       }
       if (res.code !== 0) {
         toast.error(`服务器响应：${res.msg}`)
-        return
       }
       if (res.data) {
         const newsList = res.data
