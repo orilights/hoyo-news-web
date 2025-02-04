@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { DEFAULT_BANNER, LOAD_DELAY, NEWS_LIST } from '@/constants'
+import { COVER_WIDTH, DEFAULT_BANNER, LOAD_DELAY, NEWS_LIST } from '@/constants'
 import { state } from '@/state'
+import { CoverSize } from '@/types/enum'
 import { useToast } from 'vue-toastification'
 
 const props = defineProps<{
   news: NewsItemData
   showBanner: boolean
   showDateWeek: boolean
+  coverSize: CoverSize
   game: string
   channal: string
 }>()
@@ -15,6 +17,17 @@ let timer: NodeJS.Timeout | null = null
 const loadImage = ref(false)
 const imageLoaded = ref(false)
 const imageKey = `${props.game}_${props.channal}_${props.news.id}`
+const channalConfig = NEWS_LIST[props.game].channals[props.channal]
+const coverWidth = computed(() => {
+  if (props.coverSize === CoverSize.Large) {
+    return channalConfig.coverWidth || COVER_WIDTH.default
+  }
+  if (props.coverSize === CoverSize.Medium) {
+    return (channalConfig.coverWidth || COVER_WIDTH.default) / 2
+  }
+  return 75
+})
+const coverHeight = computed(() => props.coverSize === CoverSize.Large ? 150 : 75)
 
 onMounted(() => {
   if (state.imageLoaded.has(imageKey)) {
@@ -65,14 +78,18 @@ function onImageLoaded() {
     class="absolute mb-2 w-full"
   >
     <a
-      :href="NEWS_LIST[game].channals[channal].newsDetailLink.replace('{id}', String(news.id))"
+      :href="channalConfig.newsDetailLink.replace('{id}', String(news.id))"
       :title="news.title"
       class="group flex rounded-md border-2 border-transparent bg-white p-2 transition-colors hover:border-blue-500 sm:p-3 "
       target="_blank"
     >
       <div
         v-if="showBanner"
-        class="relative mr-2 flex size-[75px] items-center justify-center sm:w-[150px] md:mr-4 md:h-[150px] md:w-[300px]"
+        class="sm relative mr-2 flex items-center justify-center md:mr-4"
+        :style="{
+          width: `${coverWidth}px`,
+          height: `${coverHeight}px`,
+        }"
       >
         <svg
           v-if="!imageLoaded"
@@ -112,7 +129,7 @@ function onImageLoaded() {
           <img
             v-show="imageLoaded"
             :src="loadImage ? (news.cover || DEFAULT_BANNER) : ''"
-            class="absolute size-full rounded-md object-cover" alt="banner"
+            class="absolute size-full rounded-md bg-gray-200 object-cover sm:object-contain" alt="banner"
             referrerpolicy="no-referrer"
             @load="onImageLoaded"
           >
@@ -121,22 +138,22 @@ function onImageLoaded() {
       <div class="flex-1 overflow-hidden">
         <h2
           :title="news.title"
-          class="w-full truncate font-bold transition-colors group-hover:text-blue-500 md:text-lg"
+          class="w-full truncate font-bold transition-colors md:text-lg"
         >
           {{ news.title }}
         </h2>
         <div class="text-sm">
-          新闻ID: {{ news.id }}
+          ID {{ news.id }}
         </div>
         <div class="text-ellipsis whitespace-nowrap text-sm">
-          新闻类型: {{ news.tag }}
+          类型 {{ news.tag }}
           <span v-if="news.video" class="text-blue-500">
             <span class="ml-2" @click.stop.prevent="openVideo(news.video)">打开视频</span>
             <span class="ml-2" @click.stop.prevent="copyVideoLink(news.video)">复制链接</span>
           </span>
         </div>
         <div class="text-sm">
-          发布时间: {{ news.startTime }} <span v-if="showDateWeek">星期{{ getWeek(news.startTime) }}</span>
+          发布 {{ news.startTime }} <span v-if="showDateWeek">星期{{ getWeek(news.startTime) }}</span>
         </div>
       </div>
     </a>

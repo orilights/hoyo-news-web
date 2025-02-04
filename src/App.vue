@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import NewsItem from '@/components/NewsItem.vue'
 import Switch from '@/components/Switch.vue'
-import { APP_ABBR, NEWS_CLASSIFY_RULE, NEWS_LIST, REPO_URL, SHADOW_ITEM, TAG_ALL, TAG_OTHER, TAG_VIDEO } from '@/constants'
+import { APP_ABBR, ITEM_GAP, NEWS_CLASSIFY_RULE, NEWS_LIST, REPO_URL, SHADOW_ITEM, TAG_ALL, TAG_OTHER, TAG_VIDEO } from '@/constants'
 import { Settings, SettingType } from '@orilight/vue-settings'
-import { useElementBounding, useElementSize, useThrottle, useUrlSearchParams } from '@vueuse/core'
+import { useElementBounding, useElementSize, useMediaQuery, useThrottle, useUrlSearchParams } from '@vueuse/core'
 import { useToast } from 'vue-toastification'
+import { CoverSize } from './types/enum'
 
 const settings = new Settings(APP_ABBR)
 
@@ -20,9 +21,21 @@ const itemHeight = useElementSize(shadowItem).height
 const params = useUrlSearchParams('history')
 const filterTag = ref(TAG_ALL)
 const source = ref(Object.keys(NEWS_LIST)[0])
-const channal = ref('')
+const channal = ref(Object.keys(NEWS_LIST[source.value].channals)[0])
 const searchStr = ref('')
 const loading = ref(false)
+
+const windowWidth = {
+  sm: useMediaQuery('(min-width: 640px)'),
+  md: useMediaQuery('(min-width: 768px)'),
+}
+const coverSize = computed(() => {
+  if (windowWidth.md.value)
+    return CoverSize.Large
+  if (windowWidth.sm.value)
+    return CoverSize.Medium
+  return CoverSize.Small
+})
 
 const showSetting = ref(false)
 const showCover = ref(true)
@@ -82,7 +95,7 @@ const sortedNewsData = computed(() => {
     data.reverse()
 
   data.forEach((v, i) => {
-    (v as NewsItemData).top = (itemHeight.value + 8) * i
+    (v as NewsItemData).top = (itemHeight.value + ITEM_GAP) * i
   })
 
   return data as NewsItemData[]
@@ -117,12 +130,15 @@ onMounted(() => {
     source.value = params.source as string
   if (params.channal)
     channal.value = params.channal as string
-  fetchData()
-})
+  else
+    channal.value = Object.keys(NEWS_LIST[source.value].channals)[0]
 
-watch(source, (val) => {
-  channal.value = Object.keys(NEWS_LIST[val].channals)[0]
-}, { immediate: true })
+  fetchData()
+
+  watch(source, (val) => {
+    channal.value = Object.keys(NEWS_LIST[val].channals)[0]
+  })
+})
 
 function fetchData(force_refresh = false) {
   loading.value = true
@@ -263,7 +279,7 @@ function scrollTo(target: 'top' | 'bottom') {
         </svg>
       </button>
     </div>
-    <div class="relative mx-4 py-2 lg:mx-auto lg:w-[960px] xl:px-0">
+    <div class="relative mx-2 py-2 md:mx-4 lg:mx-auto lg:w-[960px] xl:px-0">
       <Transition name="popup">
         <div
           v-show="showSetting"
@@ -449,6 +465,7 @@ function scrollTo(target: 'top' | 'bottom') {
           :news="SHADOW_ITEM"
           :show-banner="showCover"
           :show-date-week="showDateWeek"
+          :cover-size="coverSize"
           :game="source"
           :channal="channal"
           :style="{ pointerEvent: 'none', userSelect: 'none' }"
@@ -458,6 +475,7 @@ function scrollTo(target: 'top' | 'bottom') {
           :news="news"
           :show-banner="showCover"
           :show-date-week="showDateWeek"
+          :cover-size="coverSize"
           :game="source"
           :channal="channal"
         />
