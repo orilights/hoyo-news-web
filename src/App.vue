@@ -186,6 +186,7 @@ function fetchData(force_refresh = false) {
 }
 
 function handleClickTag(tag: string) {
+  searchStr.value = ''
   if (filterTag.value === tag)
     filterTag.value = TAG_ALL
   else
@@ -266,7 +267,7 @@ function scrollTo(target: 'top' | 'bottom') {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-200">
+  <div class="min-h-screen bg-gray-100 text-sm md:text-base">
     <div class="fixed bottom-4 right-4 z-10">
       <button class="block rounded-t-lg border border-gray-300 bg-white p-2 text-black  transition-colors hover:border-blue-500" @click="scrollTo('top')">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
@@ -301,7 +302,7 @@ function scrollTo(target: 'top' | 'bottom') {
       </Transition>
 
       <div class="flex items-center justify-between">
-        <h1 class="py-6 text-2xl font-bold sm:text-4xl">
+        <h1 class="py-6 text-2xl font-bold md:text-4xl">
           米哈游官网新闻检索
         </h1>
         <div class="flex gap-4">
@@ -457,7 +458,7 @@ function scrollTo(target: 'top' | 'bottom') {
         ref="container"
         class="relative overflow-hidden"
         :style="{
-          height: `${sortedNewsData.length * (itemHeight + 8) - 8}px`,
+          height: `${sortedNewsData.length * (itemHeight + ITEM_GAP) - ITEM_GAP}px`,
         }"
       >
         <NewsItem
