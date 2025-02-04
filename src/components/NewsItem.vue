@@ -13,6 +13,8 @@ const props = defineProps<{
   channal: string
 }>()
 
+defineEmits(['onFilter'])
+
 let timer: NodeJS.Timeout | null = null
 const loadImage = ref(false)
 const imageLoaded = ref(false)
@@ -144,12 +146,17 @@ function onImageLoaded() {
         </h2>
         <div class="text-sm">
           ID {{ news.id }}
+          <span v-if="news.video" class="text-blue-500">
+            <span class="ml-2 transition-colors hover:text-blue-300" @click.stop.prevent="openVideo(news.video)">打开视频</span>
+            <span class="ml-2 transition-colors hover:text-blue-300" @click.stop.prevent="copyVideoLink(news.video)">复制链接</span>
+          </span>
         </div>
         <div class="text-ellipsis whitespace-nowrap text-sm">
           类型 {{ news.tag }}
-          <span v-if="news.video" class="text-blue-500">
-            <span class="ml-2" @click.stop.prevent="openVideo(news.video)">打开视频</span>
-            <span class="ml-2" @click.stop.prevent="copyVideoLink(news.video)">复制链接</span>
+          <span @click.stop.prevent="$emit('onFilter', news.tag)">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="inline-block size-4 text-blue-500 transition-colors hover:text-blue-300">
+              <path fill-rule="evenodd" d="M2.628 1.601C5.028 1.206 7.49 1 10 1s4.973.206 7.372.601a.75.75 0 0 1 .628.74v2.288a2.25 2.25 0 0 1-.659 1.59l-4.682 4.683a2.25 2.25 0 0 0-.659 1.59v3.037c0 .684-.31 1.33-.844 1.757l-1.937 1.55A.75.75 0 0 1 8 18.25v-5.757a2.25 2.25 0 0 0-.659-1.591L2.659 6.22A2.25 2.25 0 0 1 2 4.629V2.34a.75.75 0 0 1 .628-.74Z" clip-rule="evenodd" />
+            </svg>
           </span>
         </div>
         <div class="text-sm">

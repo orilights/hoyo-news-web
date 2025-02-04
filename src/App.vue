@@ -478,6 +478,7 @@ function scrollTo(target: 'top' | 'bottom') {
           :cover-size="coverSize"
           :game="source"
           :channal="channal"
+          @on-filter="handleClickTag"
         />
       </ul>
     </div>
