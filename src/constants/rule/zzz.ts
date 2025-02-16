@@ -104,6 +104,11 @@ export default {
     include: [],
     exclude: [],
   },
+  '日常影像': {
+    keyword: ['日常影像'],
+    include: [],
+    exclude: [],
+  },
   '主线说明': {
     keyword: [/主线.*开启/],
     include: [],

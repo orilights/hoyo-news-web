@@ -45,6 +45,9 @@ const sortBy = ref('desc')
 const filterStartDate = ref('')
 const filterEndDate = ref('')
 
+const showDialogJump = ref(false)
+const jumpDate = ref('')
+
 const searchEnabled = computed(() => searchStr.value.trim() !== '')
 
 const filteredNewsData = computed(() => {
@@ -115,11 +118,14 @@ const itemRenderList = computed(() => {
 
 onMounted(() => {
   document.addEventListener('click', (event) => {
-    if (!showSetting.value)
-      return
-
-    if ((event.target as HTMLElement).closest('.setting') === null)
-      showSetting.value = false
+    if (showSetting.value) {
+      if ((event.target as HTMLElement).closest('.setting') === null)
+        showSetting.value = false
+    }
+    if (showDialogJump.value) {
+      if ((event.target as HTMLElement).closest('.dialog-jump') === null)
+        showDialogJump.value = false
+    }
   })
   settings.register('showCover', showCover, SettingType.Bool)
   settings.register('showDateWeek', showDateWeek, SettingType.Bool)
@@ -264,24 +270,65 @@ function scrollTo(target: 'top' | 'bottom') {
   else
     document.body.scrollIntoView({ behavior: 'smooth', block: 'end' })
 }
+
+function scrollByDate(date: string) {
+  let target
+  if (sortBy.value === 'desc') {
+    target = sortedNewsData.value.find(news => new Date(news.startTime) <= new Date(`${date} 23:59:59`))
+  }
+  else {
+    target = sortedNewsData.value.find(news => new Date(news.startTime) >= new Date(`${date} 00:00:00`))
+  }
+  if (target) {
+    const containerTop = container.value?.offsetTop || 0
+    window.document.documentElement.scrollTo({ top: containerTop + target.top, behavior: 'smooth' })
+    showDialogJump.value = false
+  }
+  else {
+    toast.error('未找到跳转目标')
+  }
+}
 </script>
 
 <template>
   <div class="min-h-screen bg-gray-100 text-sm md:text-base">
-    <div class="fixed bottom-4 right-4 z-10">
-      <button class="block rounded-t-lg border border-gray-300 bg-white p-2 text-black  transition-colors hover:border-blue-500" @click="scrollTo('top')">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 10.5 12 3m0 0 7.5 7.5M12 3v18" />
-        </svg>
-      </button>
-      <button class="block rounded-b-lg border border-gray-300 bg-white p-2 text-black hover:border-blue-500" @click="scrollTo('bottom')">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3" />
-        </svg>
-      </button>
+    <div class="fixed bottom-4 right-4 z-10 flex items-end gap-2">
+      <Transition name="popup-dialog">
+        <div
+          v-show="showDialogJump"
+          class="dialog-jump z-10 rounded-lg bg-white p-4 shadow-md"
+        >
+          <div class="font-bold">
+            跳转到日期
+          </div>
+          <div class="my-2 flex items-center">
+            <input v-model="jumpDate" type="date" class="rounded-md border border-black/20 bg-transparent px-1 transition-colors hover:border-blue-500">
+          </div>
+          <button class="rounded-md border px-2 py-0.5 transition-colors hover:border-blue-500" @click="scrollByDate(jumpDate)">
+            确认
+          </button>
+        </div>
+      </Transition>
+      <div>
+        <button class="dialog-jump block rounded-t-lg border border-gray-300 bg-white p-2 text-black  transition-colors hover:border-blue-500" @click="showDialogJump = !showDialogJump">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m15 15 6-6m0 0-6-6m6 6H9a6 6 0 0 0 0 12h3" />
+          </svg>
+        </button>
+        <button class="block border border-gray-300 bg-white p-2 text-black  transition-colors hover:border-blue-500" @click="scrollTo('top')">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 10.5 12 3m0 0 7.5 7.5M12 3v18" />
+          </svg>
+        </button>
+        <button class="block rounded-b-lg border border-gray-300 bg-white p-2 text-black hover:border-blue-500" @click="scrollTo('bottom')">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3" />
+          </svg>
+        </button>
+      </div>
     </div>
     <div class="relative mx-2 py-2 md:mx-4 lg:mx-auto lg:w-[960px] xl:px-0">
-      <Transition name="popup">
+      <Transition name="popup-setting">
         <div
           v-show="showSetting"
           class="setting absolute right-0 top-[75px] z-10 rounded-lg bg-white p-4 shadow-md"
@@ -487,14 +534,22 @@ function scrollTo(target: 'top' | 'bottom') {
 </template>
 
 <style>
-.popup-enter-active,
-.popup-leave-active {
+.popup-setting-enter-active,
+.popup-setting-leave-active,
+.popup-dialog-enter-active,
+.popup-dialog-leave-active {
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.popup-enter-from,
-.popup-leave-to {
+.popup-setting-enter-from,
+.popup-setting-leave-to {
   opacity: 0;
   transform: translate(10px, -10px) scale(0.9);
+}
+
+.popup-dialog-enter-from,
+.popup-dialog-leave-to {
+  opacity: 0;
+  transform: translateX(10px) scale(0.9);
 }
 </style>
