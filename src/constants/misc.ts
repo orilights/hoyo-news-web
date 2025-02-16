@@ -17,6 +17,7 @@ export const ITEM_GAP = 8
 export const COVER_WIDTH = {
   default: 300,
   bbs: 323.4375,
+  none: 0,
 }
 
 export const TAG_ALL = '全部'

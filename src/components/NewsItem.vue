@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { COVER_WIDTH, DEFAULT_BANNER, LOAD_DELAY, NEWS_LIST } from '@/constants'
+import { DEFAULT_BANNER, LOAD_DELAY, NEWS_LIST } from '@/constants'
 import { state } from '@/state'
 import { CoverSize } from '@/types/enum'
 import { useToast } from 'vue-toastification'
@@ -19,13 +19,13 @@ let timer: NodeJS.Timeout | null = null
 const loadImage = ref(false)
 const imageLoaded = ref(false)
 const imageKey = `${props.game}_${props.channal}_${props.news.id}`
-const channalConfig = NEWS_LIST[props.game].channals[props.channal]
+const channalConfig = computed(() => NEWS_LIST[props.game].channals[props.channal])
 const coverWidth = computed(() => {
   if (props.coverSize === CoverSize.Large) {
-    return channalConfig.coverWidth || COVER_WIDTH.default
+    return channalConfig.value.coverWidth
   }
   if (props.coverSize === CoverSize.Medium) {
-    return (channalConfig.coverWidth || COVER_WIDTH.default) / 2
+    return (channalConfig.value.coverWidth) / 2
   }
   return 75
 })
@@ -86,7 +86,7 @@ function onImageLoaded() {
       target="_blank"
     >
       <div
-        v-if="showBanner"
+        v-if="showBanner && channalConfig.coverWidth"
         class="sm relative mr-2 flex items-center justify-center md:mr-4"
         :style="{
           width: `${coverWidth}px`,

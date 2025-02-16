@@ -26,7 +26,7 @@ declare global {
     displayName: string
     apiBase: string
     newsDetailLink: string
-    coverWidth?: number
+    coverWidth: number
   }
 
   interface ClassifyRule {
