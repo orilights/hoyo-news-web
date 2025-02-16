@@ -216,4 +216,21 @@ export const NEWS_LIST: Record<string, GameInfo> = {
       },
     },
   },
+  dby: {
+    displayName: '大别野',
+    channals: {
+      bbs_cn_1: {
+        displayName: '米游社 公告',
+        apiBase: API_ENDPOINT.prod_cn,
+        newsDetailLink: 'https://www.miyoushe.com/dby/article/{id}',
+        coverWidth: COVER_WIDTH.bbs,
+      },
+      bbs_cn_2: {
+        displayName: '米游社 活动',
+        apiBase: API_ENDPOINT.prod_cn,
+        newsDetailLink: 'https://www.miyoushe.com/dby/article/{id}',
+        coverWidth: COVER_WIDTH.bbs,
+      },
+    },
+  },
 }
