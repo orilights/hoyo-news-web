@@ -25,3 +25,5 @@ export const TAG_VIDEO = '视频'
 export const TAG_OTHER = '未分类'
 
 export const VISIT_PERSIST_KEY = `${APP_ABBR}-newsVisited`
+
+export const ARIA2_RPC_URL = 'http://localhost:6800/jsonrpc'

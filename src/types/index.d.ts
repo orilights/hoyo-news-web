@@ -38,4 +38,10 @@ declare global {
   interface GameClassifyRule {
     [classifyName: string]: ClassifyRule
   }
+
+  interface Aria2Config {
+    rpcUrl: string
+    rpcSecret: string
+    filename: string
+  }
 }

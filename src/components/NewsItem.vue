@@ -12,14 +12,18 @@ const props = defineProps<{
   coverSize: CoverSize
   game: string
   channal: string
+  aria2Config: Aria2Config
 }>()
 
 const emit = defineEmits(['onFilter', 'visit'])
 
 let timer: NodeJS.Timeout | null = null
+const newsKey = `${props.game}_${props.channal}_${props.news.id}`
+
 const loadImage = ref(false)
 const imageLoaded = ref(false)
-const newsKey = `${props.game}_${props.channal}_${props.news.id}`
+const showAction = ref(false)
+
 const channalConfig = computed(() => NEWS_LIST[props.game].channals[props.channal])
 const coverWidth = computed(() => {
   if (props.coverSize === CoverSize.Large) {
@@ -61,6 +65,44 @@ function copyVideoLink(text: string) {
   document.execCommand('copy')
   document.body.removeChild(input)
   useToast().success('已复制视频链接')
+}
+
+function sendToPotPlayer(link: string) {
+  window.open(`potplayer://${link}`)
+}
+
+function sendToAria2(link: string) {
+  const rpcId = `HYN${new Date().getTime()}`
+  const videoExt = link.split('.').pop()
+  const videoOutName = props.aria2Config.filename
+    .replace('{newsTitle}', props.news.title)
+    .replace('{ext}', videoExt || 'mp4')
+  fetch(props.aria2Config.rpcUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: rpcId,
+      method: 'aria2.addUri',
+      params: [`token:${props.aria2Config.rpcSecret}`, [link], {
+        out: videoOutName,
+      }],
+    }),
+  })
+    .then(res => res.json())
+    .then((data) => {
+      if (data.error) {
+        useToast().error(`aria2 返回错误：${data.error.message}`)
+      }
+      else {
+        useToast().success('已发送至 aria2 RPC')
+      }
+    })
+    .catch(() => {
+      useToast().error('请求失败，请检测 aria2 配置')
+    })
 }
 
 function getWeek(date: string) {
@@ -160,9 +202,16 @@ function onClick() {
         <div class="text-xs md:text-sm">
           <div>
             ID {{ news.id }}
-            <span v-if="news.video" class="text-blue-500">
+            <span v-if="news.video" class="relative text-blue-500">
               <span class="ml-2 transition-colors hover:text-blue-300" @click.stop.prevent="openVideo(news.video)">打开视频</span>
-              <span class="ml-2 transition-colors hover:text-blue-300" @click.stop.prevent="copyVideoLink(news.video)">复制链接</span>
+              <span class="ml-2 transition-colors hover:text-blue-300" @click.stop.prevent="showAction = !showAction">更多操作</span>
+              <Transition name="popup-action">
+                <div v-show="showAction" class="absolute right-[-150px] top-0 rounded-md border bg-white text-black" @click.stop.prevent>
+                  <div class="px-2 py-0.5 transition-colors hover:bg-black/10" @click="showAction = false;copyVideoLink(news.video)">复制链接</div>
+                  <div class="px-2 py-0.5 transition-colors hover:bg-black/10" @click="showAction = false;sendToPotPlayer(news.video)">在 PotPlayer 中打开</div>
+                  <div class="px-2 py-0.5 transition-colors hover:bg-black/10" @click="showAction = false;sendToAria2(news.video)">发送至 aria2 下载</div>
+                </div>
+              </Transition>
             </span>
           </div>
           <div class="text-ellipsis whitespace-nowrap">

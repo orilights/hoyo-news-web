@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import NewsItem from '@/components/NewsItem.vue'
 import Switch from '@/components/Switch.vue'
-import { APP_ABBR, ITEM_GAP, NEWS_CLASSIFY_RULE, NEWS_LIST, REPO_URL, SHADOW_ITEM, TAG_ALL, TAG_OTHER, TAG_VIDEO, VISIT_PERSIST_KEY } from '@/constants'
+import { APP_ABBR, ARIA2_RPC_URL, ITEM_GAP, NEWS_CLASSIFY_RULE, NEWS_LIST, REPO_URL, SHADOW_ITEM, TAG_ALL, TAG_OTHER, TAG_VIDEO, VISIT_PERSIST_KEY } from '@/constants'
 import { state } from '@/state'
 import { CoverSize } from '@/types/enum'
 import { Settings, SettingType } from '@orilight/vue-settings'
@@ -43,6 +43,11 @@ const showCover = ref(true)
 const showDateWeek = ref(false)
 const showVisited = ref(false)
 const sortByDate = ref(true)
+const aria2Config = ref({
+  rpcUrl: ARIA2_RPC_URL,
+  rpcSecret: '',
+  filename: '{newsTitle}.{ext}',
+})
 const sortBy = ref('desc')
 const filterStartDate = ref('')
 const filterEndDate = ref('')
@@ -133,6 +138,7 @@ onMounted(() => {
   settings.register('showDateWeek', showDateWeek, SettingType.Bool)
   settings.register('sortNews', sortByDate, SettingType.Bool)
   settings.register('showVisited', showVisited, SettingType.Bool)
+  settings.register('aria2Config', aria2Config, SettingType.Object, { deepMerge: true })
   try {
     if (localStorage.getItem(VISIT_PERSIST_KEY))
       state.newsVisited = new Set(JSON.parse(localStorage.getItem(VISIT_PERSIST_KEY) as string))
@@ -361,6 +367,12 @@ function handlePerisitVisitRecord() {
           <div class="my-1 flex items-center">
             <span class="flex-1">置灰已阅读新闻</span> <Switch v-model="showVisited" class="ml-2" />
           </div>
+          <div class="my-1">
+            <span class="flex-1">aria2 RPC地址</span><br><input v-model="aria2Config.rpcUrl" type="text" class="w-full rounded-md border border-black/20 bg-transparent px-1 transition-colors">
+          </div>
+          <div class="my-1">
+            <span class="flex-1">aria2 RPC密钥</span><br><input v-model="aria2Config.rpcSecret" type="text" class="w-full rounded-md border border-black/20 bg-transparent px-1 transition-colors">
+          </div>
           <button class="rounded-md border px-2 py-0.5 transition-colors hover:border-blue-500" @click="exportVideos">
             导出本页视频至 aria2 任务
           </button>
@@ -536,6 +548,7 @@ function handlePerisitVisitRecord() {
           :cover-size="coverSize"
           :game="source"
           :channal="channal"
+          :aria2-config="aria2Config"
           :style="{ pointerEvent: 'none', userSelect: 'none' }"
         />
         <NewsItem
@@ -547,6 +560,7 @@ function handlePerisitVisitRecord() {
           :cover-size="coverSize"
           :game="source"
           :channal="channal"
+          :aria2-config="aria2Config"
           @on-filter="handleClickTag"
           @visit="handlePerisitVisitRecord"
         />
@@ -559,7 +573,9 @@ function handlePerisitVisitRecord() {
 .popup-setting-enter-active,
 .popup-setting-leave-active,
 .popup-dialog-enter-active,
-.popup-dialog-leave-active {
+.popup-dialog-leave-active,
+.popup-action-enter-active,
+.popup-action-leave-active {
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
@@ -573,5 +589,11 @@ function handlePerisitVisitRecord() {
 .popup-dialog-leave-to {
   opacity: 0;
   transform: translateX(10px) scale(0.9);
+}
+
+.popup-action-enter-from,
+.popup-action-leave-to {
+  opacity: 0;
+  transform: translate(-15px, -5px) scale(0.9);
 }
 </style>
