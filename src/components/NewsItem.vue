@@ -139,7 +139,7 @@ function onClick() {
     >
       <div
         v-if="showBanner && channalConfig.coverWidth"
-        class="sm relative mr-2 flex items-center justify-center md:mr-4"
+        class="sm relative mr-2 flex shrink-0 items-center justify-center md:mr-4"
         :style="{
           width: `${coverWidth}px`,
           height: `${coverHeight}px`,
@@ -189,16 +189,18 @@ function onClick() {
           >
         </Transition>
       </div>
-      <div class="flex-1 overflow-hidden">
-        <h2
-          :title="news.title"
-          class="w-full truncate font-bold transition-colors md:text-lg"
-          :class="{
-            'text-gray-400': showVisited && isNewsVisited,
-          }"
-        >
-          {{ news.title }}
-        </h2>
+      <div class="flex-1">
+        <div class="overflow-hidden">
+          <h2
+            :title="news.title"
+            class="w-full truncate font-bold transition-colors md:text-lg"
+            :class="{
+              'text-gray-400': showVisited && isNewsVisited,
+            }"
+          >
+            {{ news.title }}
+          </h2>
+        </div>
         <div class="text-xs md:text-sm">
           <div>
             ID {{ news.id }}
@@ -206,7 +208,7 @@ function onClick() {
               <span class="ml-2 transition-colors hover:text-blue-300" @click.stop.prevent="openVideo(news.video)">打开视频</span>
               <span class="ml-2 transition-colors hover:text-blue-300" @click.stop.prevent="showAction = !showAction">更多操作</span>
               <Transition name="popup-action">
-                <div v-show="showAction" class="absolute right-[-150px] top-0 rounded-md border bg-white text-black" @click.stop.prevent>
+                <div v-show="showAction" class="absolute right-[-150px] top-0 w-[146px] rounded-md border bg-white text-black" @click.stop.prevent>
                   <div class="px-2 py-0.5 transition-colors hover:bg-black/10" @click="showAction = false;copyVideoLink(news.video)">复制链接</div>
                   <div class="px-2 py-0.5 transition-colors hover:bg-black/10" @click="showAction = false;sendToPotPlayer(news.video)">在 PotPlayer 中打开</div>
                   <div class="px-2 py-0.5 transition-colors hover:bg-black/10" @click="showAction = false;sendToAria2(news.video)">发送至 aria2 下载</div>
