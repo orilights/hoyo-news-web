@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import NewsItem from '@/components/NewsItem.vue'
 import Switch from '@/components/Switch.vue'
-import { APP_ABBR, ITEM_GAP, NEWS_CLASSIFY_RULE, NEWS_LIST, REPO_URL, SHADOW_ITEM, TAG_ALL, TAG_OTHER, TAG_VIDEO } from '@/constants'
+import { APP_ABBR, ITEM_GAP, NEWS_CLASSIFY_RULE, NEWS_LIST, REPO_URL, SHADOW_ITEM, TAG_ALL, TAG_OTHER, TAG_VIDEO, VISIT_PERSIST_KEY } from '@/constants'
+import { state } from '@/state'
+import { CoverSize } from '@/types/enum'
 import { Settings, SettingType } from '@orilight/vue-settings'
 import { useElementBounding, useElementSize, useMediaQuery, useThrottle, useUrlSearchParams } from '@vueuse/core'
 import { useToast } from 'vue-toastification'
-import { CoverSize } from './types/enum'
 
 const settings = new Settings(APP_ABBR)
 
@@ -40,6 +41,7 @@ const coverSize = computed(() => {
 const showSetting = ref(false)
 const showCover = ref(true)
 const showDateWeek = ref(false)
+const showVisited = ref(false)
 const sortByDate = ref(true)
 const sortBy = ref('desc')
 const filterStartDate = ref('')
@@ -130,6 +132,14 @@ onMounted(() => {
   settings.register('showCover', showCover, SettingType.Bool)
   settings.register('showDateWeek', showDateWeek, SettingType.Bool)
   settings.register('sortNews', sortByDate, SettingType.Bool)
+  settings.register('showVisited', showVisited, SettingType.Bool)
+  try {
+    if (localStorage.getItem(VISIT_PERSIST_KEY))
+      state.newsVisited = new Set(JSON.parse(localStorage.getItem(VISIT_PERSIST_KEY) as string))
+  }
+  catch (err) {
+    console.error(err)
+  }
   if (params.filterTag)
     filterTag.value = params.filterTag as string
   if (params.source)
@@ -288,6 +298,12 @@ function scrollByDate(date: string) {
     toast.error('未找到跳转目标')
   }
 }
+
+function handlePerisitVisitRecord() {
+  if (!showVisited.value)
+    return
+  localStorage.setItem(VISIT_PERSIST_KEY, JSON.stringify(Array.from(state.newsVisited)))
+}
 </script>
 
 <template>
@@ -341,6 +357,9 @@ function scrollByDate(date: string) {
           </div>
           <div class="my-1 flex items-center">
             <span class="flex-1">发布时间显示星期</span> <Switch v-model="showDateWeek" class="ml-2" />
+          </div>
+          <div class="my-1 flex items-center">
+            <span class="flex-1">置灰已阅读新闻</span> <Switch v-model="showVisited" class="ml-2" />
           </div>
           <button class="rounded-md border px-2 py-0.5 transition-colors hover:border-blue-500" @click="exportVideos">
             导出本页视频至 aria2 任务
@@ -513,6 +532,7 @@ function scrollByDate(date: string) {
           :news="SHADOW_ITEM"
           :show-banner="showCover"
           :show-date-week="showDateWeek"
+          :show-visited="showVisited"
           :cover-size="coverSize"
           :game="source"
           :channal="channal"
@@ -523,10 +543,12 @@ function scrollByDate(date: string) {
           :news="news"
           :show-banner="showCover"
           :show-date-week="showDateWeek"
+          :show-visited="showVisited"
           :cover-size="coverSize"
           :game="source"
           :channal="channal"
           @on-filter="handleClickTag"
+          @visit="handlePerisitVisitRecord"
         />
       </ul>
     </div>

@@ -23,3 +23,5 @@ export const COVER_WIDTH = {
 export const TAG_ALL = '全部'
 export const TAG_VIDEO = '视频'
 export const TAG_OTHER = '未分类'
+
+export const VISIT_PERSIST_KEY = `${APP_ABBR}-newsVisited`

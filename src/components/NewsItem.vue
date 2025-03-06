@@ -8,17 +8,18 @@ const props = defineProps<{
   news: NewsItemData
   showBanner: boolean
   showDateWeek: boolean
+  showVisited: boolean
   coverSize: CoverSize
   game: string
   channal: string
 }>()
 
-defineEmits(['onFilter'])
+const emit = defineEmits(['onFilter', 'visit'])
 
 let timer: NodeJS.Timeout | null = null
 const loadImage = ref(false)
 const imageLoaded = ref(false)
-const imageKey = `${props.game}_${props.channal}_${props.news.id}`
+const newsKey = `${props.game}_${props.channal}_${props.news.id}`
 const channalConfig = computed(() => NEWS_LIST[props.game].channals[props.channal])
 const coverWidth = computed(() => {
   if (props.coverSize === CoverSize.Large) {
@@ -30,9 +31,10 @@ const coverWidth = computed(() => {
   return 75
 })
 const coverHeight = computed(() => props.coverSize === CoverSize.Large ? 150 : 75)
+const isNewsVisited = computed(() => state.newsVisited.has(newsKey))
 
 onMounted(() => {
-  if (state.imageLoaded.has(imageKey)) {
+  if (state.imageLoaded.has(newsKey)) {
     loadImage.value = true
     return
   }
@@ -68,7 +70,14 @@ function getWeek(date: string) {
 
 function onImageLoaded() {
   imageLoaded.value = true
-  state.imageLoaded.add(imageKey)
+  state.imageLoaded.add(newsKey)
+}
+
+function onClick() {
+  if (!props.showVisited)
+    return
+  state.newsVisited.add(newsKey)
+  emit('visit')
 }
 </script>
 
@@ -84,6 +93,7 @@ function onImageLoaded() {
       :title="news.title"
       class="group flex rounded-md border-2 border-transparent bg-white p-2 transition-colors hover:border-blue-500 sm:p-3 "
       target="_blank"
+      @click="onClick"
     >
       <div
         v-if="showBanner && channalConfig.coverWidth"
@@ -141,6 +151,9 @@ function onImageLoaded() {
         <h2
           :title="news.title"
           class="w-full truncate font-bold transition-colors md:text-lg"
+          :class="{
+            'text-gray-400': showVisited && isNewsVisited,
+          }"
         >
           {{ news.title }}
         </h2>
