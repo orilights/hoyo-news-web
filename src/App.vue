@@ -55,6 +55,9 @@ const sortBy = ref('desc')
 const filterStartDate = ref('')
 const filterEndDate = ref('')
 
+const headerRef = ref<HTMLElement | null>(null)
+const headerSticky = ref(false)
+
 const newsItemConfig = computed(() => ({
   showBanner: showCover.value,
   showDateWeek: showDateWeek.value,
@@ -144,6 +147,9 @@ onMounted(() => {
       if ((event.target as HTMLElement).closest('.dialog-jump') === null)
         showDialogJump.value = false
     }
+  })
+  document.addEventListener('scroll', () => {
+    headerSticky.value = (headerRef.value?.getBoundingClientRect().top || 0) === 0 && window.scrollY > 0
   })
   settings.register('showCover', showCover, SettingType.Bool)
   settings.register('showDateWeek', showDateWeek, SettingType.Bool)
@@ -325,11 +331,11 @@ function handlePerisitVisitRecord() {
 
 <template>
   <div class="min-h-screen bg-gray-100 text-sm transition-[font-size] md:text-base">
-    <div class="fixed bottom-4 right-4 z-10 flex items-end gap-2">
+    <div class="fixed bottom-4 right-4 z-20 flex items-end gap-2">
       <Transition name="popup-dialog">
         <div
           v-show="showDialogJump"
-          class="dialog-jump z-10 rounded-lg bg-white p-4 shadow-md"
+          class="dialog-jump rounded-lg bg-white p-4 shadow-md"
         >
           <div class="font-bold">
             跳转到日期
@@ -361,49 +367,108 @@ function handlePerisitVisitRecord() {
       </div>
     </div>
     <div class="relative mx-2 py-2 md:mx-4 lg:mx-auto lg:w-[960px] xl:px-0">
-      <Transition name="popup-setting">
-        <div
-          v-show="showSetting"
-          class="setting absolute right-0 top-[75px] z-10 rounded-lg bg-white p-4 shadow-md"
-        >
-          <div class="my-1 flex items-center">
-            <span class="flex-1">显示封面</span> <Switch v-model="showCover" class="ml-2" />
-          </div>
-          <div class="my-1 flex items-center">
-            <span class="flex-1">根据发布时间排序</span> <Switch v-model="sortByDate" class="ml-2" />
-          </div>
-          <div class="my-1 flex items-center">
-            <span class="flex-1">发布时间显示星期</span> <Switch v-model="showDateWeek" class="ml-2" />
-          </div>
-          <div class="my-1 flex items-center">
-            <span class="flex-1">置灰已阅读新闻</span> <Switch v-model="showVisited" class="ml-2" />
-          </div>
-          <div class="my-1">
-            <span class="flex-1">aria2 RPC地址</span><br><input v-model="aria2Config.rpcUrl" type="text" class="w-full rounded-md border border-black/20 bg-transparent px-1 transition-colors">
-          </div>
-          <div class="my-1">
-            <span class="flex-1">aria2 RPC密钥</span><br><input v-model="aria2Config.rpcSecret" type="text" class="w-full rounded-md border border-black/20 bg-transparent px-1 transition-colors">
-          </div>
-          <button class="rounded-md border px-2 py-0.5 transition-colors hover:border-blue-500" @click="exportVideos">
-            导出本页视频至 aria2 任务
-          </button>
-        </div>
-      </Transition>
-
       <div class="flex items-center justify-between">
         <h1 class="py-6 text-2xl font-bold transition-[font-size] md:text-4xl">
           米哈游官网新闻检索
         </h1>
-        <div class="flex gap-4">
-          <a :href="REPO_URL" target="_blank">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 1024 1024" stroke="currentColor" class="size-6">
-              <path d="M511.6 76.3C264.3 76.2 64 276.4 64 523.5 64 718.9 189.3 885 363.8 946c23.5 5.9 19.9-10.8 19.9-22.2v-77.5c-135.7 15.9-141.2-73.9-150.3-88.9C215 726 171.5 718 184.5 703c30.9-15.9 62.4 4 98.9 57.9 26.4 39.1 77.9 32.5 104 26 5.7-23.5 17.9-44.5 34.7-60.8-140.6-25.2-199.2-111-199.2-213 0-49.5 16.3-95 48.3-131.7-20.4-60.5 1.9-112.3 4.9-120 58.1-5.2 118.5 41.6 123.2 45.3 33-8.9 70.7-13.6 112.9-13.6 42.4 0 80.2 4.9 113.5 13.9 11.3-8.6 67.3-48.8 121.3-43.9 2.9 7.7 24.7 58.3 5.5 118 32.4 36.8 48.9 82.7 48.9 132.3 0 102.2-59 188.1-200 212.9 23.5 23.2 38.1 55.4 38.1 91v112.5c0.8 9 0 17.9 15 17.9 177.1-59.7 304.6-227 304.6-424.1 0-247.2-200.4-447.3-447.5-447.3z" />
-            </svg>
-          </a>
-          <button class="setting" @click="showSetting = !showSetting">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
-              <path fill-rule="evenodd" d="M11.828 2.25c-.916 0-1.699.663-1.85 1.567l-.091.549a.798.798 0 01-.517.608 7.45 7.45 0 00-.478.198.798.798 0 01-.796-.064l-.453-.324a1.875 1.875 0 00-2.416.2l-.243.243a1.875 1.875 0 00-.2 2.416l.324.453a.798.798 0 01.064.796 7.448 7.448 0 00-.198.478.798.798 0 01-.608.517l-.55.092a1.875 1.875 0 00-1.566 1.849v.344c0 .916.663 1.699 1.567 1.85l.549.091c.281.047.508.25.608.517.06.162.127.321.198.478a.798.798 0 01-.064.796l-.324.453a1.875 1.875 0 00.2 2.416l.243.243c.648.648 1.67.733 2.416.2l.453-.324a.798.798 0 01.796-.064c.157.071.316.137.478.198.267.1.47.327.517.608l.092.55c.15.903.932 1.566 1.849 1.566h.344c.916 0 1.699-.663 1.85-1.567l.091-.549a.798.798 0 01.517-.608 7.52 7.52 0 00.478-.198.798.798 0 01.796.064l.453.324a1.875 1.875 0 002.416-.2l.243-.243c.648-.648.733-1.67.2-2.416l-.324-.453a.798.798 0 01-.064-.796c.071-.157.137-.316.198-.478.1-.267.327-.47.608-.517l.55-.091a1.875 1.875 0 001.566-1.85v-.344c0-.916-.663-1.699-1.567-1.85l-.549-.091a.798.798 0 01-.608-.517 7.507 7.507 0 00-.198-.478.798.798 0 01.064-.796l.324-.453a1.875 1.875 0 00-.2-2.416l-.243-.243a1.875 1.875 0 00-2.416-.2l-.453.324a.798.798 0 01-.796.064 7.462 7.462 0 00-.478-.198.798.798 0 01-.517-.608l-.091-.55a1.875 1.875 0 00-1.85-1.566h-.344zM12 15.75a3.75 3.75 0 100-7.5 3.75 3.75 0 000 7.5z" clip-rule="evenodd" />
-            </svg>
+      </div>
+
+      <div class="sticky top-0 z-20">
+        <div
+          class="absolute right-0 top-[-54px] w-full"
+          :class="{
+            '!top-4': headerSticky,
+          }"
+        >
+          <div class="absolute right-0 flex gap-4">
+            <a v-show="!headerSticky" :href="REPO_URL" target="_blank">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 1024 1024" stroke="currentColor" class="size-6">
+                <path d="M511.6 76.3C264.3 76.2 64 276.4 64 523.5 64 718.9 189.3 885 363.8 946c23.5 5.9 19.9-10.8 19.9-22.2v-77.5c-135.7 15.9-141.2-73.9-150.3-88.9C215 726 171.5 718 184.5 703c30.9-15.9 62.4 4 98.9 57.9 26.4 39.1 77.9 32.5 104 26 5.7-23.5 17.9-44.5 34.7-60.8-140.6-25.2-199.2-111-199.2-213 0-49.5 16.3-95 48.3-131.7-20.4-60.5 1.9-112.3 4.9-120 58.1-5.2 118.5 41.6 123.2 45.3 33-8.9 70.7-13.6 112.9-13.6 42.4 0 80.2 4.9 113.5 13.9 11.3-8.6 67.3-48.8 121.3-43.9 2.9 7.7 24.7 58.3 5.5 118 32.4 36.8 48.9 82.7 48.9 132.3 0 102.2-59 188.1-200 212.9 23.5 23.2 38.1 55.4 38.1 91v112.5c0.8 9 0 17.9 15 17.9 177.1-59.7 304.6-227 304.6-424.1 0-247.2-200.4-447.3-447.5-447.3z" />
+              </svg>
+            </a>
+            <button
+              class="setting"
+              @click="showSetting = !showSetting"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+                <path fill-rule="evenodd" d="M11.828 2.25c-.916 0-1.699.663-1.85 1.567l-.091.549a.798.798 0 01-.517.608 7.45 7.45 0 00-.478.198.798.798 0 01-.796-.064l-.453-.324a1.875 1.875 0 00-2.416.2l-.243.243a1.875 1.875 0 00-.2 2.416l.324.453a.798.798 0 01.064.796 7.448 7.448 0 00-.198.478.798.798 0 01-.608.517l-.55.092a1.875 1.875 0 00-1.566 1.849v.344c0 .916.663 1.699 1.567 1.85l.549.091c.281.047.508.25.608.517.06.162.127.321.198.478a.798.798 0 01-.064.796l-.324.453a1.875 1.875 0 00.2 2.416l.243.243c.648.648 1.67.733 2.416.2l.453-.324a.798.798 0 01.796-.064c.157.071.316.137.478.198.267.1.47.327.517.608l.092.55c.15.903.932 1.566 1.849 1.566h.344c.916 0 1.699-.663 1.85-1.567l.091-.549a.798.798 0 01.517-.608 7.52 7.52 0 00.478-.198.798.798 0 01.796.064l.453.324a1.875 1.875 0 002.416-.2l.243-.243c.648-.648.733-1.67.2-2.416l-.324-.453a.798.798 0 01-.064-.796c.071-.157.137-.316.198-.478.1-.267.327-.47.608-.517l.55-.091a1.875 1.875 0 001.566-1.85v-.344c0-.916-.663-1.699-1.567-1.85l-.549-.091a.798.798 0 01-.608-.517 7.507 7.507 0 00-.198-.478.798.798 0 01.064-.796l.324-.453a1.875 1.875 0 00-.2-2.416l-.243-.243a1.875 1.875 0 00-2.416-.2l-.453.324a.798.798 0 01-.796.064 7.462 7.462 0 00-.478-.198.798.798 0 01-.517-.608l-.091-.55a1.875 1.875 0 00-1.85-1.566h-.344zM12 15.75a3.75 3.75 0 100-7.5 3.75 3.75 0 000 7.5z" clip-rule="evenodd" />
+              </svg>
+            </button>
+          </div>
+          <Transition name="popup-setting">
+            <div
+              v-show="showSetting"
+              class="setting absolute right-0 top-8 rounded-lg bg-white p-4 shadow-md"
+            >
+              <div class="my-1 flex items-center">
+                <span class="flex-1">显示封面</span> <Switch v-model="showCover" class="ml-2" />
+              </div>
+              <div class="my-1 flex items-center">
+                <span class="flex-1">根据发布时间排序</span> <Switch v-model="sortByDate" class="ml-2" />
+              </div>
+              <div class="my-1 flex items-center">
+                <span class="flex-1">发布时间显示星期</span> <Switch v-model="showDateWeek" class="ml-2" />
+              </div>
+              <div class="my-1 flex items-center">
+                <span class="flex-1">置灰已阅读新闻</span> <Switch v-model="showVisited" class="ml-2" />
+              </div>
+              <div class="my-1">
+                <span class="flex-1">aria2 RPC地址</span><br><input v-model="aria2Config.rpcUrl" type="text" class="w-full rounded-md border border-black/20 bg-transparent px-1 transition-colors">
+              </div>
+              <div class="my-1">
+                <span class="flex-1">aria2 RPC密钥</span><br><input v-model="aria2Config.rpcSecret" type="text" class="w-full rounded-md border border-black/20 bg-transparent px-1 transition-colors">
+              </div>
+              <button class="rounded-md border px-2 py-0.5 transition-colors hover:border-blue-500" @click="exportVideos">
+                导出本页视频至 aria2 任务
+              </button>
+            </div>
+          </Transition>
+        </div>
+      </div>
+
+      <div
+        ref="headerRef"
+        class="header sticky top-0 z-10 pt-2 backdrop-blur transition-all"
+        :class="{
+          'bg-[#f3f4f6]/80 px-2 pr-4': headerSticky,
+        }"
+      >
+        <div
+          class="mb-2 flex flex-wrap gap-1"
+          :class="{
+            'pr-4': headerSticky,
+          }"
+        >
+          <button
+            v-for="[source_key, source_info] in Object.entries(NEWS_LIST)" :key="source_key"
+            class="flex shrink-0 items-center overflow-hidden rounded-full border p-1 transition-colors"
+            :class="{
+              'hover:border-blue-500': !newsLoading,
+              'border-blue-500 text-blue-500': source === source_key,
+            }"
+            :disabled="newsLoading || source === source_key"
+            @click="changeSource(source_key)"
+          >
+            <img :src="`./images/icon/${source_key}-48px.png`" class="size-6 rounded-full md:size-8" :alt="source_info.displayName">
+            <AnimationText :show="source === source_key">
+              <span class="mx-1 sm:mx-2">
+                {{ source_info.displayName }}
+              </span>
+            </AnimationText>
+          </button>
+        </div>
+        <div class="mb-2">
+          <button
+            v-for="[channal_key, channal_info] in Object.entries(NEWS_LIST[source].channals)" :key="channal_key"
+            class="border-b-2 bg-transparent px-2 py-1 transition-colors"
+            :class="{
+              'hover:border-blue-500': !newsLoading,
+              'border-blue-500 text-blue-500': channal === channal_key,
+            }"
+            :disabled="newsLoading || channal === channal_key"
+            @click="changeChannal(channal_key)"
+          >
+            {{ channal_info.displayName }}
           </button>
         </div>
       </div>
