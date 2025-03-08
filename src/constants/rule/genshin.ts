@@ -249,4 +249,4 @@ export default {
     include: [],
     exclude: [116497, 116506],
   },
-} as GameClassifyRule
+} as SourceClassifyRule

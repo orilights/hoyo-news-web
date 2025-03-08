@@ -4,6 +4,7 @@ import Switch from '@/components/Switch.vue'
 import { APP_ABBR, ARIA2_RPC_URL, ITEM_GAP, NEWS_CLASSIFY_RULE, NEWS_LIST, REPO_URL, SHADOW_ITEM, TAG_ALL, TAG_OTHER, TAG_VIDEO, VISIT_PERSIST_KEY } from '@/constants'
 import { state } from '@/state'
 import { CoverSize } from '@/types/enum'
+import { exportFile, formatTime } from '@/utils'
 import { Settings, SettingType } from '@orilight/vue-settings'
 import { useElementBounding, useElementSize, useMediaQuery, useThrottle, useUrlSearchParams } from '@vueuse/core'
 import { useToast } from 'vue-toastification'
@@ -14,6 +15,8 @@ const toast = useToast()
 
 const newsData = ref<NewsData[]>([])
 const newsUpdateTime = ref(0)
+const newsLoading = ref(false)
+
 const tags = ref<{ [index: string]: number }>({})
 const container = ref<HTMLElement>()
 const shadowItem = ref<HTMLElement>()
@@ -24,7 +27,6 @@ const filterTag = ref(TAG_ALL)
 const source = ref(Object.keys(NEWS_LIST)[0])
 const channal = ref(Object.keys(NEWS_LIST[source.value].channals)[0])
 const searchStr = ref('')
-const loading = ref(false)
 
 const windowWidth = {
   sm: useMediaQuery('(min-width: 640px)'),
@@ -51,6 +53,14 @@ const aria2Config = ref({
 const sortBy = ref('desc')
 const filterStartDate = ref('')
 const filterEndDate = ref('')
+
+const newsItemConfig = computed(() => ({
+  showBanner: showCover.value,
+  showDateWeek: showDateWeek.value,
+  showVisited: showVisited.value,
+  coverSize: coverSize.value,
+  aria2Config: aria2Config.value,
+}))
 
 const showDialogJump = ref(false)
 const jumpDate = ref('')
@@ -162,8 +172,12 @@ onMounted(() => {
   })
 })
 
+onUnmounted(() => {
+  settings.unregisterAll()
+})
+
 function fetchData(force_refresh = false) {
-  loading.value = true
+  newsLoading.value = true
   newsData.value = []
   tags.value = {}
   const fetchSource = source.value
@@ -203,7 +217,7 @@ function fetchData(force_refresh = false) {
       console.error(err)
     })
     .finally(() => {
-      loading.value = false
+      newsLoading.value = false
     })
 }
 
@@ -252,31 +266,16 @@ function getNewsType(title: string, id: number): string {
   return TAG_OTHER
 }
 
-function formatTime(timestamp: number) {
-  if (timestamp.toString().length === 10)
-    timestamp *= 1000
-  const date = new Date(timestamp)
-  const year = date.getFullYear()
-  const month = date.getMonth() + 1
-  const day = date.getDate()
-  const hour = String(date.getHours()).padStart(2, '0')
-  const minute = String(date.getMinutes()).padStart(2, '0')
-  const second = String(date.getSeconds()).padStart(2, '0')
-  return `${year}-${month}-${day} ${hour}:${minute}:${second}`
-}
-
 function exportVideos() {
   let result = ''
   sortedNewsData.value.filter(news => news.video).forEach((news: any) => {
     const fileExt = news.video.split('.').pop()
     result += `${news.video}\n  out=${news.title}.${fileExt}\n`
   })
-  const blob = new Blob([result], { type: 'text/plain' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = 'videos.txt'
-  a.click()
+  exportFile({
+    filename: 'videos.txt',
+    content: result,
+  })
   toast.success('导出下载任务成功')
 }
 
@@ -401,28 +400,28 @@ function handlePerisitVisitRecord() {
         <select
           v-model="source"
           class="rounded-md border border-black/20 bg-transparent px-1 transition-colors hover:border-blue-500"
-          :disabled="loading"
+          :disabled="newsLoading"
           @change="handleSourceChange"
         >
-          <option v-for="[game_id, game] in Object.entries(NEWS_LIST)" :key="game_id" :value="game_id">
-            {{ game.displayName }}
+          <option v-for="[source_key, source_info] in Object.entries(NEWS_LIST)" :key="source_key" :value="source_key">
+            {{ source_info.displayName }}
           </option>
         </select>
 
         <select
           v-model="channal"
           class="my-1 ml-2 rounded-md border border-black/20 bg-transparent px-1 transition-colors hover:border-blue-500"
-          :disabled="loading"
+          :disabled="newsLoading"
           @change="handleSourceChange"
         >
-          <option v-for="[channal_id, channal_info] in Object.entries(NEWS_LIST[source].channals)" :key="channal_id" :value="channal_id">
+          <option v-for="[channal_key, channal_info] in Object.entries(NEWS_LIST[source].channals)" :key="channal_key" :value="channal_key">
             {{ channal_info.displayName }}
           </option>
         </select>
       </div>
       <div class="mb-2 flex flex-wrap items-center">
         数据更新于：
-        <template v-if="loading">
+        <template v-if="newsLoading">
           加载中
         </template>
         <template v-else>
@@ -504,7 +503,7 @@ function handlePerisitVisitRecord() {
           取消搜索
         </button>
       </div>
-      <div v-if="loading" class="flex flex-col items-center gap-2 py-4">
+      <div v-if="newsLoading" class="flex flex-col items-center gap-2 py-4">
         <svg viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg" class="size-[60px]">
           <defs>
             <linearGradient id="a" x1="8.042%" y1="0%" x2="65.682%" y2="23.865%">
@@ -542,26 +541,18 @@ function handlePerisitVisitRecord() {
         <NewsItem
           ref="shadowItem"
           :news="SHADOW_ITEM"
-          :show-banner="showCover"
-          :show-date-week="showDateWeek"
-          :show-visited="showVisited"
-          :cover-size="coverSize"
-          :game="source"
+          :source="source"
           :channal="channal"
-          :aria2-config="aria2Config"
+          :config="newsItemConfig"
           :style="{ pointerEvent: 'none', userSelect: 'none' }"
         />
         <NewsItem
           v-for="news in itemRenderList" :key="news.id"
           :news="news"
-          :show-banner="showCover"
-          :show-date-week="showDateWeek"
-          :show-visited="showVisited"
-          :cover-size="coverSize"
-          :game="source"
+          :source="source"
           :channal="channal"
-          :aria2-config="aria2Config"
-          @on-filter="handleClickTag"
+          :config="newsItemConfig"
+          @change-filter="handleClickTag"
           @visit="handlePerisitVisitRecord"
         />
       </ul>

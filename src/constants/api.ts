@@ -6,7 +6,7 @@ export const API_ENDPOINT = {
   prod_os: 'https://api.hk4e.com/game_news',
 }
 
-export const NEWS_LIST: Record<string, GameInfo> = {
+export const NEWS_LIST: Record<string, SourceInfo> = {
   genshin: {
     displayName: '原神',
     channals: {

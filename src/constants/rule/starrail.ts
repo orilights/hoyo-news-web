@@ -89,4 +89,4 @@ export default {
     include: [],
     exclude: [],
   },
-} as GameClassifyRule
+} as SourceClassifyRule

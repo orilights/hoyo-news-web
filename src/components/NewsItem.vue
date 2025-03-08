@@ -2,39 +2,44 @@
 import { DEFAULT_BANNER, LOAD_DELAY, NEWS_LIST } from '@/constants'
 import { state } from '@/state'
 import { CoverSize } from '@/types/enum'
+import { getWeek } from '@/utils'
 import { useToast } from 'vue-toastification'
 
-const props = defineProps<{
-  news: NewsItemData
+interface NewsItemConfig {
   showBanner: boolean
   showDateWeek: boolean
   showVisited: boolean
   coverSize: CoverSize
-  game: string
-  channal: string
   aria2Config: Aria2Config
+}
+
+const props = defineProps<{
+  news: NewsItemData
+  source: string
+  channal: string
+  config: NewsItemConfig
 }>()
 
-const emit = defineEmits(['onFilter', 'visit'])
+const emit = defineEmits(['changeFilter', 'visit'])
 
 let timer: NodeJS.Timeout | null = null
-const newsKey = `${props.game}_${props.channal}_${props.news.id}`
+const newsKey = `${props.source}_${props.channal}_${props.news.id}`
 
 const loadImage = ref(false)
 const imageLoaded = ref(false)
 const showAction = ref(false)
 
-const channalConfig = computed(() => NEWS_LIST[props.game].channals[props.channal])
+const channalConfig = computed(() => NEWS_LIST[props.source].channals[props.channal])
 const coverWidth = computed(() => {
-  if (props.coverSize === CoverSize.Large) {
+  if (props.config.coverSize === CoverSize.Large) {
     return channalConfig.value.coverWidth
   }
-  if (props.coverSize === CoverSize.Medium) {
+  if (props.config.coverSize === CoverSize.Medium) {
     return (channalConfig.value.coverWidth) / 2
   }
   return 75
 })
-const coverHeight = computed(() => props.coverSize === CoverSize.Large ? 150 : 75)
+const coverHeight = computed(() => props.config.coverSize === CoverSize.Large ? 150 : 75)
 const isNewsVisited = computed(() => state.newsVisited.has(newsKey))
 
 onMounted(() => {
@@ -74,10 +79,10 @@ function sendToPotPlayer(link: string) {
 function sendToAria2(link: string) {
   const rpcId = `HYN${new Date().getTime()}`
   const videoExt = link.split('.').pop()
-  const videoOutName = props.aria2Config.filename
+  const videoOutName = props.config.aria2Config.filename
     .replace('{newsTitle}', props.news.title)
     .replace('{ext}', videoExt || 'mp4')
-  fetch(props.aria2Config.rpcUrl, {
+  fetch(props.config.aria2Config.rpcUrl, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -86,7 +91,7 @@ function sendToAria2(link: string) {
       jsonrpc: '2.0',
       id: rpcId,
       method: 'aria2.addUri',
-      params: [`token:${props.aria2Config.rpcSecret}`, [link], {
+      params: [`token:${props.config.aria2Config.rpcSecret}`, [link], {
         out: videoOutName,
       }],
     }),
@@ -105,18 +110,13 @@ function sendToAria2(link: string) {
     })
 }
 
-function getWeek(date: string) {
-  const week = ['日', '一', '二', '三', '四', '五', '六']
-  return week[new Date(date).getDay()]
-}
-
 function onImageLoaded() {
   imageLoaded.value = true
   state.imageLoaded.add(newsKey)
 }
 
 function onClick() {
-  if (!props.showVisited)
+  if (!props.config.showVisited)
     return
   state.newsVisited.add(newsKey)
   emit('visit')
@@ -138,7 +138,7 @@ function onClick() {
       @click="onClick"
     >
       <div
-        v-if="showBanner && channalConfig.coverWidth"
+        v-if="config.showBanner && channalConfig.coverWidth"
         class="sm relative mr-2 flex shrink-0 items-center justify-center md:mr-4"
         :style="{
           width: `${coverWidth}px`,
@@ -195,7 +195,7 @@ function onClick() {
             :title="news.title"
             class="w-full truncate font-bold transition-colors md:text-lg"
             :class="{
-              'text-gray-400': showVisited && isNewsVisited,
+              'text-gray-400': config.showVisited && isNewsVisited,
             }"
           >
             {{ news.title }}
@@ -218,14 +218,14 @@ function onClick() {
           </div>
           <div class="text-ellipsis whitespace-nowrap">
             类型 {{ news.tag }}
-            <span @click.stop.prevent="$emit('onFilter', news.tag)">
+            <span @click.stop.prevent="$emit('changeFilter', news.tag)">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="inline-block size-3 text-blue-500 transition-colors hover:text-blue-300 md:size-4">
                 <path fill-rule="evenodd" d="M2.628 1.601C5.028 1.206 7.49 1 10 1s4.973.206 7.372.601a.75.75 0 0 1 .628.74v2.288a2.25 2.25 0 0 1-.659 1.59l-4.682 4.683a2.25 2.25 0 0 0-.659 1.59v3.037c0 .684-.31 1.33-.844 1.757l-1.937 1.55A.75.75 0 0 1 8 18.25v-5.757a2.25 2.25 0 0 0-.659-1.591L2.659 6.22A2.25 2.25 0 0 1 2 4.629V2.34a.75.75 0 0 1 .628-.74Z" clip-rule="evenodd" />
               </svg>
             </span>
           </div>
           <div>
-            发布 {{ news.startTime }} <span v-if="showDateWeek">星期{{ getWeek(news.startTime) }}</span>
+            发布 {{ news.startTime }} <span v-if="config.showDateWeek">星期{{ getWeek(news.startTime) }}</span>
           </div>
         </div>
       </div>

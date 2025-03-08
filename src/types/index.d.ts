@@ -15,7 +15,7 @@ declare global {
     top: number
   }
 
-  interface GameInfo {
+  interface SourceInfo {
     displayName: string
     channals: {
       [channalKey: string]: ChannelInfo
@@ -35,7 +35,7 @@ declare global {
     exclude: number[]
   }
 
-  interface GameClassifyRule {
+  interface SourceClassifyRule {
     [classifyName: string]: ClassifyRule
   }
 
