@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import IconFilter from '@/components/icon/IconFilter.vue'
+import LoadingIndicatorImage from '@/components/LoadingIndicatorImage.vue'
 import { DEFAULT_BANNER, LOAD_DELAY, NEWS_LIST } from '@/constants'
 import { state } from '@/state'
 import { CoverSize } from '@/types/enum'
@@ -145,45 +147,16 @@ function onClick() {
           height: `${coverHeight}px`,
         }"
       >
-        <svg
+        <LoadingIndicatorImage
           v-if="!imageLoaded"
           class="w-10"
-          version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-          viewBox="0 0 52 100" enable-background="new 0 0 0 0" xml:space="preserve"
-        >
-          <circle fill="#000" stroke="none" cx="6" cy="50" r="6">
-            <animate
-              attributeName="opacity"
-              dur="1s"
-              values="0;1;0"
-              repeatCount="indefinite"
-              begin="0.1"
-            />
-          </circle>
-          <circle fill="#000" stroke="none" cx="26" cy="50" r="6">
-            <animate
-              attributeName="opacity"
-              dur="1s"
-              values="0;1;0"
-              repeatCount="indefinite"
-              begin="0.2"
-            />
-          </circle>
-          <circle fill="#000" stroke="none" cx="46" cy="50" r="6">
-            <animate
-              attributeName="opacity"
-              dur="1s"
-              values="0;1;0"
-              repeatCount="indefinite"
-              begin="0.3"
-            />
-          </circle>
-        </svg>
+        />
         <Transition name="fade">
           <img
             v-show="imageLoaded"
             :src="loadImage ? (news.cover || DEFAULT_BANNER) : ''"
-            class="absolute size-full rounded-md bg-gray-100 object-cover sm:object-contain" alt="banner"
+            class="absolute size-full rounded-md bg-gray-100 object-cover sm:object-contain"
+            alt="banner"
             referrerpolicy="no-referrer"
             @load="onImageLoaded"
           >
@@ -205,23 +178,54 @@ function onClick() {
           <div>
             ID {{ news.id }}
             <span v-if="news.video" class="relative text-blue-500">
-              <span class="ml-2 transition-colors hover:text-blue-300" @click.stop.prevent="openVideo(news.video)">打开视频</span>
-              <span class="ml-2 transition-colors hover:text-blue-300" @click.stop.prevent="showAction = !showAction">更多操作</span>
+              <span
+                class="ml-2 transition-colors hover:text-blue-300"
+                title="在新标签页中打开视频"
+                @click.stop.prevent="openVideo(news.video)"
+              >
+                打开视频
+              </span>
+              <span
+                class="ml-2 transition-colors hover:text-blue-300"
+                title="展开/收起更多操作"
+                @click.stop.prevent="showAction = !showAction"
+              >
+                更多操作
+              </span>
               <Transition name="popup-action">
-                <div v-show="showAction" class="absolute right-[-150px] top-0 w-[146px] rounded-md border bg-white text-black" @click.stop.prevent>
-                  <div class="px-2 py-0.5 transition-colors hover:bg-black/10" @click="showAction = false;copyVideoLink(news.video)">复制链接</div>
-                  <div class="px-2 py-0.5 transition-colors hover:bg-black/10" @click="showAction = false;sendToPotPlayer(news.video)">在 PotPlayer 中打开</div>
-                  <div class="px-2 py-0.5 transition-colors hover:bg-black/10" @click="showAction = false;sendToAria2(news.video)">发送至 aria2 下载</div>
+                <div
+                  v-show="showAction" class="absolute right-[-150px] top-0 w-[146px] rounded-md border bg-white text-black"
+                  @click.stop.prevent
+                >
+                  <div
+                    class="px-2 py-0.5 transition-colors hover:bg-black/10"
+                    title="复制视频链接至剪贴板"
+                    @click="showAction = false;copyVideoLink(news.video)"
+                  >
+                    复制链接
+                  </div>
+                  <div
+                    class="px-2 py-0.5 transition-colors hover:bg-black/10"
+                    title="在 PotPlayer 中打开视频"
+                    @click="showAction = false;sendToPotPlayer(news.video)"
+                  >
+                    在 PotPlayer 中打开
+                  </div>
+                  <div
+                    class="px-2 py-0.5 transition-colors hover:bg-black/10"
+                    title="将视频发送至 aria2 下载"
+                    @click="showAction = false;sendToAria2(news.video)"
+                  >
+                    发送至 aria2 下载
+                  </div>
                 </div>
               </Transition>
             </span>
           </div>
           <div class="text-ellipsis whitespace-nowrap">
             类型 {{ news.tag }}
-            <span @click.stop.prevent="$emit('changeFilter', news.tag)">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="inline-block size-3 text-blue-500 transition-colors hover:text-blue-300 md:size-4">
-                <path fill-rule="evenodd" d="M2.628 1.601C5.028 1.206 7.49 1 10 1s4.973.206 7.372.601a.75.75 0 0 1 .628.74v2.288a2.25 2.25 0 0 1-.659 1.59l-4.682 4.683a2.25 2.25 0 0 0-.659 1.59v3.037c0 .684-.31 1.33-.844 1.757l-1.937 1.55A.75.75 0 0 1 8 18.25v-5.757a2.25 2.25 0 0 0-.659-1.591L2.659 6.22A2.25 2.25 0 0 1 2 4.629V2.34a.75.75 0 0 1 .628-.74Z" clip-rule="evenodd" />
-              </svg>
+            <span title="筛选此标签" @click.stop.prevent="$emit('changeFilter', news.tag)">
+              <IconFilter class="inline-block size-3 text-blue-500 transition-colors hover:text-blue-300 md:size-4" />
             </span>
           </div>
           <div>

@@ -19,3 +19,11 @@ export function exportFile(
   a.click()
   URL.revokeObjectURL(url)
 }
+
+export function limitSetSize(set: Set<any>, maxSize: number) {
+  for (const value of set) {
+    if (set.size <= maxSize)
+      break
+    set.delete(value)
+  }
+}

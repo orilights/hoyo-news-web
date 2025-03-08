@@ -1,34 +1,43 @@
 <script setup lang="ts">
+import AnimationText from '@/components/AnimationText.vue'
+import IconArrowDown from '@/components/icon/IconArrowDown.vue'
+import IconArrowUp from '@/components/icon/IconArrowUp.vue'
+import IconGithub from '@/components/icon/IconGithub.vue'
+import IconJump from '@/components/icon/IconJump.vue'
+import IconRefresh from '@/components/icon/IconRefresh.vue'
+import IconSetting from '@/components/icon/IconSetting.vue'
+import LoadingIndicator from '@/components/LoadingIndicator.vue'
 import NewsItem from '@/components/NewsItem.vue'
 import Switch from '@/components/Switch.vue'
-import { APP_ABBR, ARIA2_RPC_URL, ITEM_GAP, NEWS_CLASSIFY_RULE, NEWS_LIST, REPO_URL, SHADOW_ITEM, TAG_ALL, TAG_OTHER, TAG_VIDEO, VISIT_PERSIST_KEY } from '@/constants'
+import {
+  APP_ABBR,
+  ARIA2_RPC_URL,
+  ITEM_GAP,
+  NEWS_CLASSIFY_RULE,
+  NEWS_LIST,
+  REPO_URL,
+  SHADOW_ITEM,
+  TAG_ALL,
+  TAG_OTHER,
+  TAG_VIDEO,
+  VISIT_PERSIST_KEY,
+} from '@/constants'
 import { state } from '@/state'
 import { CoverSize } from '@/types/enum'
-import { exportFile, formatTime } from '@/utils'
+import { exportFile, formatTime, limitSetSize } from '@/utils'
 import { Settings, SettingType } from '@orilight/vue-settings'
 import { useElementBounding, useElementSize, useMediaQuery, useThrottle, useUrlSearchParams } from '@vueuse/core'
 import { useToast } from 'vue-toastification'
-import AnimationText from './components/AnimationText.vue'
 
 const settings = new Settings(APP_ABBR)
 
 const toast = useToast()
 
-const newsData = ref<NewsData[]>([])
-const newsUpdateTime = ref(0)
-const newsLoading = ref(false)
-
-const tags = ref<{ [index: string]: number }>({})
-const container = ref<HTMLElement>()
-const shadowItem = ref<HTMLElement>()
-const containerTop = useThrottle(useElementBounding(container).top, 30, true)
-const itemHeight = useElementSize(shadowItem).height
+const containerRef = ref<HTMLElement>()
+const shadowItemRef = ref<HTMLElement>()
+const containerTop = useThrottle(useElementBounding(containerRef).top, 30, true)
+const itemHeight = useElementSize(shadowItemRef).height
 const params = useUrlSearchParams('history')
-const filterTag = ref(TAG_ALL)
-const source = ref(Object.keys(NEWS_LIST)[0])
-const channal = ref(Object.keys(NEWS_LIST[source.value].channals)[0])
-const searchStr = ref('')
-
 const windowWidth = {
   sm: useMediaQuery('(min-width: 640px)'),
   md: useMediaQuery('(min-width: 768px)'),
@@ -51,9 +60,15 @@ const aria2Config = ref({
   rpcSecret: '',
   filename: '{newsTitle}.{ext}',
 })
+
+const source = ref(Object.keys(NEWS_LIST)[0])
+const channal = ref(Object.keys(NEWS_LIST[source.value].channals)[0])
+const tags = ref<{ [index: string]: number }>({})
+const filterTag = ref(TAG_ALL)
+
 const sortBy = ref('desc')
-const filterStartDate = ref('')
-const filterEndDate = ref('')
+const dateFilterStart = ref('')
+const dateFilterEnd = ref('')
 
 const headerRef = ref<HTMLElement | null>(null)
 const headerSticky = ref(false)
@@ -69,9 +84,14 @@ const newsItemConfig = computed(() => ({
 const showDialogJump = ref(false)
 const jumpDate = ref('')
 
+const searchStr = ref('')
 const searchEnabled = computed(() => searchStr.value.trim() !== '')
 
-const filteredNewsData = computed(() => {
+const newsUpdateTime = ref(0)
+const newsLoading = ref(false)
+const newsData = ref<NewsData[]>([])
+
+const newsDataFiltered = computed(() => {
   let data: NewsData[]
   if (searchEnabled.value) {
     data = newsData.value.filter(news =>
@@ -92,18 +112,18 @@ const filteredNewsData = computed(() => {
   else {
     data = newsData.value.filter(news => news.tag === filterTag.value)
   }
-  if (filterStartDate.value) {
-    data = data.filter(news => new Date(news.startTime).getTime() >= new Date(`${filterStartDate.value} 00:00:00`).getTime())
+  if (dateFilterStart.value) {
+    data = data.filter(news => new Date(news.startTime).getTime() >= new Date(`${dateFilterStart.value} 00:00:00`).getTime())
   }
-  if (filterEndDate.value) {
-    data = data.filter(news => new Date(news.startTime).getTime() <= new Date(`${filterEndDate.value} 23:59:59`).getTime())
+  if (dateFilterEnd.value) {
+    data = data.filter(news => new Date(news.startTime).getTime() <= new Date(`${dateFilterEnd.value} 23:59:59`).getTime())
   }
 
   return data
 })
 
-const sortedNewsData = computed(() => {
-  const data = filteredNewsData.value.slice()
+const newsDataSorted = computed(() => {
+  const data = newsDataFiltered.value.slice()
 
   if (sortByDate.value) {
     data.sort((a, b) => {
@@ -132,7 +152,7 @@ const itemRenderList = computed(() => {
   }
   const renderRangeTop = -containerTop.value - renderRange.up * window.innerHeight
   const renderRangeBottom = -containerTop.value + window.innerHeight + renderRange.down * window.innerHeight
-  return sortedNewsData.value.filter((item: NewsItemData) => {
+  return newsDataSorted.value.filter((item: NewsItemData) => {
     return (item.top + itemHeight.value > renderRangeTop && item.top < renderRangeBottom)
   })
 })
@@ -228,7 +248,7 @@ function fetchData(force_refresh = false) {
     })
 }
 
-function handleClickTag(tag: string) {
+function handleFilterTag(tag: string) {
   searchStr.value = ''
   if (filterTag.value === tag)
     filterTag.value = TAG_ALL
@@ -286,7 +306,7 @@ function getNewsType(title: string, id: number): string {
 
 function exportVideos() {
   let result = ''
-  sortedNewsData.value.filter(news => news.video).forEach((news: any) => {
+  newsDataSorted.value.filter(news => news.video).forEach((news: any) => {
     const fileExt = news.video.split('.').pop()
     result += `${news.video}\n  out=${news.title}.${fileExt}\n`
   })
@@ -307,13 +327,13 @@ function scrollTo(target: 'top' | 'bottom') {
 function scrollByDate(date: string) {
   let target
   if (sortBy.value === 'desc') {
-    target = sortedNewsData.value.find(news => new Date(news.startTime) <= new Date(`${date} 23:59:59`))
+    target = newsDataSorted.value.find(news => new Date(news.startTime) <= new Date(`${date} 23:59:59`))
   }
   else {
-    target = sortedNewsData.value.find(news => new Date(news.startTime) >= new Date(`${date} 00:00:00`))
+    target = newsDataSorted.value.find(news => new Date(news.startTime) >= new Date(`${date} 00:00:00`))
   }
   if (target) {
-    const containerTop = container.value?.offsetTop || 0
+    const containerTop = containerRef.value?.offsetTop || 0
     window.document.documentElement.scrollTo({ top: containerTop + target.top, behavior: 'smooth' })
     showDialogJump.value = false
   }
@@ -325,6 +345,7 @@ function scrollByDate(date: string) {
 function handlePerisitVisitRecord() {
   if (!showVisited.value)
     return
+  limitSetSize(state.newsVisited, 2000)
   localStorage.setItem(VISIT_PERSIST_KEY, JSON.stringify(Array.from(state.newsVisited)))
 }
 </script>
@@ -341,28 +362,38 @@ function handlePerisitVisitRecord() {
             跳转到日期
           </div>
           <div class="my-2 flex items-center">
-            <input v-model="jumpDate" type="date" class="rounded-md border border-black/20 bg-transparent px-1 transition-colors hover:border-blue-500">
+            <input
+              v-model="jumpDate"
+              type="date"
+              class="rounded-md border border-black/20 bg-transparent px-1 transition-colors hover:border-blue-500"
+            >
           </div>
-          <button class="rounded-md border px-2 py-0.5 transition-colors hover:border-blue-500" @click="scrollByDate(jumpDate)">
+          <button
+            class="rounded-md border px-2 py-0.5 transition-colors hover:border-blue-500"
+            @click="scrollByDate(jumpDate)"
+          >
             确认
           </button>
         </div>
       </Transition>
-      <div>
-        <button class="dialog-jump block rounded-t-lg border border-gray-300 bg-white p-2 text-black  transition-colors hover:border-blue-500" @click="showDialogJump = !showDialogJump">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
-            <path stroke-linecap="round" stroke-linejoin="round" d="m15 15 6-6m0 0-6-6m6 6H9a6 6 0 0 0 0 12h3" />
-          </svg>
+      <div class="flex flex-col">
+        <button
+          class="dialog-jump rounded-t-lg border border-gray-300 bg-white p-2 transition-colors hover:z-20 hover:border-blue-500 hover:text-blue-500"
+          @click="showDialogJump = !showDialogJump"
+        >
+          <IconJump class="size-4" />
         </button>
-        <button class="block border border-gray-300 bg-white p-2 text-black  transition-colors hover:border-blue-500" @click="scrollTo('top')">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 10.5 12 3m0 0 7.5 7.5M12 3v18" />
-          </svg>
+        <button
+          class="-mt-px border border-gray-300 bg-white p-2 transition-colors hover:z-20 hover:border-blue-500 hover:text-blue-500"
+          @click="scrollTo('top')"
+        >
+          <IconArrowUp class="size-4" />
         </button>
-        <button class="block rounded-b-lg border border-gray-300 bg-white p-2 text-black hover:border-blue-500" @click="scrollTo('bottom')">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3" />
-          </svg>
+        <button
+          class="-mt-px rounded-b-lg border border-gray-300 bg-white p-2 transition-colors hover:z-20 hover:border-blue-500 hover:text-blue-500"
+          @click="scrollTo('bottom')"
+        >
+          <IconArrowDown class="size-4" />
         </button>
       </div>
     </div>
@@ -382,17 +413,13 @@ function handlePerisitVisitRecord() {
         >
           <div class="absolute right-0 flex gap-4">
             <a v-show="!headerSticky" :href="REPO_URL" target="_blank">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 1024 1024" stroke="currentColor" class="size-6">
-                <path d="M511.6 76.3C264.3 76.2 64 276.4 64 523.5 64 718.9 189.3 885 363.8 946c23.5 5.9 19.9-10.8 19.9-22.2v-77.5c-135.7 15.9-141.2-73.9-150.3-88.9C215 726 171.5 718 184.5 703c30.9-15.9 62.4 4 98.9 57.9 26.4 39.1 77.9 32.5 104 26 5.7-23.5 17.9-44.5 34.7-60.8-140.6-25.2-199.2-111-199.2-213 0-49.5 16.3-95 48.3-131.7-20.4-60.5 1.9-112.3 4.9-120 58.1-5.2 118.5 41.6 123.2 45.3 33-8.9 70.7-13.6 112.9-13.6 42.4 0 80.2 4.9 113.5 13.9 11.3-8.6 67.3-48.8 121.3-43.9 2.9 7.7 24.7 58.3 5.5 118 32.4 36.8 48.9 82.7 48.9 132.3 0 102.2-59 188.1-200 212.9 23.5 23.2 38.1 55.4 38.1 91v112.5c0.8 9 0 17.9 15 17.9 177.1-59.7 304.6-227 304.6-424.1 0-247.2-200.4-447.3-447.5-447.3z" />
-              </svg>
+              <IconGithub class="size-6" />
             </a>
             <button
               class="setting"
               @click="showSetting = !showSetting"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
-                <path fill-rule="evenodd" d="M11.828 2.25c-.916 0-1.699.663-1.85 1.567l-.091.549a.798.798 0 01-.517.608 7.45 7.45 0 00-.478.198.798.798 0 01-.796-.064l-.453-.324a1.875 1.875 0 00-2.416.2l-.243.243a1.875 1.875 0 00-.2 2.416l.324.453a.798.798 0 01.064.796 7.448 7.448 0 00-.198.478.798.798 0 01-.608.517l-.55.092a1.875 1.875 0 00-1.566 1.849v.344c0 .916.663 1.699 1.567 1.85l.549.091c.281.047.508.25.608.517.06.162.127.321.198.478a.798.798 0 01-.064.796l-.324.453a1.875 1.875 0 00.2 2.416l.243.243c.648.648 1.67.733 2.416.2l.453-.324a.798.798 0 01.796-.064c.157.071.316.137.478.198.267.1.47.327.517.608l.092.55c.15.903.932 1.566 1.849 1.566h.344c.916 0 1.699-.663 1.85-1.567l.091-.549a.798.798 0 01.517-.608 7.52 7.52 0 00.478-.198.798.798 0 01.796.064l.453.324a1.875 1.875 0 002.416-.2l.243-.243c.648-.648.733-1.67.2-2.416l-.324-.453a.798.798 0 01-.064-.796c.071-.157.137-.316.198-.478.1-.267.327-.47.608-.517l.55-.091a1.875 1.875 0 001.566-1.85v-.344c0-.916-.663-1.699-1.567-1.85l-.549-.091a.798.798 0 01-.608-.517 7.507 7.507 0 00-.198-.478.798.798 0 01.064-.796l.324-.453a1.875 1.875 0 00-.2-2.416l-.243-.243a1.875 1.875 0 00-2.416-.2l-.453.324a.798.798 0 01-.796.064 7.462 7.462 0 00-.478-.198.798.798 0 01-.517-.608l-.091-.55a1.875 1.875 0 00-1.85-1.566h-.344zM12 15.75a3.75 3.75 0 100-7.5 3.75 3.75 0 000 7.5z" clip-rule="evenodd" />
-              </svg>
+              <IconSetting class="size-6" />
             </button>
           </div>
           <Transition name="popup-setting">
@@ -413,10 +440,20 @@ function handlePerisitVisitRecord() {
                 <span class="flex-1">置灰已阅读新闻</span> <Switch v-model="showVisited" class="ml-2" />
               </div>
               <div class="my-1">
-                <span class="flex-1">aria2 RPC地址</span><br><input v-model="aria2Config.rpcUrl" type="text" class="w-full rounded-md border border-black/20 bg-transparent px-1 transition-colors">
+                <span class="flex-1">aria2 RPC地址</span>
+                <br>
+                <input
+                  v-model="aria2Config.rpcUrl" type="text"
+                  class="w-full rounded-md border border-black/20 bg-transparent px-1 transition-colors"
+                >
               </div>
               <div class="my-1">
-                <span class="flex-1">aria2 RPC密钥</span><br><input v-model="aria2Config.rpcSecret" type="text" class="w-full rounded-md border border-black/20 bg-transparent px-1 transition-colors">
+                <span class="flex-1">aria2 RPC密钥</span>
+                <br>
+                <input
+                  v-model="aria2Config.rpcSecret" type="text"
+                  class="w-full rounded-md border border-black/20 bg-transparent px-1 transition-colors"
+                >
               </div>
               <button class="rounded-md border px-2 py-0.5 transition-colors hover:border-blue-500" @click="exportVideos">
                 导出本页视频至 aria2 任务
@@ -430,7 +467,7 @@ function handlePerisitVisitRecord() {
         ref="headerRef"
         class="header sticky top-0 z-10 pt-2 backdrop-blur transition-all"
         :class="{
-          'bg-[#f3f4f6]/80 px-2 pr-4': headerSticky,
+          'mx-[-8px] bg-[#f3f4f6]/80 pl-2 pr-4 md:mx-[-16px] md:pl-4': headerSticky,
         }"
       >
         <div
@@ -449,7 +486,11 @@ function handlePerisitVisitRecord() {
             :disabled="newsLoading || source === source_key"
             @click="changeSource(source_key)"
           >
-            <img :src="`./images/icon/${source_key}-48px.png`" class="size-6 rounded-full md:size-8" :alt="source_info.displayName">
+            <img
+              class="size-6 rounded-full md:size-8"
+              :alt="source_info.displayName"
+              :src="`./images/icon/${source_key}-48px.png`"
+            >
             <AnimationText :show="source === source_key">
               <span class="mx-1 sm:mx-2">
                 {{ source_info.displayName }}
@@ -457,12 +498,13 @@ function handlePerisitVisitRecord() {
             </AnimationText>
           </button>
         </div>
+
         <div class="mb-2">
           <button
             v-for="[channal_key, channal_info] in Object.entries(NEWS_LIST[source].channals)" :key="channal_key"
             class="border-b-2 bg-transparent px-2 py-1 transition-colors"
             :class="{
-              'hover:border-blue-500': !newsLoading,
+              'hover:text-blue-500': !newsLoading,
               'border-blue-500 text-blue-500': channal === channal_key,
             }"
             :disabled="newsLoading || channal === channal_key"
@@ -472,6 +514,7 @@ function handlePerisitVisitRecord() {
           </button>
         </div>
       </div>
+
       <div class="mb-2 flex flex-wrap items-center">
         数据更新于：
         <template v-if="newsLoading">
@@ -482,25 +525,27 @@ function handlePerisitVisitRecord() {
             {{ formatTime(newsUpdateTime) }}
           </span>
           <button class="flex items-center hover:text-blue-500" @click="fetchData(true)">
-            <svg
-              xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-              stroke="currentColor" class="size-4"
-            >
-              <path
-                stroke-linecap="round" stroke-linejoin="round"
-                d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
-              />
-            </svg>
+            <IconRefresh class="size-4" />
             <span class="ml-1">
               点击此处可刷新数据
             </span>
           </button>
         </template>
       </div>
+
       <input
         v-model="searchStr" type="text" placeholder="搜些什么吧"
         class="mb-2 w-full rounded-full border px-4 py-2 outline-blue-500 transition-colors hover:border-blue-500"
       >
+      <div v-show="searchEnabled" class="mb-2">
+        <span>
+          搜索结果：{{ newsDataSorted.length }} 条
+        </span>
+        <button class="ml-4 hover:text-blue-500" @click="searchStr = ''">
+          取消搜索
+        </button>
+      </div>
+
       <details v-show="!searchEnabled" class="mb-2" open>
         <summary>分类</summary>
         <ul class="mt-2 flex flex-wrap gap-1">
@@ -510,7 +555,7 @@ function handlePerisitVisitRecord() {
             :class="{
               '!border-blue-500 !bg-blue-500 !text-white': filterTag === tag,
             }"
-            @click="handleClickTag(tag)"
+            @click="handleFilterTag(tag)"
           >
             {{ tag }} {{ tags[tag] }}
           </li>
@@ -535,64 +580,46 @@ function handlePerisitVisitRecord() {
 
         <span>
           开始日期：
-          <input v-model="filterStartDate" type="date" class="rounded-md border border-black/20 bg-transparent px-1 transition-colors hover:border-blue-500" :max="filterEndDate">
+          <input
+            v-model="dateFilterStart"
+            type="date"
+            class="rounded-md border border-black/20 bg-transparent px-1 transition-colors hover:border-blue-500"
+            :max="dateFilterEnd"
+          >
         </span>
 
         <span>
           结束日期：
-          <input v-model="filterEndDate" type="date" class="rounded-md border border-black/20 bg-transparent px-1 transition-colors hover:border-blue-500" :min="filterStartDate">
+          <input
+            v-model="dateFilterEnd"
+            type="date"
+            class="rounded-md border border-black/20 bg-transparent px-1 transition-colors hover:border-blue-500"
+            :min="dateFilterStart"
+          >
         </span>
 
-        <button v-if="filterStartDate || filterEndDate" class="hover:text-blue-500" @click="filterStartDate = '';filterEndDate = ''">
+        <button
+          v-if="dateFilterStart || dateFilterEnd"
+          class="hover:text-blue-500"
+          @click="dateFilterStart = '';dateFilterEnd = ''"
+        >
           取消筛选
         </button>
       </div>
 
-      <div v-show="searchEnabled" class="pb-2">
-        <span class="pr-4">
-          搜索结果：{{ sortedNewsData.length }}
-        </span>
-        <button class="hover:text-blue-500" @click="searchStr = ''">
-          取消搜索
-        </button>
-      </div>
-      <div v-if="newsLoading" class="flex flex-col items-center gap-2 py-4">
-        <svg viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg" class="size-[60px]">
-          <defs>
-            <linearGradient id="a" x1="8.042%" y1="0%" x2="65.682%" y2="23.865%">
-              <stop stop-color="#000" stop-opacity="0" offset="0%" />
-              <stop stop-color="#000" stop-opacity=".631" offset="63.146%" />
-              <stop stop-color="#000" offset="100%" />
-            </linearGradient>
-          </defs>
-          <g fill="none" fill-rule="evenodd">
-            <g transform="translate(1 1)">
-              <path id="Oval-2" d="M36 18c0-9.94-8.06-18-18-18" stroke="url(#a)" stroke-width="2">
-                <animateTransform
-                  attributeName="transform" type="rotate" from="0 18 18" to="360 18 18" dur="0.9s"
-                  repeatCount="indefinite"
-                />
-              </path>
-              <circle fill="#000" cx="36" cy="18" r="1">
-                <animateTransform
-                  attributeName="transform" type="rotate" from="0 18 18" to="360 18 18" dur="0.9s"
-                  repeatCount="indefinite"
-                />
-              </circle>
-            </g>
-          </g>
-        </svg>
+      <div v-if="newsLoading" class="flex flex-col items-center gap-2 py-16">
+        <LoadingIndicator class="size-[60px]" />
         <span class="text-lg">数据加载中</span>
       </div>
       <ul
-        ref="container"
+        ref="containerRef"
         class="relative overflow-hidden"
         :style="{
-          height: `${sortedNewsData.length * (itemHeight + ITEM_GAP) - ITEM_GAP}px`,
+          height: `${newsDataSorted.length * (itemHeight + ITEM_GAP)}px`,
         }"
       >
         <NewsItem
-          ref="shadowItem"
+          ref="shadowItemRef"
           :news="SHADOW_ITEM"
           :source="source"
           :channal="channal"
@@ -605,7 +632,7 @@ function handlePerisitVisitRecord() {
           :source="source"
           :channal="channal"
           :config="newsItemConfig"
-          @change-filter="handleClickTag"
+          @change-filter="handleFilterTag"
           @visit="handlePerisitVisitRecord"
         />
       </ul>
@@ -614,6 +641,10 @@ function handlePerisitVisitRecord() {
 </template>
 
 <style>
+body {
+  overflow-y: scroll;
+}
+
 .popup-setting-enter-active,
 .popup-setting-leave-active,
 .popup-dialog-enter-active,
