@@ -8,6 +8,7 @@ import { exportFile, formatTime } from '@/utils'
 import { Settings, SettingType } from '@orilight/vue-settings'
 import { useElementBounding, useElementSize, useMediaQuery, useThrottle, useUrlSearchParams } from '@vueuse/core'
 import { useToast } from 'vue-toastification'
+import AnimationText from './components/AnimationText.vue'
 
 const settings = new Settings(APP_ABBR)
 
@@ -234,6 +235,17 @@ function handleClickTag(tag: string) {
     params.filterTag = filterTag.value
 }
 
+function changeSource(newSource: string) {
+  source.value = newSource
+  channal.value = Object.keys(NEWS_LIST[newSource].channals)[0]
+  handleSourceChange()
+}
+
+function changeChannal(newChannal: string) {
+  channal.value = newChannal
+  handleSourceChange()
+}
+
 function handleSourceChange() {
   params.source = source.value
   params.channal = channal.value
@@ -312,7 +324,7 @@ function handlePerisitVisitRecord() {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-100 text-sm md:text-base">
+  <div class="min-h-screen bg-gray-100 text-sm transition-[font-size] md:text-base">
     <div class="fixed bottom-4 right-4 z-10 flex items-end gap-2">
       <Transition name="popup-dialog">
         <div
@@ -379,7 +391,7 @@ function handlePerisitVisitRecord() {
       </Transition>
 
       <div class="flex items-center justify-between">
-        <h1 class="py-6 text-2xl font-bold md:text-4xl">
+        <h1 class="py-6 text-2xl font-bold transition-[font-size] md:text-4xl">
           米哈游官网新闻检索
         </h1>
         <div class="flex gap-4">
@@ -394,30 +406,6 @@ function handlePerisitVisitRecord() {
             </svg>
           </button>
         </div>
-      </div>
-      <div class="flex flex-wrap items-center">
-        新闻源：
-        <select
-          v-model="source"
-          class="rounded-md border border-black/20 bg-transparent px-1 transition-colors hover:border-blue-500"
-          :disabled="newsLoading"
-          @change="handleSourceChange"
-        >
-          <option v-for="[source_key, source_info] in Object.entries(NEWS_LIST)" :key="source_key" :value="source_key">
-            {{ source_info.displayName }}
-          </option>
-        </select>
-
-        <select
-          v-model="channal"
-          class="my-1 ml-2 rounded-md border border-black/20 bg-transparent px-1 transition-colors hover:border-blue-500"
-          :disabled="newsLoading"
-          @change="handleSourceChange"
-        >
-          <option v-for="[channal_key, channal_info] in Object.entries(NEWS_LIST[source].channals)" :key="channal_key" :value="channal_key">
-            {{ channal_info.displayName }}
-          </option>
-        </select>
       </div>
       <div class="mb-2 flex flex-wrap items-center">
         数据更新于：
