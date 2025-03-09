@@ -4,7 +4,7 @@ import LoadingIndicatorImage from '@/components/LoadingIndicatorImage.vue'
 import { DEFAULT_BANNER, LOAD_DELAY, NEWS_LIST } from '@/constants'
 import { state } from '@/state'
 import { CoverSize } from '@/types/enum'
-import { getWeek } from '@/utils'
+import { getWeek, sanitizeFilename } from '@/utils'
 import { useToast } from 'vue-toastification'
 
 interface NewsItemConfig {
@@ -82,7 +82,7 @@ function sendToAria2(link: string) {
   const rpcId = `HYN${new Date().getTime()}`
   const videoExt = link.split('.').pop()
   const videoOutName = props.config.aria2Config.filename
-    .replace('{newsTitle}', props.news.title)
+    .replace('{newsTitle}', sanitizeFilename(props.news.title))
     .replace('{ext}', videoExt || 'mp4')
   fetch(props.config.aria2Config.rpcUrl, {
     method: 'POST',

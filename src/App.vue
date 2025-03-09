@@ -24,7 +24,7 @@ import {
 } from '@/constants'
 import { state } from '@/state'
 import { CoverSize } from '@/types/enum'
-import { exportFile, formatTime, limitSetSize } from '@/utils'
+import { exportFile, formatTime, limitSetSize, sanitizeFilename } from '@/utils'
 import { Settings, SettingType } from '@orilight/vue-settings'
 import { useElementBounding, useElementSize, useMediaQuery, useThrottle, useUrlSearchParams } from '@vueuse/core'
 import { useToast } from 'vue-toastification'
@@ -308,7 +308,7 @@ function exportVideos() {
   let result = ''
   newsDataSorted.value.filter(news => news.video).forEach((news: any) => {
     const fileExt = news.video.split('.').pop()
-    result += `${news.video}\n  out=${news.title}.${fileExt}\n`
+    result += `${news.video}\n  out=${sanitizeFilename(news.title)}.${fileExt}\n`
   })
   exportFile({
     filename: 'videos.txt',

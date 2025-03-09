@@ -27,3 +27,11 @@ export function limitSetSize(set: Set<any>, maxSize: number) {
     set.delete(value)
   }
 }
+
+export function sanitizeFilename(filename: string) {
+  return filename
+    .replace(/\|/g, '丨')
+    .replace(/:/g, '：')
+    .replace(/[<>"/\\?*]/g, '')
+    .trim()
+}
