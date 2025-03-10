@@ -136,6 +136,21 @@ const newsDataSorted = computed(() => {
   return data as NewsData[]
 })
 
+const dateRange = computed(() => {
+  const range = { min: '', max: '' }
+  if (newsDataSorted.value.length) {
+    if (sortBy.value === 'asc') {
+      range.min = formatTime(newsDataSorted.value[0].startTime, true)
+      range.max = formatTime(newsDataSorted.value[newsDataSorted.value.length - 1].startTime, true)
+    }
+    else {
+      range.min = formatTime(newsDataSorted.value[newsDataSorted.value.length - 1].startTime, true)
+      range.max = formatTime(newsDataSorted.value[0].startTime, true)
+    }
+  }
+  return range
+})
+
 onMounted(() => {
   document.addEventListener('click', (event) => {
     if (showSetting.value) {
@@ -350,6 +365,7 @@ function handleScrollByDate() {
           <div class="my-2 flex items-center">
             <input
               v-model="jumpDate"
+              v-bind="dateRange"
               type="date"
               class="rounded-md border border-black/20 bg-transparent px-1 transition-colors hover:border-blue-500"
             >

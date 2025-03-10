@@ -4,7 +4,6 @@ import { ITEM_GAP, SHADOW_ITEM, VISIT_PERSIST_KEY } from '@/constants'
 import { state } from '@/state'
 import { limitSetSize } from '@/utils'
 import { useElementBounding, useElementSize, useThrottle } from '@vueuse/core'
-import { useToast } from 'vue-toastification'
 
 const props = defineProps<{
   config: NewsItemConfig
@@ -50,9 +49,15 @@ function scrollByDate(date: string) {
   let target
   if (props.sortBy === 'desc') {
     target = newsList.value.find(news => new Date(news.startTime) <= new Date(`${date} 23:59:59`))
+    if (!target) {
+      target = newsList.value[newsList.value.length - 1]
+    }
   }
   else {
     target = newsList.value.find(news => new Date(news.startTime) >= new Date(`${date} 00:00:00`))
+    if (!target) {
+      target = newsList.value[newsList.value.length - 1]
+    }
   }
   if (target) {
     const containerTop = containerRef.value?.offsetTop || 0
