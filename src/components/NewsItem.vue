@@ -1,19 +1,11 @@
 <script setup lang="ts">
+import LoadingIndicatorImage from '@/components/common/LoadingIndicatorImage.vue'
 import IconFilter from '@/components/icon/IconFilter.vue'
-import LoadingIndicatorImage from '@/components/LoadingIndicatorImage.vue'
 import { DEFAULT_BANNER, LOAD_DELAY, NEWS_LIST } from '@/constants'
 import { state } from '@/state'
 import { CoverSize } from '@/types/enum'
 import { getWeek, sanitizeFilename } from '@/utils'
 import { useToast } from 'vue-toastification'
-
-interface NewsItemConfig {
-  showBanner: boolean
-  showDateWeek: boolean
-  showVisited: boolean
-  coverSize: CoverSize
-  aria2Config: Aria2Config
-}
 
 const props = defineProps<{
   news: NewsItemData
@@ -81,9 +73,11 @@ function sendToPotPlayer(link: string) {
 function sendToAria2(link: string) {
   const rpcId = `HYN${new Date().getTime()}`
   const videoExt = link.split('.').pop()
-  const videoOutName = props.config.aria2Config.filename
-    .replace('{newsTitle}', sanitizeFilename(props.news.title))
-    .replace('{ext}', videoExt || 'mp4')
+  const videoOutName = sanitizeFilename(
+    props.config.aria2Config.filename
+      .replace('{newsTitle}', sanitizeFilename(props.news.title))
+      .replace('{ext}', videoExt || 'mp4'),
+  )
   fetch(props.config.aria2Config.rpcUrl, {
     method: 'POST',
     headers: {
@@ -162,18 +156,16 @@ function onClick() {
           >
         </Transition>
       </div>
-      <div class="flex-1">
-        <div class="overflow-hidden">
-          <h2
-            :title="news.title"
-            class="w-full truncate font-bold transition-colors md:text-lg"
-            :class="{
-              'text-gray-400': config.showVisited && isNewsVisited,
-            }"
-          >
-            {{ news.title }}
-          </h2>
-        </div>
+      <div class="min-w-0 flex-1">
+        <h2
+          :title="news.title"
+          class="w-full truncate font-bold transition-colors md:text-lg"
+          :class="{
+            'text-gray-400': config.showVisited && isNewsVisited,
+          }"
+        >
+          {{ news.title }}
+        </h2>
         <div class="text-xs md:text-sm">
           <div>
             ID {{ news.id }}
@@ -194,30 +186,30 @@ function onClick() {
               </span>
               <Transition name="popup-action">
                 <div
-                  v-show="showAction" class="absolute right-[-150px] top-0 w-[146px] rounded-md border bg-white text-black"
+                  v-show="showAction" class="absolute right-[-150px] top-0 z-30 w-[146px] rounded-md border bg-white text-black"
                   @click.stop.prevent
                 >
-                  <div
-                    class="px-2 py-0.5 transition-colors hover:bg-black/10"
+                  <button
+                    class="w-full px-2 py-0.5 text-left transition-colors hover:bg-black/10"
                     title="复制视频链接至剪贴板"
                     @click="showAction = false;copyVideoLink(news.video)"
                   >
                     复制链接
-                  </div>
-                  <div
-                    class="px-2 py-0.5 transition-colors hover:bg-black/10"
+                  </button>
+                  <button
+                    class="w-full px-2 py-0.5 text-left transition-colors hover:bg-black/10"
                     title="在 PotPlayer 中打开视频"
                     @click="showAction = false;sendToPotPlayer(news.video)"
                   >
                     在 PotPlayer 中打开
-                  </div>
-                  <div
-                    class="px-2 py-0.5 transition-colors hover:bg-black/10"
+                  </button>
+                  <button
+                    class="w-full px-2 py-0.5 text-left transition-colors hover:bg-black/10"
                     title="将视频发送至 aria2 下载"
                     @click="showAction = false;sendToAria2(news.video)"
                   >
                     发送至 aria2 下载
-                  </div>
+                  </button>
                 </div>
               </Transition>
             </span>

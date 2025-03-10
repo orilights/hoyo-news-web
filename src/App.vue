@@ -1,22 +1,20 @@
 <script setup lang="ts">
-import AnimationText from '@/components/AnimationText.vue'
+import LoadingIndicator from '@/components/common/LoadingIndicator.vue'
+import Switch from '@/components/common/Switch.vue'
+import Header from '@/components/Header.vue'
 import IconArrowDown from '@/components/icon/IconArrowDown.vue'
 import IconArrowUp from '@/components/icon/IconArrowUp.vue'
 import IconGithub from '@/components/icon/IconGithub.vue'
 import IconJump from '@/components/icon/IconJump.vue'
 import IconRefresh from '@/components/icon/IconRefresh.vue'
 import IconSetting from '@/components/icon/IconSetting.vue'
-import LoadingIndicator from '@/components/LoadingIndicator.vue'
-import NewsItem from '@/components/NewsItem.vue'
-import Switch from '@/components/Switch.vue'
+import TagList from '@/components/TagList.vue'
 import {
   APP_ABBR,
   ARIA2_RPC_URL,
-  ITEM_GAP,
   NEWS_CLASSIFY_RULE,
   NEWS_LIST,
   REPO_URL,
-  SHADOW_ITEM,
   TAG_ALL,
   TAG_OTHER,
   TAG_VIDEO,
@@ -24,19 +22,16 @@ import {
 } from '@/constants'
 import { state } from '@/state'
 import { CoverSize } from '@/types/enum'
-import { exportFile, formatTime, limitSetSize, sanitizeFilename } from '@/utils'
+import { exportFile, formatTime, sanitizeFilename } from '@/utils'
 import { Settings, SettingType } from '@orilight/vue-settings'
-import { useElementBounding, useElementSize, useMediaQuery, useThrottle, useUrlSearchParams } from '@vueuse/core'
+import { useMediaQuery, useUrlSearchParams } from '@vueuse/core'
 import { useToast } from 'vue-toastification'
+import NewsList from './components/NewsList.vue'
 
 const settings = new Settings(APP_ABBR)
 
 const toast = useToast()
 
-const containerRef = ref<HTMLElement>()
-const shadowItemRef = ref<HTMLElement>()
-const containerTop = useThrottle(useElementBounding(containerRef).top, 30, true)
-const itemHeight = useElementSize(shadowItemRef).height
 const params = useUrlSearchParams('history')
 const windowWidth = {
   sm: useMediaQuery('(min-width: 640px)'),
@@ -66,11 +61,11 @@ const channal = ref(Object.keys(NEWS_LIST[source.value].channals)[0])
 const tags = ref<{ [index: string]: number }>({})
 const filterTag = ref(TAG_ALL)
 
-const sortBy = ref('desc')
+const sortBy = ref<'asc' | 'desc'>('desc')
 const dateFilterStart = ref('')
 const dateFilterEnd = ref('')
 
-const headerRef = ref<HTMLElement | null>(null)
+const newsListRef = ref<any>(null)
 const headerSticky = ref(false)
 
 const newsItemConfig = computed(() => ({
@@ -138,23 +133,7 @@ const newsDataSorted = computed(() => {
   if (sortBy.value === 'asc')
     data.reverse()
 
-  data.forEach((v, i) => {
-    (v as NewsItemData).top = (itemHeight.value + ITEM_GAP) * i
-  })
-
-  return data as NewsItemData[]
-})
-
-const itemRenderList = computed(() => {
-  const renderRange = {
-    up: 0.5,
-    down: 0.5,
-  }
-  const renderRangeTop = -containerTop.value - renderRange.up * window.innerHeight
-  const renderRangeBottom = -containerTop.value + window.innerHeight + renderRange.down * window.innerHeight
-  return newsDataSorted.value.filter((item: NewsItemData) => {
-    return (item.top + itemHeight.value > renderRangeTop && item.top < renderRangeBottom)
-  })
+  return data as NewsData[]
 })
 
 onMounted(() => {
@@ -168,14 +147,8 @@ onMounted(() => {
         showDialogJump.value = false
     }
   })
-  document.addEventListener('scroll', () => {
-    headerSticky.value = (headerRef.value?.getBoundingClientRect().top || 0) === 0 && window.scrollY > 0
-  })
-  settings.register('showCover', showCover, SettingType.Bool)
-  settings.register('showDateWeek', showDateWeek, SettingType.Bool)
-  settings.register('sortNews', sortByDate, SettingType.Bool)
-  settings.register('showVisited', showVisited, SettingType.Bool)
-  settings.register('aria2Config', aria2Config, SettingType.Object, { deepMerge: true })
+
+  registerSettings()
   try {
     if (localStorage.getItem(VISIT_PERSIST_KEY))
       state.newsVisited = new Set(JSON.parse(localStorage.getItem(VISIT_PERSIST_KEY) as string))
@@ -203,16 +176,27 @@ onUnmounted(() => {
   settings.unregisterAll()
 })
 
+function registerSettings() {
+  settings.register('showCover', showCover, SettingType.Bool)
+  settings.register('showDateWeek', showDateWeek, SettingType.Bool)
+  settings.register('sortNews', sortByDate, SettingType.Bool)
+  settings.register('showVisited', showVisited, SettingType.Bool)
+  settings.register('aria2Config', aria2Config, SettingType.Object, { deepMerge: true })
+}
+
 function fetchData(force_refresh = false) {
   newsLoading.value = true
   newsData.value = []
   tags.value = {}
-  const fetchSource = source.value
-  const fetchChannal = channal.value
-  fetch(`${NEWS_LIST[fetchSource].channals[fetchChannal].apiBase}/${fetchSource}/${fetchChannal}${force_refresh ? '?force_refresh=1' : ''}`)
+  const params = {
+    source: source.value,
+    channal: channal.value,
+  }
+  const apiBase = NEWS_LIST[params.source].channals[params.channal].apiBase
+  fetch(`${apiBase}/${params.source}/${params.channal}${force_refresh ? '?force_refresh=1' : ''}`)
     .then(res => res.json())
     .then((res) => {
-      if (fetchSource !== source.value || fetchChannal !== channal.value) {
+      if (params.source !== source.value || params.channal !== channal.value) {
         return
       }
       if (res.code !== 0) {
@@ -248,7 +232,7 @@ function fetchData(force_refresh = false) {
     })
 }
 
-function handleFilterTag(tag: string) {
+function changeTag(tag: string) {
   searchStr.value = ''
   if (filterTag.value === tag)
     filterTag.value = TAG_ALL
@@ -324,29 +308,31 @@ function scrollTo(target: 'top' | 'bottom') {
     document.body.scrollIntoView({ behavior: 'smooth', block: 'end' })
 }
 
-function scrollByDate(date: string) {
-  let target
-  if (sortBy.value === 'desc') {
-    target = newsDataSorted.value.find(news => new Date(news.startTime) <= new Date(`${date} 23:59:59`))
+watch(jumpDate, (val) => {
+  if (val) {
+    handleScrollByDate()
+  }
+})
+
+function changeDate(go: number) {
+  if (jumpDate.value) {
+    const date = new Date(jumpDate.value)
+    date.setDate(date.getDate() + go)
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    jumpDate.value = `${year}-${month}-${day}`
+    handleScrollByDate()
   }
   else {
-    target = newsDataSorted.value.find(news => new Date(news.startTime) >= new Date(`${date} 00:00:00`))
-  }
-  if (target) {
-    const containerTop = containerRef.value?.offsetTop || 0
-    window.document.documentElement.scrollTo({ top: containerTop + target.top, behavior: 'smooth' })
-    showDialogJump.value = false
-  }
-  else {
-    toast.error('未找到跳转目标')
+    toast.warning('请先选择日期')
   }
 }
 
-function handlePerisitVisitRecord() {
-  if (!showVisited.value)
-    return
-  limitSetSize(state.newsVisited, 2000)
-  localStorage.setItem(VISIT_PERSIST_KEY, JSON.stringify(Array.from(state.newsVisited)))
+function handleScrollByDate() {
+  if (!newsListRef.value.scrollByDate(jumpDate.value)) {
+    toast.error('未找到跳转目标')
+  }
 }
 </script>
 
@@ -370,9 +356,15 @@ function handlePerisitVisitRecord() {
           </div>
           <button
             class="rounded-md border px-2 py-0.5 transition-colors hover:border-blue-500"
-            @click="scrollByDate(jumpDate)"
+            @click="changeDate(-1)"
           >
-            确认
+            向前
+          </button>
+          <button
+            class="ml-2 rounded-md border px-2 py-0.5 transition-colors hover:border-blue-500"
+            @click="changeDate(1)"
+          >
+            向后
           </button>
         </div>
       </Transition>
@@ -463,57 +455,14 @@ function handlePerisitVisitRecord() {
         </div>
       </div>
 
-      <div
-        ref="headerRef"
-        class="header sticky top-0 z-10 pt-2 backdrop-blur transition-all"
-        :class="{
-          'mx-[-8px] bg-[#f3f4f6]/80 pl-2 pr-4 md:mx-[-16px] md:pl-4': headerSticky,
-        }"
-      >
-        <div
-          class="mb-2 flex flex-wrap gap-1"
-          :class="{
-            'pr-4': headerSticky,
-          }"
-        >
-          <button
-            v-for="[source_key, source_info] in Object.entries(NEWS_LIST)" :key="source_key"
-            class="flex shrink-0 items-center overflow-hidden rounded-full border p-1 transition-colors"
-            :class="{
-              'hover:border-blue-500': !newsLoading,
-              'border-blue-500 text-blue-500': source === source_key,
-            }"
-            :disabled="newsLoading || source === source_key"
-            @click="changeSource(source_key)"
-          >
-            <img
-              class="size-6 rounded-full md:size-8"
-              :alt="source_info.displayName"
-              :src="`./images/icon/${source_key}-48px.png`"
-            >
-            <AnimationText :show="source === source_key">
-              <span class="mx-1 sm:mx-2">
-                {{ source_info.displayName }}
-              </span>
-            </AnimationText>
-          </button>
-        </div>
-
-        <div class="mb-2">
-          <button
-            v-for="[channal_key, channal_info] in Object.entries(NEWS_LIST[source].channals)" :key="channal_key"
-            class="border-b-2 bg-transparent px-2 py-1 transition-colors"
-            :class="{
-              'hover:text-blue-500': !newsLoading,
-              'border-blue-500 text-blue-500': channal === channal_key,
-            }"
-            :disabled="newsLoading || channal === channal_key"
-            @click="changeChannal(channal_key)"
-          >
-            {{ channal_info.displayName }}
-          </button>
-        </div>
-      </div>
+      <Header
+        :source="source"
+        :channal="channal"
+        :disabled="newsLoading"
+        @change-source="changeSource"
+        @change-channal="changeChannal"
+        @update:sticky="headerSticky = $event"
+      />
 
       <div class="mb-2 flex flex-wrap items-center">
         数据更新于：
@@ -548,18 +497,11 @@ function handlePerisitVisitRecord() {
 
       <details v-show="!searchEnabled" class="mb-2" open>
         <summary>分类</summary>
-        <ul class="mt-2 flex flex-wrap gap-1">
-          <li
-            v-for="tag in Object.keys(tags).sort((a, b) => tags[b] - tags[a])" :key="tag"
-            class="inline-block cursor-pointer rounded-full border border-gray-400 px-2 py-0.5 text-xs transition-colors hover:border-blue-400 hover:text-blue-500 md:px-3 md:py-1 md:text-sm"
-            :class="{
-              '!border-blue-500 !bg-blue-500 !text-white': filterTag === tag,
-            }"
-            @click="handleFilterTag(tag)"
-          >
-            {{ tag }} {{ tags[tag] }}
-          </li>
-        </ul>
+        <TagList
+          :tags="tags"
+          :filter-tag="filterTag"
+          @change-tag="changeTag"
+        />
       </details>
 
       <div class="mb-2 flex flex-wrap items-center gap-x-2 gap-y-1">
@@ -611,31 +553,16 @@ function handlePerisitVisitRecord() {
         <LoadingIndicator class="size-[60px]" />
         <span class="text-lg">数据加载中</span>
       </div>
-      <ul
-        ref="containerRef"
-        class="relative overflow-hidden"
-        :style="{
-          height: `${newsDataSorted.length * (itemHeight + ITEM_GAP)}px`,
-        }"
-      >
-        <NewsItem
-          ref="shadowItemRef"
-          :news="SHADOW_ITEM"
-          :source="source"
-          :channal="channal"
-          :config="newsItemConfig"
-          :style="{ pointerEvent: 'none', userSelect: 'none' }"
-        />
-        <NewsItem
-          v-for="news in itemRenderList" :key="news.id"
-          :news="news"
-          :source="source"
-          :channal="channal"
-          :config="newsItemConfig"
-          @change-filter="handleFilterTag"
-          @visit="handlePerisitVisitRecord"
-        />
-      </ul>
+
+      <NewsList
+        ref="newsListRef"
+        :news="newsDataSorted"
+        :source="source"
+        :channal="channal"
+        :config="newsItemConfig"
+        :sort-by="sortBy"
+        @change-filter="changeTag"
+      />
     </div>
   </div>
 </template>

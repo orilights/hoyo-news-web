@@ -15,6 +15,14 @@ declare global {
     top: number
   }
 
+  interface NewsItemConfig {
+    showBanner: boolean
+    showDateWeek: boolean
+    showVisited: boolean
+    coverSize: CoverSize
+    aria2Config: Aria2Config
+  }
+
   interface SourceInfo {
     displayName: string
     channals: {

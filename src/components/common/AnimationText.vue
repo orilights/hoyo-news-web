@@ -1,5 +1,5 @@
 <script setup lang="ts">
-defineProps<{
+const props = defineProps<{
   show: boolean
 }>()
 
@@ -9,6 +9,12 @@ const scrollWidth = ref(0)
 onMounted(() => {
   scrollWidth.value = textRef.value?.scrollWidth || 0
 })
+
+watch(() => props.show, (show) => {
+  if (show) {
+    scrollWidth.value = textRef.value?.scrollWidth || 0
+  }
+}, { immediate: true })
 </script>
 
 <template>
