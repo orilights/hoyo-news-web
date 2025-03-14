@@ -49,11 +49,6 @@ export default {
     include: [116277],
     exclude: [117793],
   },
-  '同人绘画作品征集': {
-    keyword: ['同人绘画作品征集'],
-    include: [],
-    exclude: [],
-  },
   '音乐会': {
     keyword: ['音乐会'],
     include: [],
@@ -101,11 +96,6 @@ export default {
   },
   '版本活动速递': {
     keyword: ['版本活动速递'],
-    include: [],
-    exclude: [],
-  },
-  '预下载公告': {
-    keyword: ['预下载'],
     include: [],
     exclude: [],
   },
@@ -238,11 +228,6 @@ export default {
     keyword: ['×原神', 'x 原神', '原神×', '原神 x', '联名', '联动'],
     include: [118376],
     exclude: [118466],
-  },
-  '周边信息': {
-    keyword: ['周边上新', '原神旗舰店'],
-    include: [],
-    exclude: [],
   },
   'PV': {
     keyword: ['PV'],
