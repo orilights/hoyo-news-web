@@ -53,10 +53,12 @@ onUnmounted(() => {
 })
 
 function openVideo(link: string) {
+  window.umami?.track('a-open-video', { key: newsKey })
   window.open(link, '_blank')
 }
 
 function copyVideoLink(text: string) {
+  window.umami?.track('a-copy-video-link', { key: newsKey })
   const input = document.createElement('input')
   input.value = text
   document.body.appendChild(input)
@@ -67,10 +69,12 @@ function copyVideoLink(text: string) {
 }
 
 function sendToPotPlayer(link: string) {
+  window.umami?.track('a-send-to-potplayer', { key: newsKey })
   window.open(`potplayer://${link}`)
 }
 
 function sendToAria2(link: string) {
+  window.umami?.track('a-send-to-aria2', { key: newsKey })
   const rpcId = `HYN${new Date().getTime()}`
   const videoExt = link.split('.').pop()
   const videoOutName = sanitizeFilename(
@@ -112,6 +116,7 @@ function onImageLoaded() {
 }
 
 function onClick() {
+  window.umami?.track('a-visit-news', { key: newsKey })
   if (!props.config.showVisited)
     return
   state.newsVisited.add(newsKey)

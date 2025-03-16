@@ -45,7 +45,7 @@ const coverSize = computed(() => {
   return CoverSize.Small
 })
 
-const showSetting = ref(false)
+const showDialogSetting = ref(false)
 const showCover = ref(true)
 const showDateWeek = ref(false)
 const showVisited = ref(false)
@@ -153,9 +153,9 @@ const dateRange = computed(() => {
 
 onMounted(() => {
   document.addEventListener('click', (event) => {
-    if (showSetting.value) {
+    if (showDialogSetting.value) {
       if ((event.target as HTMLElement).closest('.setting') === null)
-        showSetting.value = false
+        showDialogSetting.value = false
     }
     if (showDialogJump.value) {
       if ((event.target as HTMLElement).closest('.dialog-jump') === null)
@@ -200,6 +200,9 @@ function registerSettings() {
 }
 
 function fetchData(force_refresh = false) {
+  if (force_refresh) {
+    window.umami?.track('a-manual-refresh')
+  }
   newsLoading.value = true
   newsData.value = []
   tags.value = {}
@@ -304,6 +307,7 @@ function getNewsType(title: string, id: number): string {
 }
 
 function exportVideos() {
+  window.umami?.track('a-export-videos')
   let result = ''
   newsDataSorted.value.filter(news => news.video).forEach((news: any) => {
     const fileExt = news.video.split('.').pop()
@@ -341,6 +345,20 @@ function changeDate(go: number) {
   }
   else {
     toast.warning('请先选择日期')
+  }
+}
+
+function handleChangeDialogSettingVisible() {
+  showDialogSetting.value = !showDialogSetting.value
+  if (showDialogSetting.value) {
+    window.umami?.track('d-setting')
+  }
+}
+
+function handleChangeDialogJumpVisible() {
+  showDialogJump.value = !showDialogJump.value
+  if (showDialogJump.value) {
+    window.umami?.track('d-jump')
   }
 }
 
@@ -387,7 +405,7 @@ function handleScrollByDate() {
       <div class="flex flex-col">
         <button
           class="dialog-jump rounded-t-lg border border-gray-300 bg-white p-2 transition-colors hover:z-20 hover:border-blue-500 hover:text-blue-500"
-          @click="showDialogJump = !showDialogJump"
+          @click="handleChangeDialogJumpVisible"
         >
           <IconJump class="size-4" />
         </button>
@@ -425,14 +443,14 @@ function handleScrollByDate() {
             </a>
             <button
               class="setting"
-              @click="showSetting = !showSetting"
+              @click="handleChangeDialogSettingVisible"
             >
               <IconSetting class="size-6" />
             </button>
           </div>
           <Transition name="popup-setting">
             <div
-              v-show="showSetting"
+              v-show="showDialogSetting"
               class="setting absolute right-0 top-8 rounded-lg bg-white p-4 shadow-md"
             >
               <div class="my-1 flex items-center">
@@ -463,7 +481,10 @@ function handleScrollByDate() {
                   class="w-full rounded-md border border-black/20 bg-transparent px-1 transition-colors"
                 >
               </div>
-              <button class="rounded-md border px-2 py-0.5 transition-colors hover:border-blue-500" @click="exportVideos">
+              <button
+                class="rounded-md border px-2 py-0.5 transition-colors hover:border-blue-500"
+                @click="exportVideos"
+              >
                 导出本页视频至 aria2 任务
               </button>
             </div>
@@ -489,7 +510,10 @@ function handleScrollByDate() {
           <span class="mr-2">
             {{ formatTime(newsUpdateTime) }}
           </span>
-          <button class="flex items-center hover:text-blue-500" @click="fetchData(true)">
+          <button
+            class="flex items-center hover:text-blue-500"
+            @click="fetchData(true)"
+          >
             <IconRefresh class="size-4" />
             <span class="ml-1">
               点击此处可刷新数据

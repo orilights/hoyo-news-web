@@ -1,6 +1,10 @@
 export { }
 
 declare global {
+
+  interface Window {
+    umami: any
+  }
   interface NewsData {
     id: number
     title: string
