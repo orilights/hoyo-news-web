@@ -54,8 +54,13 @@ export default {
     include: [],
     exclude: [],
   },
+  '交响音乐现场': {
+    keyword: ['交响音乐现场'],
+    include: [],
+    exclude: [],
+  },
   'EP、MV': {
-    keyword: ['音乐动态视频', '《原神》EP', '特别EP', 'MV'],
+    keyword: ['音乐动态视频', '《原神》EP', '特别EP', 'MV', '主题曲'],
     include: [],
     exclude: [],
   },
@@ -83,6 +88,9 @@ export default {
     keyword: ['特别节目'],
     include: [116318],
     exclude: [],
+    filter: {
+      video: true,
+    },
   },
   '版本更新说明': {
     keyword: ['更新通知', /版本.*更新说明/, '更新维护预告'],
@@ -100,12 +108,12 @@ export default {
     exclude: [],
   },
   '幕后花絮': {
-    keyword: ['的幕后', '合作幕后'],
+    keyword: ['的幕后', '幕后的故事', '合作幕后'],
     include: [],
     exclude: [],
   },
   '沙雕广告': {
-    keyword: ['原来你也玩原神'],
+    keyword: ['原来你也玩原神', '《云·原神》动画短片'],
     include: [],
     exclude: [],
   },

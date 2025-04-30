@@ -5,7 +5,7 @@ export default {
     exclude: [],
   },
   '周边信息': {
-    keyword: ['新品情报'],
+    keyword: ['新品情报', '周边展示'],
     include: [],
     exclude: [],
   },
@@ -41,6 +41,11 @@ export default {
   },
   '丽都修葺漫谈': {
     keyword: ['丽都修葺漫谈'],
+    include: [],
+    exclude: [],
+  },
+  '策划面对面': {
+    keyword: ['策划面对面'],
     include: [],
     exclude: [],
   },
@@ -109,23 +114,28 @@ export default {
     include: [],
     exclude: [],
   },
-  '主线说明': {
-    keyword: [/主线.*开启/],
+  '主线更新': {
+    keyword: [/新剧情.*主线/],
     include: [],
     exclude: [],
   },
-  '独家视界说明': {
+  '独家视界更新': {
     keyword: ['独家视界开启'],
     include: [],
     exclude: [],
   },
-  '代理人秘闻说明': {
-    keyword: ['代理人秘闻开启'],
+  '代理人秘闻更新': {
+    keyword: [/新剧情.*代理人秘闻/],
     include: [],
     exclude: [],
   },
   '生日贺图': {
     keyword: ['生日快乐'],
+    include: [],
+    exclude: [],
+  },
+  '节日贺图': {
+    keyword: ['节快乐', '中秋', '端午', '圣诞', '新年快乐', '天涯共此时', '春风', '春日', '夏', '秋', '冬日', '雪夜'],
     include: [],
     exclude: [],
   },
@@ -175,7 +185,7 @@ export default {
     exclude: [],
   },
   '调频说明': {
-    keyword: ['调频说明'],
+    keyword: ['调频说明', '限时频段'],
     include: [],
     exclude: [],
   },

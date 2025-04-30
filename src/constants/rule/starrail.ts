@@ -34,10 +34,18 @@ export default {
     include: [],
     exclude: [],
   },
+  '其他动画': {
+    keyword: ['动画', '星旅一瞬'],
+    include: [123095, 155342],
+    exclude: [],
+    filter: {
+      video: true,
+    },
+  },
   'PV': {
-    keyword: ['PV', '动画CM'],
+    keyword: ['PV'],
     include: [],
-    exclude: [123201, 126563],
+    exclude: [123201, 126563, 155548],
   },
   'EP、MV': {
     keyword: ['EP', 'MV'],
@@ -69,7 +77,7 @@ export default {
     include: [],
     exclude: [],
   },
-  '专题展示页': {
+  '版本专题展示页': {
     keyword: ['专题展示页'],
     include: [],
     exclude: [],

@@ -227,7 +227,7 @@ function fetchData(force_refresh = false) {
         newsList.forEach((news: any) => {
           if (news.video)
             tags.value[TAG_VIDEO] += 1
-          const tag = getNewsType(news.title, news.id)
+          const tag = getNewsType(news)
           if (tags.value[tag] === undefined)
             tags.value[tag] = 1
           else
@@ -282,15 +282,19 @@ function handleSourceChange() {
   fetchData()
 }
 
-function getNewsType(title: string, id: number): string {
-  if (!Object.keys(NEWS_CLASSIFY_RULE).includes(source.value))
+function getNewsType(news: NewsData): string {
+  const { title, id, video } = news
+  const classifyRules = NEWS_CLASSIFY_RULE[source.value]
+  if (!classifyRules)
     return TAG_OTHER
-  for (const [type, rule] of Object.entries(NEWS_CLASSIFY_RULE[source.value])) {
+  for (const [type, rule] of Object.entries(classifyRules)) {
     if (rule.include.includes(id))
       return type
   }
-  for (const [type, rule] of Object.entries(NEWS_CLASSIFY_RULE[source.value])) {
+  for (const [type, rule] of Object.entries(classifyRules)) {
     if (rule.exclude.includes(id))
+      continue
+    if (rule.filter?.video && !video)
       continue
     for (const keyword of rule.keyword) {
       if (typeof keyword === 'string') {

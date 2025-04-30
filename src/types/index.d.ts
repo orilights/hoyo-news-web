@@ -45,6 +45,9 @@ declare global {
     keyword: (string | RegExp)[]
     include: number[]
     exclude: number[]
+    filter?: {
+      video?: boolean
+    }
   }
 
   interface SourceClassifyRule {
