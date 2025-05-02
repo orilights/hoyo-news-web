@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import AnimationText from '@/components/common/AnimationText.vue'
+import Tabs from '@/components/common/Tabs.vue'
 import { NEWS_LIST } from '@/constants'
 
-defineProps<{
+const props = defineProps<{
   disabled: boolean
   source: string
   channal: string
@@ -12,6 +13,13 @@ const emit = defineEmits(['changeSource', 'changeChannal', 'update:sticky'])
 
 const headerRef = ref<HTMLElement | null>(null)
 const sticky = ref(false)
+
+const tabs = computed(() => {
+  return Object.entries(NEWS_LIST[props.source].channals).map(([key, value]) => ({
+    key,
+    label: value.displayName,
+  }))
+})
 
 onMounted(() => {
   document.addEventListener('scroll', handleScroll)
@@ -64,19 +72,12 @@ function handleScroll() {
       </button>
     </div>
 
-    <div class="mb-2 overflow-x-auto whitespace-nowrap">
-      <button
-        v-for="[channal_key, channal_info] in Object.entries(NEWS_LIST[source].channals)" :key="channal_key"
-        class="border-b-2 bg-transparent px-2 py-1 transition-colors"
-        :class="{
-          'hover:text-blue-500': !disabled,
-          'border-blue-500 text-blue-500': channal === channal_key,
-        }"
-        :disabled="disabled || channal === channal_key"
-        @click="emit('changeChannal', channal_key)"
-      >
-        {{ channal_info.displayName }}
-      </button>
-    </div>
+    <Tabs
+      class="mb-2 overflow-x-auto whitespace-nowrap"
+      :tabs="tabs"
+      :selected-key="channal"
+      :disabled="disabled"
+      @update:selected-key="(val) => emit('changeChannal', val)"
+    />
   </div>
 </template>

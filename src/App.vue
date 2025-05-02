@@ -4,7 +4,6 @@ import Switch from '@/components/common/Switch.vue'
 import Header from '@/components/Header.vue'
 import IconArrowDown from '@/components/icon/IconArrowDown.vue'
 import IconArrowUp from '@/components/icon/IconArrowUp.vue'
-import IconGithub from '@/components/icon/IconGithub.vue'
 import IconJump from '@/components/icon/IconJump.vue'
 import IconRefresh from '@/components/icon/IconRefresh.vue'
 import IconSetting from '@/components/icon/IconSetting.vue'
@@ -14,7 +13,7 @@ import {
   ARIA2_RPC_URL,
   NEWS_CLASSIFY_RULE,
   NEWS_LIST,
-  REPO_URL,
+  SETTING_TABS,
   TAG_ALL,
   TAG_OTHER,
   TAG_VIDEO,
@@ -26,6 +25,7 @@ import { exportFile, formatTime, sanitizeFilename } from '@/utils'
 import { Settings, SettingType } from '@orilight/vue-settings'
 import { useMediaQuery, useUrlSearchParams } from '@vueuse/core'
 import { useToast } from 'vue-toastification'
+import Tabs from './components/common/Tabs.vue'
 import NewsList from './components/NewsList.vue'
 
 const settings = new Settings(APP_ABBR)
@@ -46,6 +46,7 @@ const coverSize = computed(() => {
 })
 
 const showDialogSetting = ref(false)
+const currentSettingTab = ref('general')
 const showCover = ref(true)
 const showDateWeek = ref(false)
 const showVisited = ref(false)
@@ -429,7 +430,7 @@ function handleScrollByDate() {
     </div>
     <div class="relative mx-2 py-2 md:mx-4 lg:mx-auto lg:w-[960px] xl:px-0">
       <div class="flex items-center justify-between">
-        <h1 class="py-6 text-2xl font-bold transition-[font-size] md:text-4xl">
+        <h1 class="py-6 text-2xl font-bold transition-[font-size]">
           米哈游官网新闻检索
         </h1>
       </div>
@@ -442,9 +443,6 @@ function handleScrollByDate() {
           }"
         >
           <div class="absolute right-0 flex gap-4">
-            <a v-show="!headerSticky" :href="REPO_URL" target="_blank">
-              <IconGithub class="size-6" />
-            </a>
             <button
               class="setting"
               @click="handleChangeDialogSettingVisible"
@@ -455,42 +453,75 @@ function handleScrollByDate() {
           <Transition name="popup-setting">
             <div
               v-show="showDialogSetting"
-              class="setting absolute right-0 top-8 rounded-lg bg-white p-4 shadow-md"
+              class="setting absolute right-0 top-8 w-[300px] rounded-lg bg-white p-2 pt-1 text-sm shadow-md"
             >
-              <div class="my-1 flex items-center">
-                <span class="flex-1">显示封面</span> <Switch v-model="showCover" class="ml-2" />
+              <Tabs
+                v-model:selected-key="currentSettingTab"
+                class="mb-2"
+                :tabs="SETTING_TABS"
+              />
+              <div class="px-2">
+                <template v-if="currentSettingTab === 'general'">
+                  <div class="mb-2 flex items-center">
+                    <span class="flex-1">显示封面</span> <Switch v-model="showCover" class="ml-2" />
+                  </div>
+                  <div class="mb-2 flex items-center">
+                    <span class="flex-1">根据发布时间排序</span> <Switch v-model="sortByDate" class="ml-2" />
+                  </div>
+                  <div class="mb-2 flex items-center">
+                    <span class="flex-1">发布时间显示星期</span> <Switch v-model="showDateWeek" class="ml-2" />
+                  </div>
+                  <div class="mb-2 flex items-center">
+                    <span class="flex-1">置灰已阅读新闻</span> <Switch v-model="showVisited" class="ml-2" />
+                  </div>
+                  <div class="mb-2">
+                    <button
+                      class="rounded-md border px-2 py-0.5 transition-colors hover:border-blue-500"
+                      @click="exportVideos"
+                    >
+                      导出本页视频至 aria2 任务
+                    </button>
+                  </div>
+                </template>
+                <template v-if="currentSettingTab === 'download'">
+                  <div class="mb-2">
+                    <div class="mb-1">
+                      aria2 RPC地址
+                    </div>
+                    <input
+                      v-model="aria2Config.rpcUrl" type="text"
+                      class="w-full rounded-md border border-black/20 bg-transparent px-1.5 py-0.5 text-sm outline-blue-500 transition-colors hover:border-blue-500"
+                    >
+                  </div>
+                  <div class="mb-2">
+                    <div class="mb-1">
+                      aria2 RPC密钥
+                    </div>
+                    <input
+                      v-model="aria2Config.rpcSecret" type="text"
+                      class="w-full rounded-md border border-black/20 bg-transparent px-1.5 py-0.5 text-sm outline-blue-500 transition-colors hover:border-blue-500"
+                    >
+                  </div>
+                </template>
+                <template v-if="currentSettingTab === 'about'">
+                  <div class="mb-2 flex items-center rounded-lg border p-2 text-sm">
+                    <img src="/favicon.png" class="mr-2 size-12">
+                    一个用于检索米哈游旗下游戏官网新闻的小工具
+                  </div>
+                  <div class="mb-2 flex items-center gap-2">
+                    <span class="flex-1">作者</span>
+                    <a href="https://orilight.top" target="_blank" class="text-blue-500 hover:underline">
+                      OriLight
+                    </a>
+                  </div>
+                  <div class="mb-2 flex items-center gap-2">
+                    <span class="flex-1">Github</span>
+                    <a href="https://github.com/orilights/hoyo-news-web" target="_blank" class="text-blue-500 hover:underline">
+                      hoyo-news-web
+                    </a>
+                  </div>
+                </template>
               </div>
-              <div class="my-1 flex items-center">
-                <span class="flex-1">根据发布时间排序</span> <Switch v-model="sortByDate" class="ml-2" />
-              </div>
-              <div class="my-1 flex items-center">
-                <span class="flex-1">发布时间显示星期</span> <Switch v-model="showDateWeek" class="ml-2" />
-              </div>
-              <div class="my-1 flex items-center">
-                <span class="flex-1">置灰已阅读新闻</span> <Switch v-model="showVisited" class="ml-2" />
-              </div>
-              <div class="my-1">
-                <span class="flex-1">aria2 RPC地址</span>
-                <br>
-                <input
-                  v-model="aria2Config.rpcUrl" type="text"
-                  class="w-full rounded-md border border-black/20 bg-transparent px-1 transition-colors"
-                >
-              </div>
-              <div class="my-1">
-                <span class="flex-1">aria2 RPC密钥</span>
-                <br>
-                <input
-                  v-model="aria2Config.rpcSecret" type="text"
-                  class="w-full rounded-md border border-black/20 bg-transparent px-1 transition-colors"
-                >
-              </div>
-              <button
-                class="rounded-md border px-2 py-0.5 transition-colors hover:border-blue-500"
-                @click="exportVideos"
-              >
-                导出本页视频至 aria2 任务
-              </button>
             </div>
           </Transition>
         </div>

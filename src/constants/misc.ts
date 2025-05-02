@@ -1,5 +1,4 @@
 export const APP_ABBR = 'GNS'
-export const REPO_URL = 'https://github.com/orilights/hoyo-news-web'
 
 export const SHADOW_ITEM = {
   id: -1,
@@ -27,3 +26,9 @@ export const TAG_OTHER = '未分类'
 export const VISIT_PERSIST_KEY = `${APP_ABBR}-newsVisited`
 
 export const ARIA2_RPC_URL = 'http://localhost:6800/jsonrpc'
+
+export const SETTING_TABS = [
+  { key: 'general', label: '常规' },
+  { key: 'download', label: '下载' },
+  { key: 'about', label: '关于' },
+]
