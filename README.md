@@ -5,9 +5,10 @@
 <img src="docs/preview.png" alt="preview" />
 </details>
 
-一个用于检索米哈游旗下游戏官网新闻的小工具  
-在线访问：[news.hk4e.com](https://news.hk4e.com/)  
-在线访问：[news-eo.amarea.cn](https://news-eo.amarea.cn/)
+一个用于检索米哈游旗下游戏官网新闻的小工具
+
+在线访问：[news-eo.amarea.cn](https://news-eo.amarea.cn/)  
+在线访问：[news.hk4e.com](https://news.hk4e.com/)
 
 官网新闻源支持：`原神` `崩坏：星穹铁道` `崩坏3` `绝区零` `未定事件簿` `米哈游`  
 米游社新闻源支持：`原神` `崩坏：星穹铁道` `崩坏3` `未定事件簿` `崩坏学园2` `绝区零` `大别野`  
@@ -29,15 +30,15 @@
 
 1. 下载 [aria2](https://github.com/aria2/aria2/releases)
 2. 开启 aria2 的 RPC 服务器
-3. 在本工具的 `设置` 中配置 aria2 的 RPC 地址与密钥
+3. 在本工具的 `设置` - `下载` 中配置 aria2 的 RPC 地址与密钥
 4. 在存在视频的新闻标题下，点击 `更多操作` 中的 `发送至 aria2 下载`，即可将视频发送至 aria2 下载
 
 ## 使用 aria2c 批量下载视频
 
 1. 下载 [aria2](https://github.com/aria2/aria2/releases)
 2. 选择你要下载的视频源或筛选分类
-3. 使用本工具 `设置` 中的 `导出本页视频至 aria2 任务` 功能，将视频下载任务导出为文本文件 `videos.txt`，文件名默认使用新闻标题拼接视频文件原有拓展名
-4. 将下载任务导入 aria2
+3. 使用本工具 `设置` - `常规` 中的 `导出本页视频至 aria2 任务` 功能，将视频下载任务导出为文本文件 `videos.txt`，文件名默认使用新闻标题拼接视频文件原有拓展名
+4. 使用如下命令将下载任务导入至 aria2
 
 ```bash
 aria2c -i videos.txt -d ./download --continue --save-session=session.txt
