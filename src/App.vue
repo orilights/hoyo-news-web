@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import LoadingIndicator from '@/components/common/LoadingIndicator.vue'
 import Switch from '@/components/common/Switch.vue'
+import Tabs from '@/components/common/Tabs.vue'
 import Header from '@/components/Header.vue'
 import IconArrowDown from '@/components/icon/IconArrowDown.vue'
 import IconArrowUp from '@/components/icon/IconArrowUp.vue'
 import IconJump from '@/components/icon/IconJump.vue'
 import IconRefresh from '@/components/icon/IconRefresh.vue'
 import IconSetting from '@/components/icon/IconSetting.vue'
+import NewsGrid from '@/components/NewsGrid.vue'
+import NewsList from '@/components/NewsList.vue'
 import TagList from '@/components/TagList.vue'
 import {
   APP_ABBR,
@@ -25,8 +28,6 @@ import { exportFile, formatTime, sanitizeFilename } from '@/utils'
 import { Settings, SettingType } from '@orilight/vue-settings'
 import { useMediaQuery, useUrlSearchParams } from '@vueuse/core'
 import { useToast } from 'vue-toastification'
-import Tabs from './components/common/Tabs.vue'
-import NewsList from './components/NewsList.vue'
 
 const settings = new Settings(APP_ABBR)
 
@@ -56,6 +57,7 @@ const aria2Config = ref({
   rpcSecret: '',
   filename: '{newsTitle}.{ext}',
 })
+const useGridView = ref(false)
 
 const source = ref(Object.keys(NEWS_LIST)[0])
 const channal = ref(Object.keys(NEWS_LIST[source.value].channals)[0])
@@ -198,6 +200,7 @@ function registerSettings() {
   settings.register('sortNews', sortByDate, SettingType.Bool)
   settings.register('showVisited', showVisited, SettingType.Bool)
   settings.register('aria2Config', aria2Config, SettingType.Object, { deepMerge: true })
+  settings.register('useGridView', useGridView, SettingType.Bool)
 }
 
 function fetchData(force_refresh = false) {
@@ -463,6 +466,9 @@ function handleScrollByDate() {
               <div class="px-2">
                 <template v-if="currentSettingTab === 'general'">
                   <div class="mb-2 flex items-center">
+                    <span class="flex-1">使用网格视图</span> <Switch v-model="useGridView" class="ml-2" />
+                  </div>
+                  <div class="mb-2 flex items-center">
                     <span class="flex-1">显示封面</span> <Switch v-model="showCover" class="ml-2" />
                   </div>
                   <div class="mb-2 flex items-center">
@@ -630,6 +636,7 @@ function handleScrollByDate() {
       </div>
 
       <NewsList
+        v-if="!useGridView"
         ref="newsListRef"
         :news="newsDataSorted"
         :source="source"
@@ -637,6 +644,15 @@ function handleScrollByDate() {
         :config="newsItemConfig"
         :sort-by="sortBy"
         @change-filter="changeTag"
+      />
+
+      <NewsGrid
+        v-if="useGridView"
+        :news="newsDataSorted"
+        :source="source"
+        :channal="channal"
+        :config="newsItemConfig"
+        :sort-by="sortBy"
       />
     </div>
   </div>

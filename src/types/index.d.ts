@@ -13,6 +13,7 @@ declare global {
     tag: string
     cover: string
     video: string | null
+    duration: number | null
   }
 
   interface NewsItemData extends NewsData {
