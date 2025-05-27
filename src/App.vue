@@ -58,6 +58,7 @@ const aria2Config = ref({
   filename: '{newsTitle}.{ext}',
 })
 const useGridView = ref(false)
+const fullWidth = ref(false)
 
 const source = ref(Object.keys(NEWS_LIST)[0])
 const channal = ref(Object.keys(NEWS_LIST[source.value].channals)[0])
@@ -201,6 +202,7 @@ function registerSettings() {
   settings.register('showVisited', showVisited, SettingType.Bool)
   settings.register('aria2Config', aria2Config, SettingType.Object, { deepMerge: true })
   settings.register('useGridView', useGridView, SettingType.Bool)
+  settings.register('fullWidth', fullWidth, SettingType.Bool)
 }
 
 function fetchData(force_refresh = false) {
@@ -431,7 +433,13 @@ function handleScrollByDate() {
         </button>
       </div>
     </div>
-    <div class="relative mx-2 py-2 md:mx-4 lg:mx-auto lg:w-[960px] xl:px-0">
+    <div
+      class="relative mx-2 py-2 md:mx-4 xl:px-0"
+      :class="{
+        'lg:mx-auto lg:w-[960px]': !fullWidth,
+        'lg:mx-10': fullWidth,
+      }"
+    >
       <div class="flex items-center justify-between">
         <h1 class="py-6 text-2xl font-bold transition-[font-size]">
           米哈游官网新闻检索
@@ -466,18 +474,21 @@ function handleScrollByDate() {
               <div class="px-2">
                 <template v-if="currentSettingTab === 'general'">
                   <div class="mb-2 flex items-center">
-                    <span class="flex-1">使用网格视图</span> <Switch v-model="useGridView" class="ml-2" />
+                    <span class="flex-1">网格视图</span> <Switch v-model="useGridView" class="ml-2" />
                   </div>
-                  <div class="mb-2 flex items-center">
+                  <div v-if="useGridView" class="mb-2 flex items-center">
+                    <span class="flex-1">我的屏幕太宽了</span> <Switch v-model="fullWidth" class="ml-2" />
+                  </div>
+                  <div v-if="!useGridView" class="mb-2 flex items-center">
                     <span class="flex-1">显示封面</span> <Switch v-model="showCover" class="ml-2" />
                   </div>
                   <div class="mb-2 flex items-center">
                     <span class="flex-1">根据发布时间排序</span> <Switch v-model="sortByDate" class="ml-2" />
                   </div>
-                  <div class="mb-2 flex items-center">
+                  <div v-if="!useGridView" class="mb-2 flex items-center">
                     <span class="flex-1">发布时间显示星期</span> <Switch v-model="showDateWeek" class="ml-2" />
                   </div>
-                  <div class="mb-2 flex items-center">
+                  <div v-if="!useGridView" class="mb-2 flex items-center">
                     <span class="flex-1">置灰已阅读新闻</span> <Switch v-model="showVisited" class="ml-2" />
                   </div>
                   <div class="mb-2">

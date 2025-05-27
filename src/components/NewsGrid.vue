@@ -26,7 +26,7 @@ function onClick(news: NewsData) {
 </script>
 
 <template>
-  <div class="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-4">
+  <div class="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4">
     <a
       v-for="item in news" :key="item.id" class="group cursor-pointer"
       :href="channalConfig.newsDetailLink.replace('{id}', String(item.id))" target="_blank"
