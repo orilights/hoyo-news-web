@@ -129,7 +129,7 @@ const newsDataSorted = computed(() => {
       const bt = new Date(b.startTime).getTime()
       const at = new Date(a.startTime).getTime()
       if (bt === at)
-        return Number(b.id) - Number(a.id)
+        return Number(b.remoteId) - Number(a.remoteId)
       return bt - at
     })
   }
@@ -217,17 +217,17 @@ function fetchData(force_refresh = false) {
     channal: channal.value,
   }
   const apiBase = NEWS_LIST[params.source].channals[params.channal].apiBase
-  fetch(`${apiBase}/${params.source}/${params.channal}${force_refresh ? '?force_refresh=1' : ''}`)
+  fetch(`${apiBase}/news/${params.source}.${params.channal}${force_refresh ? '?force_refresh=1' : ''}`)
     .then(res => res.json())
     .then((res) => {
       if (params.source !== source.value || params.channal !== channal.value) {
         return
       }
-      if (res.code !== 0) {
-        toast.error(`服务器响应：${res.msg}`)
+      if (res.code !== 200) {
+        toast.error(`服务器响应：${res.message}`)
       }
       if (res.data) {
-        const newsList = res.data
+        const newsList = res.data.list
         tags.value[TAG_ALL] = newsList.length
         tags.value[TAG_VIDEO] = 0
         newsList.forEach((news: any) => {
@@ -238,12 +238,12 @@ function fetchData(force_refresh = false) {
             tags.value[tag] = 1
           else
             tags.value[tag] += 1
+          news.remoteId = Number(news.remoteId)
           news.tag = tag
-          if (typeof news.startTime === 'number')
-            news.startTime = formatTime(news.startTime)
+          news.startTime = formatTime(news.startTime)
         })
         newsData.value = newsList
-        newsUpdateTime.value = res.update
+        newsUpdateTime.value = res.data.lastSync
       }
     })
     .catch((err) => {
@@ -289,16 +289,16 @@ function handleSourceChange() {
 }
 
 function getNewsType(news: NewsData): string {
-  const { title, id, video } = news
+  const { title, remoteId, video } = news
   const classifyRules = NEWS_CLASSIFY_RULE[source.value]
   if (!classifyRules)
     return TAG_OTHER
   for (const [type, rule] of Object.entries(classifyRules)) {
-    if (rule.include.includes(id))
+    if (rule.include.includes(remoteId))
       return type
   }
   for (const [type, rule] of Object.entries(classifyRules)) {
-    if (rule.exclude.includes(id))
+    if (rule.exclude.includes(remoteId))
       continue
     if (rule.filter?.video && !video)
       continue

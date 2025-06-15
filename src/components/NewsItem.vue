@@ -17,7 +17,7 @@ const props = defineProps<{
 const emit = defineEmits(['changeFilter', 'visit'])
 
 let timer: NodeJS.Timeout | null = null
-const newsKey = `${props.source}_${props.channal}_${props.news.id}`
+const newsKey = `${props.source}_${props.channal}_${props.news.remoteId}`
 
 const loadImage = ref(false)
 const imageLoaded = ref(false)
@@ -132,7 +132,7 @@ function onClick() {
     class="absolute mb-2 w-full"
   >
     <a
-      :href="channalConfig.newsDetailLink.replace('{id}', String(news.id))"
+      :href="channalConfig.newsDetailLink.replace('{id}', String(news.remoteId))"
       :title="news.title"
       class="group flex rounded-md border-2 border-transparent bg-white p-2 transition-colors hover:border-blue-500 sm:p-3 "
       target="_blank"
@@ -153,7 +153,7 @@ function onClick() {
         <Transition name="fade">
           <img
             v-show="imageLoaded"
-            :src="loadImage ? (news.cover || DEFAULT_BANNER) : ''"
+            :src="loadImage ? (news.coverUrl || DEFAULT_BANNER) : ''"
             class="absolute size-full rounded-md bg-gray-100 object-cover sm:object-contain"
             alt="banner"
             referrerpolicy="no-referrer"
@@ -173,12 +173,12 @@ function onClick() {
         </h2>
         <div class="text-xs md:text-sm">
           <div>
-            ID {{ news.id }}
+            ID {{ news.remoteId }}
             <span v-if="news.video" class="relative text-blue-500">
               <span
                 class="ml-2 transition-colors hover:text-blue-300"
                 title="在新标签页中打开视频"
-                @click.stop.prevent="openVideo(news.video)"
+                @click.stop.prevent="openVideo(news.video.url)"
               >
                 打开视频
               </span>
@@ -197,21 +197,21 @@ function onClick() {
                   <button
                     class="w-full px-2 py-0.5 text-left transition-colors hover:bg-black/10"
                     title="复制视频链接至剪贴板"
-                    @click="showAction = false;copyVideoLink(news.video)"
+                    @click="showAction = false;copyVideoLink(news.video.url)"
                   >
                     复制链接
                   </button>
                   <button
                     class="w-full px-2 py-0.5 text-left transition-colors hover:bg-black/10"
                     title="在 PotPlayer 中打开视频"
-                    @click="showAction = false;sendToPotPlayer(news.video)"
+                    @click="showAction = false;sendToPotPlayer(news.video.url)"
                   >
                     在 PotPlayer 中打开
                   </button>
                   <button
                     class="w-full px-2 py-0.5 text-left transition-colors hover:bg-black/10"
                     title="将视频发送至 aria2 下载"
-                    @click="showAction = false;sendToAria2(news.video)"
+                    @click="showAction = false;sendToAria2(news.video.url)"
                   >
                     发送至 aria2 下载
                   </button>

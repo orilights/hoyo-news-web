@@ -93,7 +93,7 @@ function handlePerisitVisitRecord() {
       :style="{ pointerEvent: 'none', userSelect: 'none' }"
     />
     <NewsItem
-      v-for="news_data in renderList" :key="news_data.id"
+      v-for="news_data in renderList" :key="news_data.remoteId"
       :news="news_data"
       :source="source"
       :channal="channal"

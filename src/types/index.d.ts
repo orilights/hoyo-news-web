@@ -5,15 +5,18 @@ declare global {
   interface Window {
     umami: any
   }
+
+  interface VideoData {
+    url: string
+    duration: number | null
+  }
   interface NewsData {
-    id: number
+    remoteId: number
     title: string
     startTime: string
-    createTime: string
     tag: string
-    cover: string
-    video: string | null
-    duration: number | null
+    coverUrl: string
+    video: VideoData | null
   }
 
   interface NewsItemData extends NewsData {

@@ -1,14 +1,12 @@
 export const APP_ABBR = 'GNS'
 
 export const SHADOW_ITEM: NewsItemData = {
-  id: -1,
+  remoteId: -1,
   title: 'ShadowShadowShadowShadowShadowShadow',
   startTime: '2024-01-01 12:00:00',
-  createTime: '2024-01-01 12:00:00',
   tag: 'ShadowShadowShadowShadowShadowShadow',
-  cover: '',
+  coverUrl: '',
   video: null,
-  duration: null,
   top: -9999999,
 }
 export const DEFAULT_BANNER = 'https://icdn.amarea.cn/upload/2023/06/6491c83b6fa65.jpg'

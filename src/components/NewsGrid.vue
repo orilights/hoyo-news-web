@@ -16,7 +16,7 @@ const emit = defineEmits(['visit'])
 const channalConfig = computed(() => NEWS_LIST[props.source].channals[props.channal])
 
 function onClick(news: NewsData) {
-  const newsKey = `${props.source}_${props.channal}_${news.id}`
+  const newsKey = `${props.source}_${props.channal}_${news.remoteId}`
   window.umami?.track('a-visit-news', { key: newsKey })
   if (!props.config.showVisited)
     return
@@ -28,17 +28,17 @@ function onClick(news: NewsData) {
 <template>
   <div class="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4">
     <a
-      v-for="item in news" :key="item.id" class="group cursor-pointer"
-      :href="channalConfig.newsDetailLink.replace('{id}', String(item.id))" target="_blank"
+      v-for="item in news" :key="item.remoteId" class="group cursor-pointer"
+      :href="channalConfig.newsDetailLink.replace('{id}', String(item.remoteId))" target="_blank"
       @click="onClick(item)"
     >
       <div class="relative h-[120px] w-full overflow-hidden rounded-xl bg-slate-200">
-        <div v-if="item.duration" class="absolute bottom-2 right-2 z-10 rounded-md bg-black/60 px-1 text-sm text-white opacity-80 transition-opacity group-hover:opacity-100">
-          {{ formatDuration(item.duration) }}
+        <div v-if="item.video?.duration" class="absolute bottom-2 right-2 z-10 rounded-md bg-black/60 px-1 text-sm text-white opacity-80 transition-opacity group-hover:opacity-100">
+          {{ formatDuration(item.video.duration) }}
         </div>
         <img
           class="size-full object-cover transition-transform duration-300 group-hover:scale-105"
-          :src="item.cover || DEFAULT_BANNER"
+          :src="item.coverUrl || DEFAULT_BANNER"
           loading="lazy"
         >
       </div>
