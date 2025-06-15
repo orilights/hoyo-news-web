@@ -22,8 +22,6 @@
 
 分类功能使用关键词匹配标题实现，有时官网新闻的标题本身写的也不是非常规范，分类结果有错漏属于正常现象，对分类规则有任何意见请提 Issue
 
-新闻获取服务器：[hoyo-news-server](https://github.com/orilights/hoyo-news-server)
-
 # 附加功能使用说明
 
 ## 发送单个视频至 aria2 下载
