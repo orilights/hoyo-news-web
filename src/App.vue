@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { Settings, SettingType } from '@orilight/vue-settings'
+import { useMediaQuery, useUrlSearchParams } from '@vueuse/core'
+import { useToast } from 'vue-toastification'
 import LoadingIndicator from '@/components/common/LoadingIndicator.vue'
 import Switch from '@/components/common/Switch.vue'
 import Tabs from '@/components/common/Tabs.vue'
@@ -14,6 +17,7 @@ import TagList from '@/components/TagList.vue'
 import {
   APP_ABBR,
   ARIA2_RPC_URL,
+  CONFIG_API,
   NEWS_CLASSIFY_RULE,
   NEWS_LIST,
   SETTING_TABS,
@@ -25,9 +29,6 @@ import {
 import { state } from '@/state'
 import { CoverSize } from '@/types/enum'
 import { exportFile, formatTime, sanitizeFilename } from '@/utils'
-import { Settings, SettingType } from '@orilight/vue-settings'
-import { useMediaQuery, useUrlSearchParams } from '@vueuse/core'
-import { useToast } from 'vue-toastification'
 
 const settings = new Settings(APP_ABBR)
 
@@ -184,6 +185,7 @@ onMounted(() => {
   else
     channal.value = Object.keys(NEWS_LIST[source.value].channals)[0]
 
+  fetchNotice()
   fetchData()
 
   watch(source, (val) => {
@@ -203,6 +205,24 @@ function registerSettings() {
   settings.register('aria2Config', aria2Config, SettingType.Object, { deepMerge: true })
   settings.register('useGridView', useGridView, SettingType.Bool)
   settings.register('fullWidth', fullWidth, SettingType.Bool)
+}
+
+function fetchNotice() {
+  fetch(`${CONFIG_API}/hoyonews.notice`)
+    .then(res => res.json())
+    .then((res) => {
+      if (res['hoyonews.notice']) {
+        toast.info(res['hoyonews.notice'], {
+          timeout: 10000,
+          closeOnClick: false,
+          draggable: false,
+        })
+      }
+    })
+    .catch((err) => {
+      toast.error('获取公告数据失败')
+      console.error(err)
+    })
 }
 
 function fetchData(force_refresh = false) {

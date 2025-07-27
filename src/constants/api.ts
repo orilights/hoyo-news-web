@@ -5,6 +5,8 @@ export const API_ENDPOINT = {
   OS: import.meta.env.VITE_API_ENDPOINT_OS,
 }
 
+export const CONFIG_API = import.meta.env.VITE_API_CONFIG
+
 export const NEWS_LIST: Record<string, SourceInfo> = {
   genshin: {
     displayName: '原神',
