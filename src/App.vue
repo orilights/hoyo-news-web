@@ -52,7 +52,6 @@ const currentSettingTab = ref('general')
 const showCover = ref(true)
 const showDateWeek = ref(false)
 const showVisited = ref(false)
-const sortByDate = ref(true)
 const aria2Config = ref({
   rpcUrl: ARIA2_RPC_URL,
   rpcSecret: '',
@@ -125,16 +124,6 @@ const newsDataFiltered = computed(() => {
 const newsDataSorted = computed(() => {
   const data = newsDataFiltered.value.slice()
 
-  if (sortByDate.value) {
-    data.sort((a, b) => {
-      const bt = new Date(b.startTime).getTime()
-      const at = new Date(a.startTime).getTime()
-      if (bt === at)
-        return Number(b.remoteId) - Number(a.remoteId)
-      return bt - at
-    })
-  }
-
   if (sortBy.value === 'asc')
     data.reverse()
 
@@ -200,7 +189,6 @@ onUnmounted(() => {
 function registerSettings() {
   settings.register('showCover', showCover, SettingType.Bool)
   settings.register('showDateWeek', showDateWeek, SettingType.Bool)
-  settings.register('sortNews', sortByDate, SettingType.Bool)
   settings.register('showVisited', showVisited, SettingType.Bool)
   settings.register('aria2Config', aria2Config, SettingType.Object, { deepMerge: true })
   settings.register('useGridView', useGridView, SettingType.Bool)
@@ -501,9 +489,6 @@ function handleScrollByDate() {
                   </div>
                   <div v-if="!useGridView" class="mb-2 flex items-center">
                     <span class="flex-1">显示封面</span> <Switch v-model="showCover" class="ml-2" />
-                  </div>
-                  <div class="mb-2 flex items-center">
-                    <span class="flex-1">根据发布时间排序</span> <Switch v-model="sortByDate" class="ml-2" />
                   </div>
                   <div v-if="!useGridView" class="mb-2 flex items-center">
                     <span class="flex-1">发布时间显示星期</span> <Switch v-model="showDateWeek" class="ml-2" />
