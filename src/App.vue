@@ -17,6 +17,7 @@ import TagList from '@/components/TagList.vue'
 import {
   APP_ABBR,
   ARIA2_RPC_URL,
+  BUILD_DATE,
   CONFIG_API,
   NEWS_LIST,
   SETTING_TABS,
@@ -490,6 +491,12 @@ function handleScrollByDate() {
                     >
                       hoyo-news-web
                     </a>
+                  </div>
+                  <div class="mb-2 flex items-center gap-2">
+                    <span class="flex-1">构建时间</span>
+                    <span>
+                      {{ formatTime(BUILD_DATE) }}
+                    </span>
                   </div>
                 </template>
               </div>

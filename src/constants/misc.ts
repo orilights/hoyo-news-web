@@ -31,3 +31,5 @@ export const SETTING_TABS = [
   { key: 'download', label: '下载' },
   { key: 'about', label: '关于' },
 ]
+
+export const BUILD_DATE = document.body.getAttribute('data-build-date') || ''

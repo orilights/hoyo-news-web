@@ -4,6 +4,7 @@ import vue from '@vitejs/plugin-vue'
 import AutoImport from 'unplugin-auto-import/vite'
 import { defineConfig } from 'vite'
 import simpleHtmlPlugin from 'vite-plugin-simple-html'
+import buildDatePlugin from './plugins/buildDate.js'
 
 export default defineConfig({
   resolve: {
@@ -26,5 +27,6 @@ export default defineConfig({
         },
       },
     }),
+    buildDatePlugin,
   ],
 })
