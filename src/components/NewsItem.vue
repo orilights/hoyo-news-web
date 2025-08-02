@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import { useToast } from 'vue-toastification'
 import LoadingIndicatorImage from '@/components/common/LoadingIndicatorImage.vue'
 import IconFilter from '@/components/icon/IconFilter.vue'
 import { DEFAULT_BANNER, LOAD_DELAY, NEWS_LIST } from '@/constants'
 import { state } from '@/state'
 import { CoverSize } from '@/types/enum'
 import { getWeek, sanitizeFilename } from '@/utils'
-import { useToast } from 'vue-toastification'
 
 const props = defineProps<{
   news: NewsItemData
@@ -140,7 +140,7 @@ function onClick() {
     >
       <div
         v-if="config.showBanner && channalConfig.coverWidth"
-        class="sm relative mr-2 flex shrink-0 items-center justify-center md:mr-4"
+        class="relative mr-2 flex shrink-0 items-center justify-center md:mr-4"
         :style="{
           width: `${coverWidth}px`,
           height: `${coverHeight}px`,

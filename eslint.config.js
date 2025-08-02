@@ -1,16 +1,11 @@
 import antfu from '@antfu/eslint-config'
-import { FlatCompat } from '@eslint/eslintrc'
-
-const compat = new FlatCompat()
+import tailwind from "eslint-plugin-tailwindcss";
 
 export default antfu(
+  ...tailwind.configs["flat/recommended"],
   {
-    ignores: ['*.md'],
-  },
-  ...compat.config({
-    extends: ['plugin:tailwindcss/recommended'],
     rules: {
       'tailwindcss/no-custom-classname': 'off',
-    },
-  }),
+    }
+  }
 )

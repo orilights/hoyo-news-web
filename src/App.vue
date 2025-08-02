@@ -327,9 +327,9 @@ function getNewsType(news: NewsData): string {
 function exportVideos() {
   window.umami?.track('a-export-videos')
   let result = ''
-  newsDataSorted.value.filter(news => news.video).forEach((news: any) => {
-    const fileExt = news.video.split('.').pop()
-    result += `${news.video}\n  out=${sanitizeFilename(news.title)}.${fileExt}\n`
+  newsDataSorted.value.filter(news => news.video).forEach((news) => {
+    const fileExt = news.video!.url.split('.').pop()
+    result += `${news.video!.url}\n  out=${sanitizeFilename(news.title)}.${fileExt}\n`
   })
   exportFile({
     filename: 'videos.txt',

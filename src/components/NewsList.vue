@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import { useElementBounding, useElementSize, useThrottle } from '@vueuse/core'
 import NewsItem from '@/components/NewsItem.vue'
 import { ITEM_GAP, SHADOW_ITEM, VISIT_PERSIST_KEY } from '@/constants'
 import { state } from '@/state'
 import { limitSetSize } from '@/utils'
-import { useElementBounding, useElementSize, useThrottle } from '@vueuse/core'
 
 const props = defineProps<{
   config: NewsItemConfig
