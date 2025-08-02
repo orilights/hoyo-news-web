@@ -1,7 +1,7 @@
 export const APP_ABBR = 'GNS'
 
 export const SHADOW_ITEM: NewsItemData = {
-  remoteId: -1,
+  remoteId: 'ShadowShadowShadowShadowShadowShadow',
   title: 'ShadowShadowShadowShadowShadowShadow',
   startTime: '2024-01-01 12:00:00',
   tag: 'ShadowShadowShadowShadowShadowShadow',
