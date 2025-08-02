@@ -11,7 +11,7 @@ declare global {
     duration: number | null
   }
   interface NewsData {
-    remoteId: number
+    remoteId: string
     title: string
     startTime: string
     tag: string
@@ -47,9 +47,9 @@ declare global {
 
   interface ClassifyRule {
     keyword: (string | RegExp)[]
-    include: number[]
-    exclude: number[]
-    filter?: {
+    include?: string[]
+    exclude?: string[]
+    meta?: {
       video?: boolean
     }
   }
@@ -62,5 +62,11 @@ declare global {
     rpcUrl: string
     rpcSecret: string
     filename: string
+  }
+
+  interface TagInfo {
+    name: string
+    count: number
+    video: boolean
   }
 }

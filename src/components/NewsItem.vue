@@ -134,7 +134,7 @@ function onClick() {
     <a
       :href="channalConfig.newsDetailLink.replace('{id}', String(news.remoteId))"
       :title="news.title"
-      class="group flex rounded-md border-2 border-transparent bg-white p-2 transition-colors hover:border-blue-500 sm:p-3 "
+      class="group flex rounded-md border-2 border-transparent bg-white p-2 transition-colors hover:border-blue-500 sm:p-3"
       target="_blank"
       @click="onClick"
     >

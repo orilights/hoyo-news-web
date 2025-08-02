@@ -18,17 +18,15 @@ import {
   APP_ABBR,
   ARIA2_RPC_URL,
   CONFIG_API,
-  NEWS_CLASSIFY_RULE,
   NEWS_LIST,
   SETTING_TABS,
   TAG_ALL,
-  TAG_OTHER,
   TAG_VIDEO,
   VISIT_PERSIST_KEY,
 } from '@/constants'
 import { state } from '@/state'
 import { CoverSize } from '@/types/enum'
-import { exportFile, formatTime, sanitizeFilename } from '@/utils'
+import { exportFile, formatTime, getAria2DownloadTask, getNewsType, getTags } from '@/utils'
 
 const settings = new Settings(APP_ABBR)
 
@@ -62,7 +60,7 @@ const fullWidth = ref(false)
 
 const source = ref(Object.keys(NEWS_LIST)[0])
 const channal = ref(Object.keys(NEWS_LIST[source.value].channals)[0])
-const tags = ref<{ [index: string]: number }>({})
+const tags = ref<TagInfo[]>([])
 const filterTag = ref(TAG_ALL)
 
 const sortBy = ref<'asc' | 'desc'>('desc')
@@ -94,9 +92,10 @@ const newsDataFiltered = computed(() => {
   let data: NewsData[]
   if (searchEnabled.value) {
     data = newsData.value.filter(news =>
-      searchStr.value.toLowerCase().trim().split(' ').every(v =>
-        news.title.toLowerCase().includes(v),
-      ),
+      searchStr.value.toLowerCase().trim().split(' ').every((v) => {
+        const newsKey = news.title.toLowerCase() + news.remoteId
+        return newsKey.includes(v)
+      }),
     )
   }
   else if (filterTag.value === TAG_ALL) {
@@ -105,7 +104,7 @@ const newsDataFiltered = computed(() => {
   else if (filterTag.value === TAG_VIDEO) {
     data = newsData.value.filter(news => news.video)
   }
-  else if (!Object.keys(tags.value).includes(filterTag.value)) {
+  else if (!tags.value.find(tag => tag.name === filterTag.value)) {
     data = newsData.value.slice()
   }
   else {
@@ -219,7 +218,7 @@ function fetchData(force_refresh = false) {
   }
   newsLoading.value = true
   newsData.value = []
-  tags.value = {}
+  tags.value = []
   const params = {
     source: source.value,
     channal: channal.value,
@@ -235,22 +234,13 @@ function fetchData(force_refresh = false) {
         toast.error(`服务器响应：${res.message}`)
       }
       if (res.data) {
-        const newsList = res.data.list
-        tags.value[TAG_ALL] = newsList.length
-        tags.value[TAG_VIDEO] = 0
-        newsList.forEach((news: any) => {
-          if (news.video)
-            tags.value[TAG_VIDEO] += 1
-          const tag = getNewsType(news)
-          if (tags.value[tag] === undefined)
-            tags.value[tag] = 1
-          else
-            tags.value[tag] += 1
-          news.remoteId = Number(news.remoteId)
-          news.tag = tag
-          news.startTime = formatTime(news.startTime)
-        })
-        newsData.value = newsList
+        newsData.value = res.data.list.map((news: any) => ({
+          ...news,
+          remoteId: Number(news.remoteId),
+          tag: getNewsType(news, params.source, params.channal).type,
+          startTime: formatTime(news.startTime),
+        }))
+        tags.value = getTags(newsData.value, params.source, params.channal)
         newsUpdateTime.value = res.data.lastSync
       }
     })
@@ -296,44 +286,12 @@ function handleSourceChange() {
   fetchData()
 }
 
-function getNewsType(news: NewsData): string {
-  const { title, remoteId, video } = news
-  const classifyRules = NEWS_CLASSIFY_RULE[source.value]
-  if (!classifyRules)
-    return TAG_OTHER
-  for (const [type, rule] of Object.entries(classifyRules)) {
-    if (rule.include.includes(remoteId))
-      return type
-  }
-  for (const [type, rule] of Object.entries(classifyRules)) {
-    if (rule.exclude.includes(remoteId))
-      continue
-    if (rule.filter?.video && !video)
-      continue
-    for (const keyword of rule.keyword) {
-      if (typeof keyword === 'string') {
-        if (title.includes(keyword))
-          return type
-      }
-      else if (keyword instanceof RegExp) {
-        if (keyword.test(title))
-          return type
-      }
-    }
-  }
-  return TAG_OTHER
-}
-
 function exportVideos() {
   window.umami?.track('a-export-videos')
-  let result = ''
-  newsDataSorted.value.filter(news => news.video).forEach((news) => {
-    const fileExt = news.video!.url.split('.').pop()
-    result += `${news.video!.url}\n  out=${sanitizeFilename(news.title)}.${fileExt}\n`
-  })
+
   exportFile({
     filename: 'videos.txt',
-    content: result,
+    content: getAria2DownloadTask(newsData.value),
   })
   toast.success('导出下载任务成功')
 }
@@ -396,14 +354,18 @@ function handleScrollByDate() {
             跳转到日期
           </div>
           <div class="my-2 flex items-center">
-            <input v-model="jumpDate" v-bind="dateRange" type="date"
-              class="rounded-md border border-black/20 bg-transparent px-1 transition-colors hover:border-blue-500">
+            <input
+              v-model="jumpDate" v-bind="dateRange" type="date"
+              class="rounded-md border border-black/20 bg-transparent px-1 transition-colors hover:border-blue-500"
+            >
           </div>
           <button class="rounded-md border px-2 py-0.5 transition-colors hover:border-blue-500" @click="changeDate(-1)">
             向前
           </button>
-          <button class="ml-2 rounded-md border px-2 py-0.5 transition-colors hover:border-blue-500"
-            @click="changeDate(1)">
+          <button
+            class="ml-2 rounded-md border px-2 py-0.5 transition-colors hover:border-blue-500"
+            @click="changeDate(1)"
+          >
             向后
           </button>
         </div>
@@ -411,25 +373,30 @@ function handleScrollByDate() {
       <div class="flex flex-col">
         <button
           class="dialog-jump rounded-t-lg border border-gray-300 bg-white p-2 transition-colors hover:z-20 hover:border-blue-500 hover:text-blue-500"
-          @click="handleChangeDialogJumpVisible">
+          @click="handleChangeDialogJumpVisible"
+        >
           <IconJump class="size-4" />
         </button>
         <button
           class="-mt-px border border-gray-300 bg-white p-2 transition-colors hover:z-20 hover:border-blue-500 hover:text-blue-500"
-          @click="scrollTo('top')">
+          @click="scrollTo('top')"
+        >
           <IconArrowUp class="size-4" />
         </button>
         <button
           class="-mt-px rounded-b-lg border border-gray-300 bg-white p-2 transition-colors hover:z-20 hover:border-blue-500 hover:text-blue-500"
-          @click="scrollTo('bottom')">
+          @click="scrollTo('bottom')"
+        >
           <IconArrowDown class="size-4" />
         </button>
       </div>
     </div>
-    <div class="relative mx-2 py-2 md:mx-4 xl:px-0" :class="{
-      'lg:mx-auto lg:w-[960px]': !fullWidth,
-      'lg:mx-10': fullWidth,
-    }">
+    <div
+      class="relative mx-2 py-2 md:mx-4 xl:px-0" :class="{
+        'lg:mx-auto lg:w-[960px]': !fullWidth,
+        'lg:mx-10': fullWidth,
+      }"
+    >
       <div class="flex items-center justify-between">
         <h1 class="py-6 text-2xl font-bold transition-[font-size]">
           米哈游官网新闻检索
@@ -437,17 +404,21 @@ function handleScrollByDate() {
       </div>
 
       <div class="sticky top-0 z-20">
-        <div class="absolute right-0 top-[-54px] w-full" :class="{
-          '!top-4': headerSticky,
-        }">
+        <div
+          class="absolute right-0 top-[-54px] w-full" :class="{
+            '!top-4': headerSticky,
+          }"
+        >
           <div class="absolute right-0 flex gap-4">
             <button class="setting" @click="handleChangeDialogSettingVisible">
               <IconSetting class="size-6" />
             </button>
           </div>
           <Transition name="popup-setting">
-            <div v-show="showDialogSetting"
-              class="setting absolute right-0 top-8 w-full sm:w-[300px] rounded-lg bg-white p-2 pt-1 text-sm shadow-md">
+            <div
+              v-show="showDialogSetting"
+              class="setting absolute right-0 top-8 w-full rounded-lg bg-white p-2 pt-1 text-sm shadow-md sm:w-[300px]"
+            >
               <Tabs v-model:selected-key="currentSettingTab" class="mb-2" :tabs="SETTING_TABS" />
               <div class="px-2">
                 <template v-if="currentSettingTab === 'general'">
@@ -472,8 +443,10 @@ function handleScrollByDate() {
                     <Switch v-model="showVisited" class="ml-2" />
                   </div>
                   <div class="mb-2">
-                    <button class="rounded-md border px-2 py-0.5 transition-colors hover:border-blue-500"
-                      @click="exportVideos">
+                    <button
+                      class="rounded-md border px-2 py-0.5 transition-colors hover:border-blue-500"
+                      @click="exportVideos"
+                    >
                       导出本页视频至 aria2 任务
                     </button>
                   </div>
@@ -483,15 +456,19 @@ function handleScrollByDate() {
                     <div class="mb-1">
                       aria2 RPC地址
                     </div>
-                    <input v-model="aria2Config.rpcUrl" type="text"
-                      class="w-full rounded-md border border-black/20 bg-transparent px-1.5 py-0.5 text-sm outline-blue-500 transition-colors hover:border-blue-500">
+                    <input
+                      v-model="aria2Config.rpcUrl" type="text"
+                      class="w-full rounded-md border border-black/20 bg-transparent px-1.5 py-0.5 text-sm outline-blue-500 transition-colors hover:border-blue-500"
+                    >
                   </div>
                   <div class="mb-2">
                     <div class="mb-1">
                       aria2 RPC密钥
                     </div>
-                    <input v-model="aria2Config.rpcSecret" type="text"
-                      class="w-full rounded-md border border-black/20 bg-transparent px-1.5 py-0.5 text-sm outline-blue-500 transition-colors hover:border-blue-500">
+                    <input
+                      v-model="aria2Config.rpcSecret" type="text"
+                      class="w-full rounded-md border border-black/20 bg-transparent px-1.5 py-0.5 text-sm outline-blue-500 transition-colors hover:border-blue-500"
+                    >
                   </div>
                 </template>
                 <template v-if="currentSettingTab === 'about'">
@@ -507,8 +484,10 @@ function handleScrollByDate() {
                   </div>
                   <div class="mb-2 flex items-center gap-2">
                     <span class="flex-1">Github</span>
-                    <a href="https://github.com/orilights/hoyo-news-web" target="_blank"
-                      class="text-blue-500 hover:underline">
+                    <a
+                      href="https://github.com/orilights/hoyo-news-web" target="_blank"
+                      class="text-blue-500 hover:underline"
+                    >
                       hoyo-news-web
                     </a>
                   </div>
@@ -519,8 +498,10 @@ function handleScrollByDate() {
         </div>
       </div>
 
-      <Header :source="source" :channal="channal" :disabled="newsLoading" @change-source="changeSource"
-        @change-channal="changeChannal" @update:sticky="headerSticky = $event" />
+      <Header
+        :source="source" :channal="channal" :disabled="newsLoading" @change-source="changeSource"
+        @change-channal="changeChannal" @update:sticky="headerSticky = $event"
+      />
 
       <div class="mb-2 flex flex-wrap items-center">
         数据更新于：
@@ -540,8 +521,10 @@ function handleScrollByDate() {
         </template>
       </div>
 
-      <input v-model="searchStr" type="text" placeholder="搜些什么吧"
-        class="mb-2 w-full rounded-full border px-4 py-2 outline-blue-500 transition-colors hover:border-blue-500">
+      <input
+        v-model="searchStr" type="text" placeholder="搜些什么吧"
+        class="mb-2 w-full rounded-full border px-4 py-2 outline-blue-500 transition-colors hover:border-blue-500"
+      >
       <div v-show="searchEnabled" class="mb-2">
         <span>
           搜索结果：{{ newsDataSorted.length }} 条
@@ -559,8 +542,10 @@ function handleScrollByDate() {
       <div class="mb-2 flex flex-wrap items-center gap-x-2 gap-y-1">
         <span>
           排序：
-          <select v-model="sortBy"
-            class="rounded-md border border-black/20 bg-transparent px-1 transition-colors hover:border-blue-500">
+          <select
+            v-model="sortBy"
+            class="rounded-md border border-black/20 bg-transparent px-1 transition-colors hover:border-blue-500"
+          >
             <option value="desc">
               降序
             </option>
@@ -572,20 +557,26 @@ function handleScrollByDate() {
 
         <span>
           开始日期：
-          <input v-model="dateFilterStart" type="date"
+          <input
+            v-model="dateFilterStart" type="date"
             class="rounded-md border border-black/20 bg-transparent px-1 transition-colors hover:border-blue-500"
-            :max="dateFilterEnd">
+            :max="dateFilterEnd"
+          >
         </span>
 
         <span>
           结束日期：
-          <input v-model="dateFilterEnd" type="date"
+          <input
+            v-model="dateFilterEnd" type="date"
             class="rounded-md border border-black/20 bg-transparent px-1 transition-colors hover:border-blue-500"
-            :min="dateFilterStart">
+            :min="dateFilterStart"
+          >
         </span>
 
-        <button v-if="dateFilterStart || dateFilterEnd" class="hover:text-blue-500"
-          @click="dateFilterStart = ''; dateFilterEnd = ''">
+        <button
+          v-if="dateFilterStart || dateFilterEnd" class="hover:text-blue-500"
+          @click="dateFilterStart = ''; dateFilterEnd = ''"
+        >
           取消筛选
         </button>
       </div>
@@ -595,11 +586,15 @@ function handleScrollByDate() {
         <span class="text-lg">数据加载中</span>
       </div>
 
-      <NewsList v-if="!useGridView" ref="newsListRef" :news="newsDataSorted" :source="source" :channal="channal"
-        :config="newsItemConfig" :sort-by="sortBy" @change-filter="changeTag" />
+      <NewsList
+        v-if="!useGridView" ref="newsListRef" :news="newsDataSorted" :source="source" :channal="channal"
+        :config="newsItemConfig" :sort-by="sortBy" @change-filter="changeTag"
+      />
 
-      <NewsGrid v-if="useGridView" :news="newsDataSorted" :source="source" :channal="channal" :config="newsItemConfig"
-        :sort-by="sortBy" />
+      <NewsGrid
+        v-if="useGridView" :news="newsDataSorted" :source="source" :channal="channal" :config="newsItemConfig"
+        :sort-by="sortBy"
+      />
     </div>
   </div>
 </template>
