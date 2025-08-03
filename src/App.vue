@@ -238,7 +238,7 @@ function fetchData(force_refresh = false) {
         newsData.value = res.data.list.map((news: any) => ({
           ...news,
           remoteId: Number(news.remoteId),
-          tag: getNewsType(news, params.source, params.channal).type,
+          tag: news.tags || getNewsType(news, params.source, params.channal).type,
           startTime: formatTime(news.startTime),
         }))
         tags.value = getTags(newsData.value, params.source, params.channal)
