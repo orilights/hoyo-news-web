@@ -19,7 +19,9 @@ defineEmits(['changeTag'])
       @click="$emit('changeTag', tag.name)"
     >
       <IconVideo
-        v-if="tag.video" class="absolute right-[-4px] top-[-4px] size-4" :class="{
+        v-if="tag.video"
+        class="absolute right-[-4px] top-[-4px] size-3 md:size-4"
+        :class="{
           'text-blue-500': filterTag !== tag.name,
           'text-blue-300': filterTag === tag.name,
         }"
