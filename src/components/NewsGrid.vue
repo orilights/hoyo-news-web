@@ -33,7 +33,7 @@ function onClick(news: NewsData) {
       @click="onClick(item)"
     >
       <div class="relative h-[120px] w-full overflow-hidden rounded-xl bg-slate-200">
-        <div v-if="item.video?.duration" class="absolute bottom-2 right-2 z-[5] rounded-md bg-black/60 px-1 text-sm text-white opacity-80 transition-opacity group-hover:opacity-100">
+        <div v-if="item.video?.duration" class="absolute bottom-2 right-2 z-[5] rounded-md bg-black/60 px-1 text-xs text-white opacity-80 transition-opacity group-hover:opacity-100">
           {{ formatDuration(item.video.duration) }}
         </div>
         <img

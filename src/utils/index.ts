@@ -36,3 +36,20 @@ export function sanitizeFilename(filename: string) {
     .replace(/[<>"/\\?*]/g, '')
     .trim()
 }
+
+export async function copyToClipboard(text: string) {
+  if (navigator.clipboard) {
+    return navigator.clipboard.writeText(text)
+  }
+  else {
+    const input = document.createElement('input')
+    input.value = text
+    document.body.appendChild(input)
+    input.select()
+    const success = document.execCommand('copy')
+    document.body.removeChild(input)
+    if (!success) {
+      throw new Error('复制失败')
+    }
+  }
+}

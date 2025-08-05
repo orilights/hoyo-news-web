@@ -333,6 +333,10 @@ function handleChangeDialogSettingVisible() {
 }
 
 function handleChangeDialogJumpVisible() {
+  if (useGridView.value) {
+    toast.warning('网格视图暂不支持跳转功能')
+    return
+  }
   showDialogJump.value = !showDialogJump.value
   if (showDialogJump.value) {
     window.umami?.track('d-jump')
