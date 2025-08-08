@@ -3,3 +3,8 @@ export enum CoverSize {
   Medium,
   Large,
 }
+
+export enum VideoType {
+  LINK = 'link',
+  MIYOUSHE = 'miyoushe',
+}

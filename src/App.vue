@@ -289,10 +289,19 @@ function handleSourceChange() {
 
 function exportVideos() {
   window.umami?.track('a-export-videos')
+  const videoList = newsDataSorted.value.filter(news => news.video)
+  if (videoList.length === 0) {
+    toast.warning('当前没有可导出的视频')
+    return
+  }
+  if (channal.value.startsWith('bbs')) {
+    toast.warning('米游社暂不支持视频导出')
+    return
+  }
 
   exportFile({
     filename: 'videos.txt',
-    content: getAria2DownloadTask(newsData.value),
+    content: getAria2DownloadTask(videoList),
   })
   toast.success('导出下载任务成功')
 }

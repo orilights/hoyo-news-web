@@ -7,6 +7,7 @@ declare global {
   }
 
   interface VideoData {
+    type: VideoType
     url: string
     duration: number | null
   }

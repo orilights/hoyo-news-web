@@ -7,8 +7,8 @@ import IconTime from '@/components/icon/IconTime.vue'
 import IconVideo from '@/components/icon/IconVideo.vue'
 import { DEFAULT_BANNER, LOAD_DELAY, NEWS_LIST } from '@/constants'
 import { state } from '@/state'
-import { CoverSize } from '@/types/enum'
-import { copyToClipboard, formatDuration, getWeek, sanitizeFilename } from '@/utils'
+import { CoverSize, VideoType } from '@/types/enum'
+import { copyToClipboard, formatDuration, getMiyousheVideo, getWeek, sanitizeFilename } from '@/utils'
 
 const props = defineProps<{
   news: NewsItemData
@@ -65,7 +65,18 @@ onUnmounted(() => {
 
 function openVideo() {
   window.umami?.track('a-open-video', { key: newsKey })
-  window.open(props.news.video!.url, '_blank')
+  if (props.news.video?.type === VideoType.MIYOUSHE) {
+    getMiyousheVideo(props.source, props.channal, props.news.video!.url)
+      .then((videoUrl) => {
+        window.open(videoUrl, '_blank')
+      })
+      .catch((err) => {
+        useToast().error(err.message)
+      })
+  }
+  else {
+    window.open(props.news.video!.url, '_blank')
+  }
 }
 
 function copyLink() {
@@ -90,9 +101,14 @@ function copyCoverLink() {
     })
 }
 
-function copyVideoLink() {
+async function copyVideoLink() {
   window.umami?.track('a-copy-video-link', { key: newsKey })
-  copyToClipboard(props.news.video!.url)
+
+  let videoUrl = props.news.video!.url
+  if (props.news.video?.type === VideoType.MIYOUSHE) {
+    videoUrl = await getMiyousheVideo(props.source, props.channal, props.news.video!.url)
+  }
+  copyToClipboard(videoUrl)
     .then(() => {
       useToast().success('已复制视频链接')
     })
