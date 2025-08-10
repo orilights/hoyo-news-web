@@ -29,6 +29,7 @@ import {
 import { state } from '@/state'
 import { CoverSize } from '@/types/enum'
 import { exportFile, formatTime, getAria2DownloadTask, getNewsType, getTags } from '@/utils'
+import IconRss from './components/icon/IconRss.vue'
 
 const settings = new Settings(APP_ABBR)
 
@@ -284,6 +285,12 @@ function handleSourceChange() {
   fetchData()
 }
 
+function openRssLink() {
+  const apiBase = NEWS_LIST[source.value].channals[channal.value].apiBase
+  const rssUrl = `${apiBase}/news/feed/${source.value}.${channal.value}`
+  window.open(rssUrl, '_blank')
+}
+
 function exportVideos() {
   window.umami?.track('a-export-videos')
   const videoList = newsDataSorted.value.filter(news => news.video)
@@ -534,6 +541,9 @@ function handleScrollByDate() {
             <span class="ml-1">
               点击此处可刷新数据
             </span>
+          </button>
+          <button class="ml-2 hover:text-blue-500" @click="openRssLink">
+            <IconRss class="size-4" />
           </button>
         </template>
       </div>
