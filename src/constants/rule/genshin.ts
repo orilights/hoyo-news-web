@@ -178,6 +178,9 @@ export default {
   },
   '角色逸闻': {
     keyword: ['角色逸闻'],
+    meta: {
+      video: true,
+    },
   },
   '角色小记': {
     keyword: ['小记'],

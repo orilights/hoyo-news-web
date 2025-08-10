@@ -11,7 +11,9 @@ import IconArrowDown from '@/components/icon/IconArrowDown.vue'
 import IconArrowUp from '@/components/icon/IconArrowUp.vue'
 import IconJump from '@/components/icon/IconJump.vue'
 import IconRefresh from '@/components/icon/IconRefresh.vue'
+import IconRss from '@/components/icon/IconRss.vue'
 import IconSetting from '@/components/icon/IconSetting.vue'
+import IconUpdateTime from '@/components/icon/IconUpdateTime.vue'
 import NewsGrid from '@/components/NewsGrid.vue'
 import NewsList from '@/components/NewsList.vue'
 import TagList from '@/components/TagList.vue'
@@ -29,7 +31,6 @@ import {
 import { state } from '@/state'
 import { CoverSize } from '@/types/enum'
 import { exportFile, formatTime, getAria2DownloadTask, getNewsType, getTags } from '@/utils'
-import IconRss from './components/icon/IconRss.vue'
 
 const settings = new Settings(APP_ABBR)
 
@@ -528,7 +529,7 @@ function handleScrollByDate() {
       />
 
       <div class="mb-2 flex flex-wrap items-center">
-        数据更新于：
+        <IconUpdateTime class="mr-1 size-4" />
         <template v-if="newsLoading">
           加载中
         </template>
@@ -539,7 +540,7 @@ function handleScrollByDate() {
           <button class="flex items-center hover:text-blue-500" @click="fetchData(true)">
             <IconRefresh class="size-4" />
             <span class="ml-1">
-              点击此处可刷新数据
+              刷新数据
             </span>
           </button>
           <button class="ml-2 hover:text-blue-500" @click="openRssLink">
