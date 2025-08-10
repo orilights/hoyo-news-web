@@ -1,4 +1,4 @@
-import { useToast } from 'vue-toastification'
+import { getMiyousheVideoApi } from '@/api/news'
 import { NEWS_CLASSIFY_RULE, NEWS_LIST, TAG_OTHER } from '@/constants'
 import { sanitizeFilename } from '.'
 
@@ -78,15 +78,11 @@ export function getAria2DownloadTask(news: NewsData[]): string {
 
 export async function getMiyousheVideo(source: string, channel: string, newsId: string): Promise<string> {
   const apiBase = NEWS_LIST[source].channals[channel].apiBase
-  return fetch(`${apiBase}/news/video/miyoushe/${newsId}`)
-    .then(res => res.json())
-    .then((data) => {
-      if (data.code !== 200) {
-        throw new Error(`获取视频信息失败：${data.message}`)
-      }
-      return data.data.videoUrl
+  return getMiyousheVideoApi(apiBase, newsId)
+    .then((res: any) => {
+      return res.videoUrl
     })
-    .catch(() => {
-      throw new Error('请求失败，请检测网络')
+    .catch((err) => {
+      throw new Error(`获取视频信息失败：${err?.message ?? '未知错误'}`)
     })
 }

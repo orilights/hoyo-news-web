@@ -2,6 +2,7 @@
 import { Settings, SettingType } from '@orilight/vue-settings'
 import { useMediaQuery, useUrlSearchParams } from '@vueuse/core'
 import { useToast } from 'vue-toastification'
+import { getNewsApi } from '@/api/news'
 import LoadingIndicator from '@/components/common/LoadingIndicator.vue'
 import Switch from '@/components/common/Switch.vue'
 import Tabs from '@/components/common/Tabs.vue'
@@ -225,28 +226,24 @@ function fetchData(force_refresh = false) {
     channal: channal.value,
   }
   const apiBase = NEWS_LIST[params.source].channals[params.channal].apiBase
-  fetch(`${apiBase}/news/${params.source}.${params.channal}${force_refresh ? '?force_refresh=1' : ''}`)
-    .then(res => res.json())
-    .then((res) => {
+  getNewsApi(apiBase, params.source, params.channal, { forceRefresh: force_refresh })
+    .then((res: any) => {
       if (params.source !== source.value || params.channal !== channal.value) {
         return
       }
-      if (res.code !== 200) {
-        toast.error(`服务器响应：${res.message}`)
-      }
-      if (res.data) {
-        newsData.value = res.data.list.map((news: any) => ({
+      if (res) {
+        newsData.value = res.list.map((news: any) => ({
           ...news,
           remoteId: Number(news.remoteId),
           tag: news.tags || getNewsType(news, params.source, params.channal).type,
           startTime: formatTime(news.startTime),
         }))
         tags.value = getTags(newsData.value, params.source, params.channal)
-        newsUpdateTime.value = res.data.lastSync
+        newsUpdateTime.value = res.lastSync
       }
     })
     .catch((err) => {
-      toast.error('获取新闻数据失败，如有疑问请在 Github Issue 中提出')
+      toast.error(`获取新闻数据失败: ${err?.message ?? '未知错误'}`)
       newsUpdateTime.value = 0
       console.error(err)
     })
@@ -295,7 +292,7 @@ function exportVideos() {
     return
   }
   if (channal.value.startsWith('bbs')) {
-    toast.warning('米游社暂不支持视频导出')
+    toast.warning('米游社暂不支持导出视频下载任务')
     return
   }
 
