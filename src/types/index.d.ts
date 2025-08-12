@@ -34,8 +34,8 @@ declare global {
 
   interface SourceInfo {
     displayName: string
-    channals: {
-      [channalKey: string]: ChannelInfo
+    channels: {
+      [channelKey: string]: ChannelInfo
     }
   }
 
@@ -44,6 +44,8 @@ declare global {
     apiBase: string
     newsDetailLink: string
     coverWidth: number
+    allowForceRefresh?: boolean
+    rss?: boolean
   }
 
   interface ClassifyRule {

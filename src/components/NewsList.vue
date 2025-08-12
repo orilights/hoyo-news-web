@@ -8,7 +8,7 @@ import { limitSetSize } from '@/utils'
 const props = defineProps<{
   config: NewsItemConfig
   source: string
-  channal: string
+  channel: string
   news: NewsData[]
   sortBy: 'asc' | 'desc'
 }>()
@@ -88,7 +88,7 @@ function handlePerisitVisitRecord() {
       ref="shadowItemRef"
       :news="SHADOW_ITEM"
       :source="source"
-      :channal="channal"
+      :channel="channel"
       :config="config"
       :style="{ pointerEvent: 'none', userSelect: 'none' }"
     />
@@ -96,7 +96,7 @@ function handlePerisitVisitRecord() {
       v-for="news_data in renderList" :key="news_data.remoteId"
       :news="news_data"
       :source="source"
-      :channal="channal"
+      :channel="channel"
       :config="config"
       @change-filter="$emit('changeFilter', $event)"
       @visit="handlePerisitVisitRecord"

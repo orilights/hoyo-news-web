@@ -6,16 +6,16 @@ import { NEWS_LIST } from '@/constants'
 const props = defineProps<{
   disabled: boolean
   source: string
-  channal: string
+  channel: string
 }>()
 
-const emit = defineEmits(['changeSource', 'changeChannal', 'update:sticky'])
+const emit = defineEmits(['changeSource', 'changeChannel', 'update:sticky'])
 
 const headerRef = ref<HTMLElement | null>(null)
 const sticky = ref(false)
 
 const tabs = computed(() => {
-  return Object.entries(NEWS_LIST[props.source].channals).map(([key, value]) => ({
+  return Object.entries(NEWS_LIST[props.source].channels).map(([key, value]) => ({
     key,
     label: value.displayName,
   }))
@@ -75,9 +75,9 @@ function handleScroll() {
     <Tabs
       class="mb-2 overflow-x-auto whitespace-nowrap"
       :tabs="tabs"
-      :selected-key="channal"
+      :selected-key="channel"
       :disabled="disabled"
-      @update:selected-key="(val) => emit('changeChannal', val)"
+      @update:selected-key="(val) => emit('changeChannel', val)"
     />
   </div>
 </template>

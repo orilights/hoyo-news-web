@@ -13,14 +13,14 @@ import { copyToClipboard, formatDuration, getMiyousheVideo, getWeek, sanitizeFil
 const props = defineProps<{
   news: NewsItemData
   source: string
-  channal: string
+  channel: string
   config: NewsItemConfig
 }>()
 
 const emit = defineEmits(['changeFilter', 'visit'])
 
 let timer: NodeJS.Timeout | null = null
-const newsKey = `${props.source}_${props.channal}_${props.news.remoteId}`
+const newsKey = `${props.source}_${props.channel}_${props.news.remoteId}`
 
 const actionMenuRef = ref<HTMLElement | null>(null)
 const actionMenuWidth = useElementSize(actionMenuRef).width
@@ -31,14 +31,14 @@ const loadImage = ref(false)
 const imageLoaded = ref(false)
 const showAction = ref(false)
 
-const channalConfig = computed(() => NEWS_LIST[props.source].channals[props.channal])
-const newsUrl = computed(() => channalConfig.value.newsDetailLink.replace('{id}', String(props.news.remoteId)))
+const channelConfig = computed(() => NEWS_LIST[props.source].channels[props.channel])
+const newsUrl = computed(() => channelConfig.value.newsDetailLink.replace('{id}', String(props.news.remoteId)))
 const coverWidth = computed(() => {
   if (props.config.coverSize === CoverSize.Large) {
-    return channalConfig.value.coverWidth
+    return channelConfig.value.coverWidth
   }
   if (props.config.coverSize === CoverSize.Medium) {
-    return (channalConfig.value.coverWidth) / 2
+    return (channelConfig.value.coverWidth) / 2
   }
   return 75
 })
@@ -66,7 +66,7 @@ onUnmounted(() => {
 function openVideo() {
   window.umami?.track('a-open-video', { key: newsKey })
   if (props.news.video?.type === VideoType.MIYOUSHE) {
-    getMiyousheVideo(props.source, props.channal, props.news.video!.url)
+    getMiyousheVideo(props.source, props.channel, props.news.video!.url)
       .then((videoUrl) => {
         window.open(videoUrl, '_blank')
       })
@@ -106,7 +106,7 @@ async function copyVideoLink() {
 
   let videoUrl = props.news.video!.url
   if (props.news.video?.type === VideoType.MIYOUSHE) {
-    videoUrl = await getMiyousheVideo(props.source, props.channal, props.news.video!.url)
+    videoUrl = await getMiyousheVideo(props.source, props.channel, props.news.video!.url)
   }
   copyToClipboard(videoUrl)
     .then(() => {
@@ -215,7 +215,7 @@ function closeAction() {
       @click="onClick"
     >
       <div
-        v-if="config.showBanner && channalConfig.coverWidth"
+        v-if="config.showBanner && channelConfig.coverWidth"
         class="relative mr-2 flex shrink-0 items-center justify-center md:mr-4"
         :style="{
           width: `${coverWidth}px`,

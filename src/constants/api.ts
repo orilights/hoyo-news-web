@@ -10,7 +10,7 @@ export const CONFIG_API = import.meta.env.VITE_API_CONFIG
 export const NEWS_LIST: Record<string, SourceInfo> = {
   genshin: {
     displayName: '原神',
-    channals: {
+    channels: {
       web_cn: {
         displayName: '官网',
         apiBase: API_ENDPOINT.CN,
@@ -22,6 +22,15 @@ export const NEWS_LIST: Record<string, SourceInfo> = {
         apiBase: API_ENDPOINT.OS,
         newsDetailLink: 'https://genshin.hoyoverse.com/zh-tw/news/detail/{id}',
         coverWidth: 240,
+        rss: false,
+      },
+      bbs_cn_all: {
+        displayName: '米游社 全部',
+        apiBase: API_ENDPOINT.CN,
+        newsDetailLink: 'https://www.miyoushe.com/ys/article/{id}',
+        coverWidth: COVER_WIDTH.bbs,
+        allowForceRefresh: false,
+        rss: false,
       },
       bbs_cn_1: {
         displayName: '米游社 公告',
@@ -45,7 +54,7 @@ export const NEWS_LIST: Record<string, SourceInfo> = {
   },
   starrail: {
     displayName: '崩坏：星穹铁道',
-    channals: {
+    channels: {
       web_cn: {
         displayName: '官网',
         apiBase: API_ENDPOINT.CN,
@@ -57,6 +66,15 @@ export const NEWS_LIST: Record<string, SourceInfo> = {
         apiBase: API_ENDPOINT.OS,
         newsDetailLink: 'https://hsr.hoyoverse.com/zh-cn/news/{id}',
         coverWidth: 266.66,
+        rss: false,
+      },
+      bbs_cn_all: {
+        displayName: '米游社 全部',
+        apiBase: API_ENDPOINT.CN,
+        newsDetailLink: 'https://www.miyoushe.com/sr/article/{id}',
+        coverWidth: COVER_WIDTH.bbs,
+        allowForceRefresh: false,
+        rss: false,
       },
       bbs_cn_1: {
         displayName: '米游社 公告',
@@ -80,7 +98,7 @@ export const NEWS_LIST: Record<string, SourceInfo> = {
   },
   honkai3: {
     displayName: '崩坏3',
-    channals: {
+    channels: {
       web_cn: {
         displayName: '官网',
         apiBase: API_ENDPOINT.CN,
@@ -92,6 +110,15 @@ export const NEWS_LIST: Record<string, SourceInfo> = {
         apiBase: API_ENDPOINT.OS,
         newsDetailLink: 'https://honkaiimpact3.hoyoverse.com/global/zh-cn/news/{id}',
         coverWidth: COVER_WIDTH.default,
+        rss: false,
+      },
+      bbs_cn_all: {
+        displayName: '米游社 全部',
+        apiBase: API_ENDPOINT.CN,
+        newsDetailLink: 'https://www.miyoushe.com/bh3/article/{id}',
+        coverWidth: COVER_WIDTH.bbs,
+        allowForceRefresh: false,
+        rss: false,
       },
       bbs_cn_1: {
         displayName: '米游社 公告',
@@ -115,7 +142,7 @@ export const NEWS_LIST: Record<string, SourceInfo> = {
   },
   zzz: {
     displayName: '绝区零',
-    channals: {
+    channels: {
       web_cn: {
         displayName: '官网',
         apiBase: API_ENDPOINT.CN,
@@ -127,6 +154,15 @@ export const NEWS_LIST: Record<string, SourceInfo> = {
         apiBase: API_ENDPOINT.OS,
         newsDetailLink: 'https://zenless.hoyoverse.com/zh-cn/news/{id}',
         coverWidth: 266.66,
+        rss: false,
+      },
+      bbs_cn_all: {
+        displayName: '米游社 全部',
+        apiBase: API_ENDPOINT.CN,
+        newsDetailLink: 'https://www.miyoushe.com/zzz/article/{id}',
+        coverWidth: COVER_WIDTH.bbs,
+        allowForceRefresh: false,
+        rss: false,
       },
       bbs_cn_1: {
         displayName: '米游社 公告',
@@ -150,12 +186,20 @@ export const NEWS_LIST: Record<string, SourceInfo> = {
   },
   wd: {
     displayName: '未定事件簿',
-    channals: {
+    channels: {
       web_cn: {
         displayName: '官网',
         apiBase: API_ENDPOINT.CN,
         newsDetailLink: 'https://wd.mihoyo.com/information/detail/{id}',
         coverWidth: COVER_WIDTH.none,
+      },
+      bbs_cn_all: {
+        displayName: '米游社 全部',
+        apiBase: API_ENDPOINT.CN,
+        newsDetailLink: 'https://www.miyoushe.com/wd/article/{id}',
+        coverWidth: COVER_WIDTH.bbs,
+        allowForceRefresh: false,
+        rss: false,
       },
       bbs_cn_1: {
         displayName: '米游社 公告',
@@ -179,7 +223,15 @@ export const NEWS_LIST: Record<string, SourceInfo> = {
   },
   honkai2: {
     displayName: '崩坏学园2',
-    channals: {
+    channels: {
+      bbs_cn_all: {
+        displayName: '米游社 全部',
+        apiBase: API_ENDPOINT.CN,
+        newsDetailLink: 'https://www.miyoushe.com/bh2/article/{id}',
+        coverWidth: COVER_WIDTH.bbs,
+        allowForceRefresh: false,
+        rss: false,
+      },
       bbs_cn_1: {
         displayName: '米游社 公告',
         apiBase: API_ENDPOINT.CN,
@@ -202,7 +254,7 @@ export const NEWS_LIST: Record<string, SourceInfo> = {
   },
   mihoyo: {
     displayName: '米哈游',
-    channals: {
+    channels: {
       web_cn: {
         displayName: '米哈游',
         apiBase: API_ENDPOINT.CN,
@@ -214,12 +266,21 @@ export const NEWS_LIST: Record<string, SourceInfo> = {
         apiBase: API_ENDPOINT.OS,
         newsDetailLink: 'https://www.hoyoverse.com/zh-cn/news/{id}',
         coverWidth: 266.66,
+        rss: false,
       },
     },
   },
   dby: {
     displayName: '大别野',
-    channals: {
+    channels: {
+      bbs_cn_all: {
+        displayName: '米游社 全部',
+        apiBase: API_ENDPOINT.CN,
+        newsDetailLink: 'https://www.miyoushe.com/dby/article/{id}',
+        coverWidth: COVER_WIDTH.bbs,
+        allowForceRefresh: false,
+        rss: false,
+      },
       bbs_cn_1: {
         displayName: '米游社 公告',
         apiBase: API_ENDPOINT.CN,

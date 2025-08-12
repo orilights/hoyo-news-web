@@ -6,17 +6,17 @@ import { formatDuration, formatTime } from '@/utils'
 const props = defineProps<{
   config: NewsItemConfig
   source: string
-  channal: string
+  channel: string
   news: NewsData[]
   sortBy: 'asc' | 'desc'
 }>()
 
 const emit = defineEmits(['visit'])
 
-const channalConfig = computed(() => NEWS_LIST[props.source].channals[props.channal])
+const channelConfig = computed(() => NEWS_LIST[props.source].channels[props.channel])
 
 function onClick(news: NewsData) {
-  const newsKey = `${props.source}_${props.channal}_${news.remoteId}`
+  const newsKey = `${props.source}_${props.channel}_${news.remoteId}`
   window.umami?.track('a-visit-news', { key: newsKey })
   if (!props.config.showVisited)
     return
@@ -29,7 +29,7 @@ function onClick(news: NewsData) {
   <div class="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4">
     <a
       v-for="item in news" :key="item.remoteId" class="group cursor-pointer"
-      :href="channalConfig.newsDetailLink.replace('{id}', String(item.remoteId))" target="_blank"
+      :href="channelConfig.newsDetailLink.replace('{id}', String(item.remoteId))" target="_blank"
       @click="onClick(item)"
     >
       <div class="relative h-[120px] w-full overflow-hidden rounded-xl bg-slate-200">

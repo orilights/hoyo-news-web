@@ -63,9 +63,11 @@ const useGridView = ref(false)
 const fullWidth = ref(false)
 
 const source = ref(Object.keys(NEWS_LIST)[0])
-const channal = ref(Object.keys(NEWS_LIST[source.value].channals)[0])
+const channel = ref(Object.keys(NEWS_LIST[source.value].channels)[0])
 const tags = ref<TagInfo[]>([])
 const filterTag = ref(TAG_ALL)
+
+const channelConfig = computed(() => NEWS_LIST[source.value].channels[channel.value])
 
 const sortBy = ref<'asc' | 'desc'>('desc')
 const dateFilterStart = ref('')
@@ -172,16 +174,16 @@ onMounted(() => {
     filterTag.value = params.filterTag as string
   if (params.source)
     source.value = params.source as string
-  if (params.channal)
-    channal.value = params.channal as string
+  if (params.channel)
+    channel.value = params.channel as string
   else
-    channal.value = Object.keys(NEWS_LIST[source.value].channals)[0]
+    channel.value = Object.keys(NEWS_LIST[source.value].channels)[0]
 
   fetchNotice()
   fetchData()
 
   watch(source, (val) => {
-    channal.value = Object.keys(NEWS_LIST[val].channals)[0]
+    channel.value = Object.keys(NEWS_LIST[val].channels)[0]
   })
 })
 
@@ -225,22 +227,22 @@ function fetchData(force_refresh = false) {
   tags.value = []
   const params = {
     source: source.value,
-    channal: channal.value,
+    channel: channel.value,
   }
-  const apiBase = NEWS_LIST[params.source].channals[params.channal].apiBase
-  getNewsApi(apiBase, params.source, params.channal, { forceRefresh: force_refresh })
+  const apiBase = channelConfig.value.apiBase
+  getNewsApi(apiBase, params.source, params.channel, { forceRefresh: force_refresh })
     .then((res: any) => {
-      if (params.source !== source.value || params.channal !== channal.value) {
+      if (params.source !== source.value || params.channel !== channel.value) {
         return
       }
       if (res) {
         newsData.value = res.list.map((news: any) => ({
           ...news,
           remoteId: Number(news.remoteId),
-          tag: news.tags || getNewsType(news, params.source, params.channal).type,
+          tag: news.tags || getNewsType(news, params.source, params.channel).type,
           startTime: formatTime(news.startTime),
         }))
-        tags.value = getTags(newsData.value, params.source, params.channal)
+        tags.value = getTags(newsData.value, params.source, params.channel)
         newsUpdateTime.value = res.lastSync
       }
     })
@@ -269,26 +271,26 @@ function changeTag(tag: string) {
 
 function changeSource(newSource: string) {
   source.value = newSource
-  channal.value = Object.keys(NEWS_LIST[newSource].channals)[0]
+  channel.value = Object.keys(NEWS_LIST[newSource].channels)[0]
   handleSourceChange()
 }
 
-function changeChannal(newChannal: string) {
-  channal.value = newChannal
+function changeChannel(newChannel: string) {
+  channel.value = newChannel
   handleSourceChange()
 }
 
 function handleSourceChange() {
   params.source = source.value
-  params.channal = channal.value
+  params.channel = channel.value
   filterTag.value = TAG_ALL
   delete params.filterTag
   fetchData()
 }
 
 function openRssLink() {
-  const apiBase = NEWS_LIST[source.value].channals[channal.value].apiBase
-  const rssUrl = `${apiBase}/news/feed/${source.value}.${channal.value}`
+  const apiBase = channelConfig.value.apiBase
+  const rssUrl = `${apiBase}/news/feed/${source.value}.${channel.value}`
   window.open(rssUrl, '_blank')
 }
 
@@ -299,7 +301,7 @@ function exportVideos() {
     toast.warning('当前没有可导出的视频')
     return
   }
-  if (channal.value.startsWith('bbs')) {
+  if (channel.value.startsWith('bbs')) {
     toast.warning('米游社暂不支持导出视频下载任务')
     return
   }
@@ -524,8 +526,8 @@ function handleScrollByDate() {
       </div>
 
       <Header
-        :source="source" :channal="channal" :disabled="newsLoading" @change-source="changeSource"
-        @change-channal="changeChannal" @update:sticky="headerSticky = $event"
+        :source="source" :channel="channel" :disabled="newsLoading" @change-source="changeSource"
+        @change-channel="changeChannel" @update:sticky="headerSticky = $event"
       />
 
       <div class="mb-2 flex flex-wrap items-center">
@@ -534,19 +536,19 @@ function handleScrollByDate() {
           加载中
         </template>
         <template v-else>
-          <span class="mr-2">
-            {{ formatTime(newsUpdateTime) }}
+          <span>
+            {{ newsUpdateTime ? formatTime(newsUpdateTime) : '无数据' }}
           </span>
-          <button class="flex items-center hover:text-blue-500" @click="fetchData(true)">
+          <button v-if="channelConfig.allowForceRefresh !== false" class="ml-2 flex items-center hover:text-blue-500" @click="fetchData(true)">
             <IconRefresh class="size-4" />
             <span class="ml-1">
               刷新数据
             </span>
           </button>
-          <button class="ml-2 hover:text-blue-500" @click="openRssLink">
-            <IconRss class="size-4" />
-          </button>
         </template>
+        <button v-if="channelConfig.rss !== false" class="ml-2 hover:text-blue-500" @click="openRssLink">
+          <IconRss class="size-4" />
+        </button>
       </div>
 
       <input
@@ -615,12 +617,12 @@ function handleScrollByDate() {
       </div>
 
       <NewsList
-        v-if="!useGridView" ref="newsListRef" :news="newsDataSorted" :source="source" :channal="channal"
+        v-if="!useGridView" ref="newsListRef" :news="newsDataSorted" :source="source" :channel="channel"
         :config="newsItemConfig" :sort-by="sortBy" @change-filter="changeTag"
       />
 
       <NewsGrid
-        v-if="useGridView" :news="newsDataSorted" :source="source" :channal="channal" :config="newsItemConfig"
+        v-if="useGridView" :news="newsDataSorted" :source="source" :channel="channel" :config="newsItemConfig"
         :sort-by="sortBy"
       />
     </div>

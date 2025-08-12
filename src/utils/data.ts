@@ -77,7 +77,7 @@ export function getAria2DownloadTask(news: NewsData[]): string {
 }
 
 export async function getMiyousheVideo(source: string, channel: string, newsId: string): Promise<string> {
-  const apiBase = NEWS_LIST[source].channals[channel].apiBase
+  const apiBase = NEWS_LIST[source].channels[channel].apiBase
   return getMiyousheVideoApi(apiBase, newsId)
     .then((res: any) => {
       return res.videoUrl
