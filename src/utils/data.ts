@@ -45,8 +45,14 @@ export function getNewsType(news: NewsData, source: string, channel: string): { 
   if (!classifyRules)
     return { type: TAG_OTHER }
   for (const [type, rule] of Object.entries(classifyRules)) {
-    if (rule.include?.includes(`${channel}.${remoteId}`))
+    if (rule.include?.some((includeKey) => {
+      const [includeChannel, includeId] = includeKey.split('.')
+      if (channel.startsWith(includeChannel) && includeId === remoteId)
+        return true
+      return false
+    })) {
       return { type, rule }
+    }
   }
   for (const [type, rule] of Object.entries(classifyRules)) {
     if (rule.exclude?.includes(`${channel}.${remoteId}`))
