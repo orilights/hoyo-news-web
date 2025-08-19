@@ -17,6 +17,9 @@ export default {
       video: true,
     },
   },
+  '角色立绘': {
+    keyword: ['天外卫星通信', /^翁法罗斯英雄纪/],
+  },
   '角色PV': {
     keyword: ['角色PV'],
     meta: {
