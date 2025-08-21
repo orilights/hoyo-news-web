@@ -2,9 +2,26 @@ import { getMiyousheVideoApi } from '@/api/news'
 import { NEWS_CLASSIFY_RULE, NEWS_LIST, TAG_OTHER } from '@/constants'
 import { sanitizeFilename } from '.'
 
+export function getClassifyRules(source: string, channel: string): SourceClassifyRule | undefined {
+  const sourceRule = NEWS_CLASSIFY_RULE[source] || {}
+
+  let classifyRules: SourceClassifyRule | undefined
+
+  for (const ruleKey in sourceRule) {
+    if (channel.startsWith(ruleKey)) {
+      classifyRules = sourceRule[ruleKey]
+      break
+    }
+  }
+  if (!classifyRules) {
+    classifyRules = sourceRule._default
+  }
+  return classifyRules
+}
+
 export function getTags(newsList: NewsData[], source: string, channel: string): TagInfo[] {
   const tempTags: Record<string, TagInfo> = {}
-  const classifyRules = NEWS_CLASSIFY_RULE[source]
+  const classifyRules = getClassifyRules(source, channel)
   let videoCount = 0
 
   newsList.forEach((news) => {
@@ -41,9 +58,12 @@ export function getTags(newsList: NewsData[], source: string, channel: string): 
 
 export function getNewsType(news: NewsData, source: string, channel: string): { type: string, rule?: ClassifyRule } {
   const { title, remoteId, video } = news
-  const classifyRules = NEWS_CLASSIFY_RULE[source]
+
+  const classifyRules = getClassifyRules(source, channel)
+
   if (!classifyRules)
     return { type: TAG_OTHER }
+
   for (const [type, rule] of Object.entries(classifyRules)) {
     if (rule.include?.some((includeKey) => {
       const [includeChannel, includeId] = includeKey.split('.')
