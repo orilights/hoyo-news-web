@@ -101,6 +101,12 @@ export default {
       video: true,
     },
   },
+  '参展视频': {
+    keyword: [/gamescom/i, 'TGA', 'TGS'],
+    meta: {
+      video: true,
+    },
+  },
   '主线更新': {
     keyword: [/新剧情.*主线/],
   },
@@ -151,5 +157,11 @@ export default {
   },
   '邦布上新': {
     keyword: ['卓越搭档'],
+  },
+  '未分类视频': {
+    keyword: [/.*/],
+    meta: {
+      video: true,
+    },
   },
 } as SourceClassifyRule

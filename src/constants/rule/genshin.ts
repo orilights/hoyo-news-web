@@ -53,7 +53,7 @@ export default {
       video: true,
     },
   },
-  '活动汇总': {
+  '版本活动汇总': {
     keyword: ['活动汇总'],
     meta: {
       video: true,
@@ -88,8 +88,8 @@ export default {
       video: true,
     },
   },
-  '沙雕广告': {
-    keyword: ['原来你也玩原神', '《云·原神》动画短片'],
+  '周年视频': {
+    keyword: ['周年手札', '配音演员祝福'],
     meta: {
       video: true,
     },
@@ -98,7 +98,22 @@ export default {
     keyword: ['条漫', '四格漫画'],
   },
   '声优小剧场': {
-    keyword: ['声优小剧场', '璃月雅集'],
+    keyword: ['蒙德茶会', '璃月雅集'],
+    meta: {
+      video: true,
+    },
+  },
+  '沙雕广告': {
+    keyword: [
+      '原来你也玩原神',
+      '《云·原神》动画短片',
+      '当然是原神了',
+      '春节拯救计划',
+      '终于可以玩原神了',
+      '云端畅游',
+      '小剧场',
+      '原来又是一年',
+    ],
     meta: {
       video: true,
     },
@@ -135,6 +150,18 @@ export default {
   },
   'CM短片': {
     keyword: ['CM'],
+    meta: {
+      video: true,
+    },
+  },
+  '前瞻短片': {
+    keyword: ['前瞻短片'],
+    meta: {
+      video: true,
+    },
+  },
+  '参展视频': {
+    keyword: ['东京电玩展', /gamescom/i, 'TGA'],
     meta: {
       video: true,
     },
@@ -186,7 +213,7 @@ export default {
     keyword: ['小记'],
   },
   '角色技能演示': {
-    keyword: ['角色技能演示', '角色技能展示'],
+    keyword: ['技能演示', '角色技能展示'],
   },
   '角色介绍': {
     keyword: ['角色介绍'],
@@ -213,6 +240,12 @@ export default {
   },
   'PV': {
     keyword: ['PV'],
+    meta: {
+      video: true,
+    },
+  },
+  '未分类视频': {
+    keyword: [/.*/],
     meta: {
       video: true,
     },

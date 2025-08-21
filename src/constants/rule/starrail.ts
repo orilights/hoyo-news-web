@@ -150,4 +150,10 @@ export default {
   '预下载公告': {
     keyword: ['预下载'],
   },
+  '未分类视频': {
+    keyword: [/.*/],
+    meta: {
+      video: true,
+    },
+  },
 } as SourceClassifyRule
