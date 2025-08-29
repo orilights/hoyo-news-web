@@ -184,6 +184,37 @@ export const NEWS_LIST: Record<string, SourceInfo> = {
       },
     },
   },
+  hna: {
+    displayName: '崩坏：因缘精灵',
+    channels: {
+      bbs_cn_all: {
+        displayName: '米游社 全部',
+        apiBase: API_ENDPOINT.CN,
+        newsDetailLink: 'https://www.miyoushe.com/hna/article/{id}',
+        coverWidth: COVER_WIDTH.bbs,
+        allowForceRefresh: false,
+        rss: false,
+      },
+      bbs_cn_1: {
+        displayName: '米游社 公告',
+        apiBase: API_ENDPOINT.CN,
+        newsDetailLink: 'https://www.miyoushe.com/hna/article/{id}',
+        coverWidth: COVER_WIDTH.bbs,
+      },
+      bbs_cn_2: {
+        displayName: '米游社 活动',
+        apiBase: API_ENDPOINT.CN,
+        newsDetailLink: 'https://www.miyoushe.com/hna/article/{id}',
+        coverWidth: COVER_WIDTH.bbs,
+      },
+      bbs_cn_3: {
+        displayName: '米游社 资讯',
+        apiBase: API_ENDPOINT.CN,
+        newsDetailLink: 'https://www.miyoushe.com/hna/article/{id}',
+        coverWidth: COVER_WIDTH.bbs,
+      },
+    },
+  },
   wd: {
     displayName: '未定事件簿',
     channels: {
