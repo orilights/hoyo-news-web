@@ -8,9 +8,6 @@ export default {
   'OST': {
     keyword: [/OST.*上线/],
   },
-  '新区域展示页': {
-    keyword: ['新区域展示页'],
-  },
   '武器活动祈愿': {
     keyword: ['神铸赋形'],
   },
@@ -36,7 +33,7 @@ export default {
     keyword: ['音乐会'],
   },
   '交响音乐现场': {
-    keyword: ['交响音乐现场'],
+    keyword: ['交响音乐现场', /挪德卡莱.*现场/],
     meta: {
       video: true,
     },
@@ -48,7 +45,7 @@ export default {
     },
   },
   '版本PV': {
-    keyword: [/\d\.\d版本PV/],
+    keyword: ['版本PV'],
     meta: {
       video: true,
     },
@@ -74,7 +71,15 @@ export default {
     },
   },
   '版本更新说明': {
-    keyword: ['更新通知', /版本.*更新说明/, '更新维护预告'],
+    keyword: [/版本(?!「七圣召唤」).*更新说明/],
+    include: [
+      'web_cn.118809', // 1.5
+      'web_cn.118827', // 2.5
+    ],
+    exclude: [
+      'web_cn.155785', // 5.6 错误标题
+      'web_cn.158507', // PS4 停更
+    ],
   },
   '版本专题页': {
     keyword: ['内容专题页', '先行展示页', '版本内容页'],
@@ -131,7 +136,7 @@ export default {
     },
   },
   '动画短片': {
-    keyword: ['动画短片'],
+    keyword: [/(?!.*即将发布).*动画短片.*/],
     meta: {
       video: true,
     },
@@ -217,9 +222,6 @@ export default {
   },
   '角色介绍': {
     keyword: ['角色介绍'],
-  },
-  '玩法介绍': {
-    keyword: ['小贴士', '玩法介绍', '玩法说明', '玩法小贴士'],
   },
   '开发组座谈会': {
     keyword: ['开发组座谈会'],
