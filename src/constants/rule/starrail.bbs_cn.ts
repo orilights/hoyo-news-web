@@ -95,7 +95,8 @@ export default {
   '星穹美学速递': {
     keyword: ['星穹美学速递'],
   },
-  'CHRYSOS'{
+  '黄金裔CHRYSOS': {
+    keyword: [],
     include: [
       'bbs_cn.61758505', // 阿格莱雅
       'bbs_cn.62226845', // 缇宝
