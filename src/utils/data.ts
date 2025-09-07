@@ -33,7 +33,7 @@ export function getTags(newsList: NewsData[], source: string, channel: string): 
       tempTags[type] = {
         name: type,
         count: 1,
-        video: (classifyRules?.[type]?.meta?.video && channel === 'web_cn') || false,
+        video: classifyRules?.[type]?.meta?.video || false,
       }
     }
     else {
@@ -75,10 +75,19 @@ export function getNewsType(news: NewsData, source: string, channel: string): { 
     }
   }
   for (const [type, rule] of Object.entries(classifyRules)) {
-    if (rule.exclude?.includes(`${channel}.${remoteId}`))
+    if (rule.exclude?.some((excludeKey) => {
+      const [excludeChannel, excludeId] = excludeKey.split('.')
+      if (channel.startsWith(excludeChannel) && excludeId === remoteId)
+        return true
+      return false
+    })) {
+      continue
+    }
+
+    if (rule.filter?.video && !video)
       continue
 
-    if (channel === 'web_cn' && rule.meta?.video && !video)
+    if (rule.filter?.video === false && video)
       continue
 
     for (const keyword of rule.keyword) {

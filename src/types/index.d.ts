@@ -55,6 +55,9 @@ declare global {
     meta?: {
       video?: boolean
     }
+    filter?: {
+      video?: boolean
+    }
   }
 
   interface SourceClassifyRule {

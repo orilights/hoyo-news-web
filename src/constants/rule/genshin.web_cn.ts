@@ -22,53 +22,53 @@ export default {
   },
   '提瓦特美食札记': {
     keyword: ['提瓦特美食札记'],
-    include: ['web_cn.116321', 'web_cn.116345', 'web_cn.116353', 'web_cn.116362', 'web_cn.116381'],
+    include: [
+      'web_cn.116321', // 香菱
+      'web_cn.116345', // 刻晴
+      'web_cn.116353', // 砂糖
+      'web_cn.116362', // 凯亚
+      'web_cn.116381',
+      'web_cn.117542', // 九条裟罗
+      'web_cn.117546', // 胡桃
+    ],
   },
   '生日贺图': {
     keyword: ['生日贺图', /生日.*快乐/],
-    include: ['web_cn.116277'],
-    exclude: ['web_cn.117793'],
+    include: ['web_cn.116277'], // 神里绫华
+    filter: { video: false },
   },
   '音乐会': {
     keyword: ['音乐会'],
   },
   '交响音乐现场': {
     keyword: ['交响音乐现场', /挪德卡莱.*现场/],
-    meta: {
-      video: true,
-    },
+    meta: { video: true },
   },
   'EP、MV': {
     keyword: ['音乐动态视频', '《原神》EP', '特别EP', 'MV', '主题曲'],
-    meta: {
-      video: true,
-    },
+    meta: { video: true },
+    filter: { video: true },
   },
   '版本PV': {
     keyword: ['版本PV'],
-    meta: {
-      video: true,
-    },
+    meta: { video: true },
+    filter: { video: true },
   },
   '版本活动汇总': {
     keyword: ['活动汇总'],
-    meta: {
-      video: true,
-    },
+    meta: { video: true },
   },
   '前瞻预告': {
-    keyword: [/特别节目.*即将开启/, '前瞻直播预告', '前瞻特别节目预告'],
-    include: ['web_cn.118577', 'web_cn.118573'],
+    keyword: [/特别节目.*即将开启/, '前瞻直播预告', '特别节目预告'],
   },
   '前瞻回顾长图': {
     keyword: [/(前瞻|特别节目).*回顾长图/],
   },
   '前瞻直播': {
     keyword: ['特别节目'],
-    include: ['web_cn.116318'],
-    meta: {
-      video: true,
-    },
+    include: ['web_cn.116318'], // 1.1
+    meta: { video: true },
+    filter: { video: true },
   },
   '版本更新说明': {
     keyword: [/版本(?!「七圣召唤」).*更新说明/],
@@ -89,24 +89,19 @@ export default {
   },
   '幕后花絮': {
     keyword: ['的幕后', '幕后的故事', '合作幕后'],
-    meta: {
-      video: true,
-    },
+    meta: { video: true },
+    filter: { video: true },
   },
   '周年视频': {
     keyword: ['周年手札', '配音演员祝福'],
-    meta: {
-      video: true,
-    },
+    meta: { video: true },
   },
   '漫画': {
     keyword: ['条漫', '四格漫画'],
   },
   '声优小剧场': {
     keyword: ['蒙德茶会', '璃月雅集'],
-    meta: {
-      video: true,
-    },
+    meta: { video: true },
   },
   '沙雕广告': {
     keyword: [
@@ -119,100 +114,72 @@ export default {
       '小剧场',
       '原来又是一年',
     ],
-    meta: {
-      video: true,
-    },
+    meta: { video: true },
+    filter: { video: true },
   },
   '寻味之旅': {
     keyword: ['寻味之旅'],
-    meta: {
-      video: true,
-    },
+    meta: { video: true },
   },
   'PV短片': {
     keyword: ['PV短片'],
-    meta: {
-      video: true,
-    },
+    meta: { video: true },
   },
   '动画短片': {
     keyword: [/(?!.*即将发布).*动画短片.*/],
-    meta: {
-      video: true,
-    },
+    meta: { video: true },
   },
   '风物集短片': {
     keyword: ['风物集短片'],
-    meta: {
-      video: true,
-    },
+    meta: { video: true },
   },
   '流光拾遗之旅': {
     keyword: ['流光拾遗之旅'],
-    meta: {
-      video: true,
-    },
+    meta: { video: true },
   },
   'CM短片': {
     keyword: ['CM'],
-    meta: {
-      video: true,
-    },
+    meta: { video: true },
   },
   '前瞻短片': {
     keyword: ['前瞻短片'],
-    meta: {
-      video: true,
-    },
+    meta: { video: true },
   },
   '参展视频': {
-    keyword: ['东京电玩展', /gamescom/i, 'TGA'],
-    meta: {
-      video: true,
-    },
+    keyword: ['东京电玩展', /gamescom/i, /TGA.*参选视频/],
+    meta: { video: true },
   },
   '衣装PV': {
     keyword: ['衣装PV'],
-    meta: {
-      video: true,
-    },
+    meta: { video: true },
   },
   '过场动画': {
     keyword: ['过场动画'],
-    meta: {
-      video: true,
-    },
+    meta: { video: true },
   },
   '剧情PV': {
     keyword: ['剧情PV'],
-    meta: {
-      video: true,
-    },
+    meta: { video: true },
   },
   '角色PV': {
     keyword: ['角色PV'],
-    include: ['web_cn.116213', 'web_cn.116322'],
-    meta: {
-      video: true,
-    },
+    include: [
+      'web_cn.116213', // 菲谢尔
+      'web_cn.116322', // 公子
+    ],
+    meta: { video: true },
   },
   '角色演示': {
     keyword: ['全新角色展示', '角色演示', '角色预告'],
-    meta: {
-      video: true,
-    },
+    meta: { video: true },
   },
   '拾枝杂谈': {
     keyword: ['拾枝杂谈'],
-    meta: {
-      video: true,
-    },
+    meta: { video: true },
   },
   '角色逸闻': {
     keyword: ['角色逸闻'],
-    meta: {
-      video: true,
-    },
+    meta: { video: true },
   },
   '角色小记': {
     keyword: ['小记'],
@@ -242,14 +209,12 @@ export default {
   },
   'PV': {
     keyword: ['PV'],
-    meta: {
-      video: true,
-    },
+    meta: { video: true },
+    filter: { video: true },
   },
   '未分类视频': {
     keyword: [/.*/],
-    meta: {
-      video: true,
-    },
+    meta: { video: true },
+    filter: { video: true },
   },
 } as SourceClassifyRule

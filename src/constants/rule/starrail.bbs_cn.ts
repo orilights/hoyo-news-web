@@ -1,21 +1,22 @@
 export default {
   'OP': {
-    keyword: ['OP'],
-    meta: {
-      video: true,
-    },
+    keyword: ['《崩坏：星穹铁道》OP'],
+    meta: { video: true },
   },
   '版本PV': {
     keyword: [/\d\.\d版本PV/],
-    meta: {
-      video: true,
-    },
+    meta: { video: true },
+  },
+  '前瞻回顾长图': {
+    keyword: ['前瞻特别节目回顾长图', '前瞻特别节目情报总结'],
+  },
+  '前瞻预告': {
+    keyword: ['前瞻特别节目预告'],
+    include: ['bbs_cn.37172165'], // 1.0 预告
   },
   '前瞻直播': {
-    keyword: ['前瞻特别节目'],
-    meta: {
-      video: true,
-    },
+    keyword: [/^(?!.*阿姬).*前瞻特别节目.*/],
+    meta: { video: true },
   },
   '角色立绘': {
     keyword: ['天外卫星通信', '交错星轨导航', /^翁法罗斯英雄纪/],
@@ -43,51 +44,44 @@ export default {
   },
   '角色PV': {
     keyword: ['角色PV'],
-    meta: {
-      video: true,
-    },
+    meta: { video: true },
   },
   '千星纪游PV': {
     keyword: ['千星纪游PV'],
-    meta: {
-      video: true,
-    },
+    meta: { video: true },
   },
   '走近星穹': {
     keyword: ['走近星穹'],
-    meta: {
-      video: true,
-    },
+    meta: { video: true },
   },
   '动画短片': {
-    keyword: ['动画短片'],
-    meta: {
-      video: true,
-    },
+    keyword: [/^(?!.*预告).*动画短片/],
+    meta: { video: true },
+    filter: { video: true },
   },
   '其他动画': {
     keyword: ['动画', '星旅一瞬'],
-    meta: {
-      video: true,
-    },
+    meta: { video: true },
+    filter: { video: true },
+  },
+  '虚一直构': {
+    keyword: ['虚一直构'],
+    meta: { video: true },
   },
   '夜间车厢': {
     keyword: ['夜间车厢'],
-    meta: {
-      video: true,
-    },
+    meta: { video: true },
   },
   '浮光映影': {
     keyword: ['浮光映影'],
-    meta: {
-      video: true,
-    },
+    meta: { video: true },
   },
   '角色前瞻': {
     keyword: ['角色前瞻'],
-    meta: {
-      video: true,
-    },
+    meta: { video: true },
+  },
+  '角色回顾': {
+    keyword: ['角色回顾'],
   },
   '星旅留影': {
     keyword: ['星旅留影'],
@@ -110,32 +104,40 @@ export default {
       'bbs_cn.68066450', // 刻律德菈
     ],
   },
+  '翁法罗斯相关': {
+    keyword: ['之卷', '翁法罗斯之章'],
+  },
+  '强敌侦察笔记': {
+    keyword: [/强敌.*侦察笔记/],
+  },
+  '绘画作品展示': {
+    keyword: ['绘画征集活动作品展示'],
+  },
   'PV': {
     keyword: ['PV'],
-    meta: {
-      video: true,
-    },
+    meta: { video: true },
+    filter: { video: true },
   },
   'EP、MV': {
     keyword: ['EP', 'MV'],
-    meta: {
-      video: true,
-    },
+    meta: { video: true },
+    filter: { video: true },
+  },
+  '演唱会': {
+    keyword: ['演唱会'],
+    meta: { video: true },
+    filter: { video: true },
   },
   '遥远星球之歌': {
     keyword: ['遥远星球之歌'],
-    meta: {
-      video: true,
-    },
+    meta: { video: true },
   },
   '星穹研习会': {
     keyword: ['星穹研习会'],
-    meta: {
-      video: true,
-    },
+    meta: { video: true },
   },
-  '更新电台': {
-    keyword: ['更新电台'],
+  '银河铁道之声': {
+    keyword: ['更新电台', '开发者电台', '银河铁道之声'],
   },
   '帕姆展览馆': {
     keyword: ['帕姆展览馆'],
@@ -144,13 +146,13 @@ export default {
     keyword: ['版本更新维护预告'],
   },
   '版本更新说明': {
-    keyword: ['版本更新说明'],
+    keyword: [/^(?!《云).*版本更新(说明|概览).*/],
   },
-  '开拓任务说明': {
-    keyword: [/开拓任务.*说明/],
+  '任务说明': {
+    keyword: [/任务.*说明/],
   },
   '版本专题展示页': {
-    keyword: ['专题展示页'],
+    keyword: [/版本.*专题展示页/],
   },
   '光锥活动跃迁': {
     keyword: ['光锥活动跃迁', '流光定影'],
@@ -163,5 +165,10 @@ export default {
   },
   '预下载公告': {
     keyword: ['预下载'],
+  },
+  '未分类视频': {
+    keyword: [/.*/],
+    meta: { video: true },
+    filter: { video: true },
   },
 } as SourceClassifyRule

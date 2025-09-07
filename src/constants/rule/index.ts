@@ -2,7 +2,8 @@ import genshinBbsCn from './genshin.bbs_cn'
 import genshinWebCn from './genshin.web_cn'
 import starrailBbsCn from './starrail.bbs_cn'
 import starrailWebCn from './starrail.web_cn'
-import zzz from './zzz'
+import zzzBbsCn from './zzz.bbs_cn'
+import zzzWebCn from './zzz.web_cn'
 
 export const NEWS_CLASSIFY_RULE: Record<string, Record<string, SourceClassifyRule>> = {
   genshin: {
@@ -16,6 +17,8 @@ export const NEWS_CLASSIFY_RULE: Record<string, Record<string, SourceClassifyRul
     bbs_cn: starrailBbsCn,
   },
   zzz: {
-    _default: zzz,
+    _default: zzzWebCn,
+    web_cn: zzzWebCn,
+    bbs_cn: zzzBbsCn,
   },
 }

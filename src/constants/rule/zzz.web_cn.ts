@@ -7,9 +7,7 @@ export default {
   },
   '版本PV': {
     keyword: ['版本PV'],
-    meta: {
-      video: true,
-    },
+    meta: { video: true },
   },
   '版本更新说明': {
     keyword: ['更新说明'],
@@ -25,18 +23,14 @@ export default {
   },
   '前瞻特别节目': {
     keyword: ['前瞻特别节目'],
-    meta: {
-      video: true,
-    },
+    meta: { video: true },
   },
   '丽都修葺漫谈': {
     keyword: ['丽都修葺漫谈'],
   },
   '策划面对面': {
     keyword: ['策划面对面'],
-    meta: {
-      video: true,
-    },
+    meta: { video: true },
   },
   '代理人档案': {
     keyword: ['代理人档案'],
@@ -52,60 +46,45 @@ export default {
   },
   '角色展示': {
     keyword: ['角色展示'],
-    meta: {
-      video: true,
-    },
+    meta: { video: true },
   },
   '代理人战斗情报': {
     keyword: ['代理人战斗情报'],
-    meta: {
-      video: true,
-    },
+    meta: { video: true },
   },
   '角色PV': {
     keyword: ['角色PV'],
-    meta: {
-      video: true,
-    },
+    meta: { video: true },
   },
   '动画短片': {
     keyword: ['动画短片'],
-    meta: {
-      video: true,
-    },
+    meta: { video: true },
   },
   '过场动画': {
     keyword: ['过场动画'],
-    meta: {
-      video: true,
-    },
+    meta: { video: true },
   },
   'PV': {
     keyword: ['PV'],
-    meta: {
-      video: true,
-    },
+    meta: { video: true },
+    filter: { video: true },
   },
   'EP上架': {
     keyword: [/EP.*上架/],
   },
   'EP、MV': {
     keyword: ['EP', 'MV'],
-    meta: {
-      video: true,
-    },
+    meta: { video: true },
+    filter: { video: true },
   },
   '日常影像': {
     keyword: ['日常影像'],
-    meta: {
-      video: true,
-    },
+    meta: { video: true },
   },
   '参展视频': {
     keyword: [/gamescom/i, 'TGA', 'TGS'],
-    meta: {
-      video: true,
-    },
+    meta: { video: true },
+    filter: { video: true },
   },
   '主线更新': {
     keyword: [/新剧情.*主线/],
@@ -118,9 +97,6 @@ export default {
   },
   '生日贺图': {
     keyword: ['生日快乐'],
-  },
-  '节日贺图': {
-    keyword: ['节快乐', '中秋', '端午', '圣诞', '新年快乐', '天涯共此时', '春风', '春日', '夏', '秋', '冬日', '雪夜'],
   },
   '过塑手账': {
     keyword: ['过塑手账'],
@@ -160,8 +136,7 @@ export default {
   },
   '未分类视频': {
     keyword: [/.*/],
-    meta: {
-      video: true,
-    },
+    meta: { video: true },
+    filter: { video: true },
   },
 } as SourceClassifyRule
