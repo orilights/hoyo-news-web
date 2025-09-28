@@ -33,3 +33,10 @@ export const SETTING_TABS = [
 ]
 
 export const BUILD_DATE = document.body.getAttribute('data-build-date') || ''
+
+export const DEFAULT_KEYWORD_BLACKLIST = [
+  '米游币兑换中心',
+  '米游币抽抽乐',
+  '米游币许愿池',
+  '米游币祈愿盒',
+]

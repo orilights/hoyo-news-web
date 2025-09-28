@@ -22,6 +22,7 @@ import {
   ARIA2_RPC_URL,
   BUILD_DATE,
   CONFIG_API,
+  DEFAULT_KEYWORD_BLACKLIST,
   NEWS_LIST,
   SETTING_TABS,
   TAG_ALL,
@@ -59,6 +60,10 @@ const aria2Config = ref({
   rpcSecret: '',
   filename: '{newsTitle}.{ext}',
 })
+const customFilter = ref({
+  enable: true,
+})
+const customFilterCount = ref(0)
 const useGridView = ref(false)
 const fullWidth = ref(false)
 
@@ -122,6 +127,12 @@ const newsDataFiltered = computed(() => {
   if (dateFilterEnd.value) {
     data = data.filter(news => new Date(news.startTime).getTime() <= new Date(`${dateFilterEnd.value} 23:59:59`).getTime())
   }
+  const originalCount = data.length
+  if (customFilter.value.enable) {
+    data = data.filter(news => !DEFAULT_KEYWORD_BLACKLIST.some(kw => news.title.includes(kw)))
+  }
+  // eslint-disable-next-line vue/no-side-effects-in-computed-properties
+  customFilterCount.value = originalCount - data.length
 
   return data
 })
@@ -198,6 +209,7 @@ function registerSettings() {
   settings.register('aria2Config', aria2Config, SettingType.Object, { deepMerge: true })
   settings.register('useGridView', useGridView, SettingType.Bool)
   settings.register('fullWidth', fullWidth, SettingType.Bool)
+  settings.register('customFilter', customFilter, SettingType.Object, { deepMerge: true })
 }
 
 function fetchNotice() {
@@ -462,6 +474,15 @@ function handleScrollByDate() {
                   <div v-if="!useGridView" class="mb-2 flex items-center">
                     <span class="flex-1">置灰已阅读新闻</span>
                     <Switch v-model="showVisited" class="ml-2" />
+                  </div>
+                  <div class="mb-2">
+                    <div class="flex items-center">
+                      <span class="flex-1">启用内置关键词过滤</span>
+                      <Switch v-model="customFilter.enable" class="ml-2" />
+                    </div>
+                    <div v-if="customFilter.enable" class="text-xs">
+                      当前页面过滤数量：{{ customFilterCount }}
+                    </div>
                   </div>
                   <div class="mb-2">
                     <button
