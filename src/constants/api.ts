@@ -215,6 +215,43 @@ export const NEWS_LIST: Record<string, SourceInfo> = {
       },
     },
   },
+  planet: {
+    displayName: '星布谷地',
+    channels: {
+      web_cn: {
+        displayName: '官网',
+        apiBase: API_ENDPOINT.CN,
+        newsDetailLink: 'https://planet.mihoyo.com/news/detail/{id}',
+        coverWidth: COVER_WIDTH.none,
+      },
+      bbs_cn_all: {
+        displayName: '米游社 全部',
+        apiBase: API_ENDPOINT.CN,
+        newsDetailLink: 'https://www.miyoushe.com/planet/article/{id}',
+        coverWidth: COVER_WIDTH.bbs,
+        allowForceRefresh: false,
+        rss: false,
+      },
+      bbs_cn_1: {
+        displayName: '米游社 公告',
+        apiBase: API_ENDPOINT.CN,
+        newsDetailLink: 'https://www.miyoushe.com/planet/article/{id}',
+        coverWidth: COVER_WIDTH.bbs,
+      },
+      bbs_cn_2: {
+        displayName: '米游社 活动',
+        apiBase: API_ENDPOINT.CN,
+        newsDetailLink: 'https://www.miyoushe.com/planet/article/{id}',
+        coverWidth: COVER_WIDTH.bbs,
+      },
+      bbs_cn_3: {
+        displayName: '米游社 资讯',
+        apiBase: API_ENDPOINT.CN,
+        newsDetailLink: 'https://www.miyoushe.com/planet/article/{id}',
+        coverWidth: COVER_WIDTH.bbs,
+      },
+    },
+  },
   wd: {
     displayName: '未定事件簿',
     channels: {
