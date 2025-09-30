@@ -33,6 +33,7 @@ export const SETTING_TABS = [
 ]
 
 export const BUILD_DATE = document.body.getAttribute('data-build-date') || ''
+export const BUILD_COMMIT = document.body.getAttribute('data-build-commit') || ''
 
 export const DEFAULT_KEYWORD_BLACKLIST = [
   '米游币兑换中心',

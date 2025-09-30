@@ -20,6 +20,7 @@ import TagList from '@/components/TagList.vue'
 import {
   APP_ABBR,
   ARIA2_RPC_URL,
+  BUILD_COMMIT,
   BUILD_DATE,
   CONFIG_API,
   DEFAULT_KEYWORD_BLACKLIST,
@@ -537,6 +538,14 @@ function handleScrollByDate() {
                     <span class="flex-1">构建时间</span>
                     <span>
                       {{ formatTime(BUILD_DATE) }}
+                      <template v-if="BUILD_COMMIT">
+                        (<a
+                          :href="`https://github.com/orilights/hoyo-news-web/commit/${BUILD_COMMIT}`" target="_blank"
+                          class="text-blue-500 hover:underline"
+                        >
+                          {{ BUILD_COMMIT }}
+                        </a>)
+                      </template>
                     </span>
                   </div>
                 </template>
