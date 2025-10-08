@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useElementBounding, useElementSize, useThrottle } from '@vueuse/core'
-import NewsItem from '@/components/NewsItem.vue'
+import NewsListItem from '@/components/news/NewsListItem.vue'
 import { ITEM_GAP, SHADOW_ITEM, VISIT_PERSIST_KEY } from '@/constants'
 import { state } from '@/state'
 import { limitSetSize } from '@/utils'
@@ -84,7 +84,7 @@ function handlePerisitVisitRecord() {
       height: `${news.length * (newsItemHeight + ITEM_GAP)}px`,
     }"
   >
-    <NewsItem
+    <NewsListItem
       ref="shadowItemRef"
       :news="SHADOW_ITEM"
       :source="source"
@@ -92,7 +92,7 @@ function handlePerisitVisitRecord() {
       :config="config"
       :style="{ pointerEvent: 'none', userSelect: 'none' }"
     />
-    <NewsItem
+    <NewsListItem
       v-for="news_data in renderList" :key="news_data.remoteId"
       :news="news_data"
       :source="source"

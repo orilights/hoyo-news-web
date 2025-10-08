@@ -14,8 +14,8 @@ import IconRefresh from '@/components/icon/IconRefresh.vue'
 import IconRss from '@/components/icon/IconRss.vue'
 import IconSetting from '@/components/icon/IconSetting.vue'
 import IconUpdateTime from '@/components/icon/IconUpdateTime.vue'
-import NewsGrid from '@/components/NewsGrid.vue'
-import NewsList from '@/components/NewsList.vue'
+import NewsGridView from '@/components/news/NewsGridView.vue'
+import NewsListView from '@/components/news/NewsListView.vue'
 import TagList from '@/components/TagList.vue'
 import {
   APP_ABBR,
@@ -451,7 +451,7 @@ function handleScrollByDate() {
           <Transition name="popup-setting">
             <div
               v-show="showDialogSetting"
-              class="setting absolute right-0 top-8 w-full rounded-lg bg-white p-2 pt-1 text-sm shadow-md sm:w-[300px]"
+              class="setting absolute right-0 top-8 w-full rounded-lg bg-white p-2 pt-1 text-sm shadow-md sm:w-[320px]"
             >
               <Tabs v-model:selected-key="currentSettingTab" class="mb-2" :tabs="SETTING_TABS" />
               <div class="px-2">
@@ -646,13 +646,23 @@ function handleScrollByDate() {
         <span class="text-lg">数据加载中</span>
       </div>
 
-      <NewsList
-        v-if="!useGridView" ref="newsListRef" :news="newsDataSorted" :source="source" :channel="channel"
-        :config="newsItemConfig" :sort-by="sortBy" @change-filter="changeTag"
+      <NewsListView
+        v-if="!useGridView"
+        ref="newsListRef"
+        :news="newsDataSorted"
+        :source="source"
+        :channel="channel"
+        :config="newsItemConfig"
+        :sort-by="sortBy"
+        @change-filter="changeTag"
       />
 
-      <NewsGrid
-        v-if="useGridView" :news="newsDataSorted" :source="source" :channel="channel" :config="newsItemConfig"
+      <NewsGridView
+        v-if="useGridView"
+        :news="newsDataSorted"
+        :source="source"
+        :channel="channel"
+        :config="newsItemConfig"
         :sort-by="sortBy"
       />
     </div>

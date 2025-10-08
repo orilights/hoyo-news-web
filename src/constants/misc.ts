@@ -18,6 +18,17 @@ export const COVER_WIDTH = {
   none: 0,
 }
 
+// 网格视图 - 默认列数
+export const GRID_COLUMN_COUNT_DEFAULT = 4
+// 网格视图 - 最小列数
+export const GRID_COLUMN_COUNT_MIN = 2
+// 网格视图 - 行高
+export const GRID_ROW_HEIGHT = 192
+// 网格视图 - 项目间距
+export const GRID_ITEM_GAP = 16
+// 网格视图 - 项目最小宽度
+export const GRID_ITEM_WIDTH_MIN = 200
+
 export const TAG_ALL = '全部'
 export const TAG_VIDEO = '视频'
 export const TAG_OTHER = '未分类'

@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@orilight/vue-settings": "^1.2.2",
+    "@tanstack/vue-virtual": "^3.13.12",
     "@vueuse/core": "^13.6.0",
     "axios": "^1.11.0",
     "vue": "^3.5.18",
