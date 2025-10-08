@@ -6,7 +6,7 @@ import IconTag from '@/components/icon/IconTag.vue'
 import IconTime from '@/components/icon/IconTime.vue'
 import IconVideo from '@/components/icon/IconVideo.vue'
 import { DEFAULT_BANNER, LOAD_DELAY, NEWS_LIST } from '@/constants'
-import { state } from '@/state'
+import { useMainStore } from '@/store/main'
 import { CoverSize, VideoType } from '@/types/enum'
 import { copyToClipboard, formatDuration, getMiyousheVideo, getWeek, sanitizeFilename } from '@/utils'
 
@@ -17,7 +17,9 @@ const props = defineProps<{
   config: NewsItemConfig
 }>()
 
-const emit = defineEmits(['changeFilter', 'visit'])
+defineEmits(['changeFilter'])
+
+const mainStore = useMainStore()
 
 let timer: NodeJS.Timeout | null = null
 const newsKey = `${props.source}_${props.channel}_${props.news.remoteId}`
@@ -43,10 +45,10 @@ const coverWidth = computed(() => {
   return 75
 })
 const coverHeight = computed(() => props.config.coverSize === CoverSize.Large ? 150 : 75)
-const isNewsVisited = computed(() => state.newsVisited.has(newsKey))
+const isNewsVisited = computed(() => mainStore.isNewsVisited(newsKey))
 
 onMounted(() => {
-  if (state.imageLoaded.has(newsKey)) {
+  if (mainStore.imageLoaded.has(newsKey)) {
     loadImage.value = true
     return
   }
@@ -161,15 +163,14 @@ function sendToAria2(link: string) {
 
 function onImageLoaded() {
   imageLoaded.value = true
-  state.imageLoaded.add(newsKey)
+  mainStore.imageLoaded.add(newsKey)
 }
 
 function onClick() {
   window.umami?.track('a-visit-news', { key: newsKey })
   if (!props.config.showVisited)
     return
-  state.newsVisited.add(newsKey)
-  emit('visit')
+  mainStore.setNewsVisited(newsKey)
 }
 
 function checkPopupDirection(target: HTMLElement | null) {

@@ -30,9 +30,11 @@ import {
   TAG_VIDEO,
   VISIT_PERSIST_KEY,
 } from '@/constants'
-import { state } from '@/state'
 import { CoverSize } from '@/types/enum'
 import { exportFile, formatTime, getAria2DownloadTask, getNewsType, getTags } from '@/utils'
+import { useMainStore } from './store/main'
+
+const mainStore = useMainStore()
 
 const settings = new Settings(APP_ABBR)
 
@@ -175,13 +177,8 @@ onMounted(() => {
   })
 
   registerSettings()
-  try {
-    if (localStorage.getItem(VISIT_PERSIST_KEY))
-      state.newsVisited = new Set(JSON.parse(localStorage.getItem(VISIT_PERSIST_KEY) as string))
-  }
-  catch (err) {
-    console.error(err)
-  }
+  mainStore.initialize()
+
   if (params.filterTag)
     filterTag.value = params.filterTag as string
   if (params.source)
@@ -472,7 +469,7 @@ function handleScrollByDate() {
                     <span class="flex-1">发布时间显示星期</span>
                     <Switch v-model="showDateWeek" class="ml-2" />
                   </div>
-                  <div v-if="!useGridView" class="mb-2 flex items-center">
+                  <div class="mb-2 flex items-center">
                     <span class="flex-1">置灰已阅读新闻</span>
                     <Switch v-model="showVisited" class="ml-2" />
                   </div>

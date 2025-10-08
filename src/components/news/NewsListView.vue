@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import { useElementBounding, useElementSize, useThrottle } from '@vueuse/core'
 import NewsListItem from '@/components/news/NewsListItem.vue'
-import { ITEM_GAP, SHADOW_ITEM, VISIT_PERSIST_KEY } from '@/constants'
-import { state } from '@/state'
-import { limitSetSize } from '@/utils'
+import { ITEM_GAP, SHADOW_ITEM } from '@/constants'
 
 const props = defineProps<{
   config: NewsItemConfig
@@ -67,13 +65,6 @@ function scrollByDate(date: string) {
   }
   return false
 }
-
-function handlePerisitVisitRecord() {
-  if (!props.config.showVisited)
-    return
-  limitSetSize(state.newsVisited, 2000)
-  localStorage.setItem(VISIT_PERSIST_KEY, JSON.stringify(Array.from(state.newsVisited)))
-}
 </script>
 
 <template>
@@ -99,7 +90,6 @@ function handlePerisitVisitRecord() {
       :channel="channel"
       :config="config"
       @change-filter="$emit('changeFilter', $event)"
-      @visit="handlePerisitVisitRecord"
     />
   </ul>
 </template>

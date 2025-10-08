@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import LoadingIndicatorImage from '@/components/common/LoadingIndicatorImage.vue'
 import { DEFAULT_BANNER, LOAD_DELAY, NEWS_LIST } from '@/constants'
-import { state } from '@/state'
+import { useMainStore } from '@/store/main'
 import { formatDuration, formatTime } from '@/utils'
 
 const props = defineProps<{
@@ -11,7 +11,7 @@ const props = defineProps<{
   config: NewsItemConfig
 }>()
 
-const emit = defineEmits(['visit'])
+const mainStore = useMainStore()
 
 let timer: NodeJS.Timeout | null = null
 const newsKey = `${props.source}_${props.channel}_${props.news.remoteId}`
@@ -20,9 +20,10 @@ const loadImage = ref(false)
 const imageLoaded = ref(false)
 
 const channelConfig = computed(() => NEWS_LIST[props.source].channels[props.channel])
+const isNewsVisited = computed(() => mainStore.isNewsVisited(newsKey))
 
 onMounted(() => {
-  if (state.imageLoaded.has(newsKey)) {
+  if (mainStore.imageLoaded.has(newsKey)) {
     loadImage.value = true
     imageLoaded.value = true
     return
@@ -40,15 +41,14 @@ onUnmounted(() => {
 
 function onImageLoaded() {
   imageLoaded.value = true
-  state.imageLoaded.add(newsKey)
+  mainStore.imageLoaded.add(newsKey)
 }
 
 function onClick() {
   window.umami?.track('a-visit-news', { key: newsKey })
   if (!props.config.showVisited)
     return
-  state.newsVisited.add(newsKey)
-  emit('visit')
+  mainStore.setNewsVisited(newsKey)
 }
 </script>
 
@@ -81,7 +81,13 @@ function onClick() {
       </Transition>
     </div>
     <div class="mt-1 px-1">
-      <div class="line-clamp-2 h-[32px] text-xs font-bold text-black" :title="news.title">
+      <div
+        class="line-clamp-2 h-[32px] text-xs font-bold"
+        :class="{
+          'text-gray-400': config.showVisited && isNewsVisited,
+        }"
+        :title="news.title"
+      >
         {{ news.title }}
       </div>
       <div class="mt-1 text-xs text-gray-500">
