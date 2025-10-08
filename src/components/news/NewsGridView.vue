@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { useWindowVirtualizer } from '@tanstack/vue-virtual'
 import { useElementSize } from '@vueuse/core'
+import { storeToRefs } from 'pinia'
 import NewsGridItem from '@/components/news/NewsGridItem.vue'
 import { GRID_COLUMN_COUNT_DEFAULT, GRID_COLUMN_COUNT_MIN, GRID_ITEM_GAP, GRID_ITEM_WIDTH_MIN, GRID_ROW_HEIGHT } from '@/constants'
+import { useSettingsStore } from '@/store/settings'
 
 const props = defineProps<{
-  config: NewsItemConfig
   source: string
   channel: string
   news: NewsData[]
@@ -14,6 +15,9 @@ const props = defineProps<{
 
 const emit = defineEmits(['visit'])
 
+const settingsStore = useSettingsStore()
+
+const { newsItemConfig } = storeToRefs(settingsStore)
 const parentRef = ref<HTMLElement>()
 
 const columnCount = ref(GRID_COLUMN_COUNT_DEFAULT)
@@ -86,7 +90,7 @@ onMounted(() => {
             :news="item"
             :source="source"
             :channel="channel"
-            :config="config"
+            :config="newsItemConfig"
             @visit="emit('visit')"
           />
         </div>

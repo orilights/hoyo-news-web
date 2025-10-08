@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { useElementBounding, useElementSize, useThrottle } from '@vueuse/core'
+import { storeToRefs } from 'pinia'
 import NewsListItem from '@/components/news/NewsListItem.vue'
+import { useCoverSize } from '@/composables/cover'
 import { ITEM_GAP, SHADOW_ITEM } from '@/constants'
+import { useSettingsStore } from '@/store/settings'
 
 const props = defineProps<{
-  config: NewsItemConfig
   source: string
   channel: string
   news: NewsData[]
@@ -15,6 +17,15 @@ defineEmits(['changeFilter', 'visit'])
 
 defineExpose({ scrollByDate })
 
+const settingsStore = useSettingsStore()
+
+const { newsItemConfig } = storeToRefs(settingsStore)
+const { coverSize } = useCoverSize()
+
+const config = computed(() => ({
+  ...newsItemConfig.value,
+  coverSize: coverSize.value,
+}))
 const containerRef = ref<HTMLElement>()
 const shadowItemRef = ref<HTMLElement>()
 const containerTop = useThrottle(useElementBounding(containerRef).top, 30, true)

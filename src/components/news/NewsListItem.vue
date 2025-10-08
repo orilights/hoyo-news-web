@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useElementSize } from '@vueuse/core'
+import { storeToRefs } from 'pinia'
 import { useToast } from 'vue-toastification'
 import LoadingIndicatorImage from '@/components/common/LoadingIndicatorImage.vue'
 import IconTag from '@/components/icon/IconTag.vue'
@@ -7,6 +8,7 @@ import IconTime from '@/components/icon/IconTime.vue'
 import IconVideo from '@/components/icon/IconVideo.vue'
 import { DEFAULT_BANNER, LOAD_DELAY, NEWS_LIST } from '@/constants'
 import { useMainStore } from '@/store/main'
+import { useSettingsStore } from '@/store/settings'
 import { CoverSize, VideoType } from '@/types/enum'
 import { copyToClipboard, formatDuration, getMiyousheVideo, getWeek, sanitizeFilename } from '@/utils'
 
@@ -20,7 +22,9 @@ const props = defineProps<{
 defineEmits(['changeFilter'])
 
 const mainStore = useMainStore()
+const settingsStore = useSettingsStore()
 
+const { aria2Config } = storeToRefs(settingsStore)
 let timer: NodeJS.Timeout | null = null
 const newsKey = `${props.source}_${props.channel}_${props.news.remoteId}`
 
@@ -129,11 +133,11 @@ function sendToAria2(link: string) {
   const rpcId = `HYN${new Date().getTime()}`
   const videoExt = link.split('.').pop()
   const videoOutName = sanitizeFilename(
-    props.config.aria2Config.filename
+    aria2Config.value.filename
       .replace('{newsTitle}', sanitizeFilename(props.news.title))
       .replace('{ext}', videoExt || 'mp4'),
   )
-  fetch(props.config.aria2Config.rpcUrl, {
+  fetch(aria2Config.value.rpcUrl, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -142,7 +146,7 @@ function sendToAria2(link: string) {
       jsonrpc: '2.0',
       id: rpcId,
       method: 'aria2.addUri',
-      params: [`token:${props.config.aria2Config.rpcSecret}`, [link], {
+      params: [`token:${aria2Config.value.rpcSecret}`, [link], {
         out: videoOutName,
       }],
     }),

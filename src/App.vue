@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { Settings, SettingType } from '@orilight/vue-settings'
-import { useMediaQuery, useUrlSearchParams } from '@vueuse/core'
+import { useUrlSearchParams } from '@vueuse/core'
+import { storeToRefs } from 'pinia'
 import { useToast } from 'vue-toastification'
 import { getNewsApi } from '@/api/news'
 import LoadingIndicator from '@/components/common/LoadingIndicator.vue'
@@ -18,8 +18,6 @@ import NewsGridView from '@/components/news/NewsGridView.vue'
 import NewsListView from '@/components/news/NewsListView.vue'
 import TagList from '@/components/TagList.vue'
 import {
-  APP_ABBR,
-  ARIA2_RPC_URL,
   BUILD_COMMIT,
   BUILD_DATE,
   CONFIG_API,
@@ -28,47 +26,30 @@ import {
   SETTING_TABS,
   TAG_ALL,
   TAG_VIDEO,
-  VISIT_PERSIST_KEY,
 } from '@/constants'
-import { CoverSize } from '@/types/enum'
 import { exportFile, formatTime, getAria2DownloadTask, getNewsType, getTags } from '@/utils'
 import { useMainStore } from './store/main'
+import { useSettingsStore } from './store/settings'
 
 const mainStore = useMainStore()
-
-const settings = new Settings(APP_ABBR)
+const settingsStore = useSettingsStore()
+const {
+  showCover,
+  showDateWeek,
+  showVisited,
+  useGridView,
+  fullWidth,
+  aria2Config,
+  customFilter,
+} = storeToRefs(settingsStore)
 
 const toast = useToast()
 
 const params = useUrlSearchParams('history')
-const windowWidth = {
-  sm: useMediaQuery('(min-width: 640px)'),
-  md: useMediaQuery('(min-width: 768px)'),
-}
-const coverSize = computed(() => {
-  if (windowWidth.md.value)
-    return CoverSize.Large
-  if (windowWidth.sm.value)
-    return CoverSize.Medium
-  return CoverSize.Small
-})
 
 const showDialogSetting = ref(false)
 const currentSettingTab = ref('general')
-const showCover = ref(true)
-const showDateWeek = ref(false)
-const showVisited = ref(false)
-const aria2Config = ref({
-  rpcUrl: ARIA2_RPC_URL,
-  rpcSecret: '',
-  filename: '{newsTitle}.{ext}',
-})
-const customFilter = ref({
-  enable: true,
-})
 const customFilterCount = ref(0)
-const useGridView = ref(false)
-const fullWidth = ref(false)
 
 const source = ref(Object.keys(NEWS_LIST)[0])
 const channel = ref(Object.keys(NEWS_LIST[source.value].channels)[0])
@@ -83,14 +64,6 @@ const dateFilterEnd = ref('')
 
 const newsListRef = ref<any>(null)
 const headerSticky = ref(false)
-
-const newsItemConfig = computed(() => ({
-  showBanner: showCover.value,
-  showDateWeek: showDateWeek.value,
-  showVisited: showVisited.value,
-  coverSize: coverSize.value,
-  aria2Config: aria2Config.value,
-}))
 
 const showDialogJump = ref(false)
 const jumpDate = ref('')
@@ -176,7 +149,6 @@ onMounted(() => {
     }
   })
 
-  registerSettings()
   mainStore.initialize()
 
   if (params.filterTag)
@@ -195,20 +167,6 @@ onMounted(() => {
     channel.value = Object.keys(NEWS_LIST[val].channels)[0]
   })
 })
-
-onUnmounted(() => {
-  settings.unregisterAll()
-})
-
-function registerSettings() {
-  settings.register('showCover', showCover, SettingType.Bool)
-  settings.register('showDateWeek', showDateWeek, SettingType.Bool)
-  settings.register('showVisited', showVisited, SettingType.Bool)
-  settings.register('aria2Config', aria2Config, SettingType.Object, { deepMerge: true })
-  settings.register('useGridView', useGridView, SettingType.Bool)
-  settings.register('fullWidth', fullWidth, SettingType.Bool)
-  settings.register('customFilter', customFilter, SettingType.Object, { deepMerge: true })
-}
 
 function fetchNotice() {
   fetch(`${CONFIG_API}/hoyonews.notice`)
@@ -649,7 +607,6 @@ function handleScrollByDate() {
         :news="newsDataSorted"
         :source="source"
         :channel="channel"
-        :config="newsItemConfig"
         :sort-by="sortBy"
         @change-filter="changeTag"
       />
@@ -659,7 +616,6 @@ function handleScrollByDate() {
         :news="newsDataSorted"
         :source="source"
         :channel="channel"
-        :config="newsItemConfig"
         :sort-by="sortBy"
       />
     </div>

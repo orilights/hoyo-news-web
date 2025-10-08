@@ -29,7 +29,6 @@ declare global {
     showDateWeek: boolean
     showVisited: boolean
     coverSize: CoverSize
-    aria2Config: Aria2Config
   }
 
   interface SourceInfo {

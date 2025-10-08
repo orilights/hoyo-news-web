@@ -8,7 +8,7 @@ const props = defineProps<{
   news: NewsData
   source: string
   channel: string
-  config: NewsItemConfig
+  config: Omit<NewsItemConfig, 'coverSize'>
 }>()
 
 const mainStore = useMainStore()
