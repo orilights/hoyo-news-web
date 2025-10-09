@@ -16,6 +16,7 @@ export const useSettingsStore = defineStore('settings', {
     customFilter: {
       enable: true,
     },
+    autoHideHeader: false,
   }),
   getters: {
     newsItemConfig: (state) => {

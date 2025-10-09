@@ -22,6 +22,7 @@ const {
   fullWidth,
   aria2Config,
   customFilter,
+  autoHideHeader,
 } = storeToRefs(settingsStore)
 
 const currentTab = ref('general')
@@ -83,6 +84,10 @@ function exportVideos() {
           <div class="mb-2 flex items-center">
             <span class="flex-1">置灰已阅读新闻</span>
             <Switch v-model="showVisited" class="ml-2" />
+          </div>
+          <div class="mb-2 flex items-center">
+            <span class="flex-1">自动隐藏顶栏</span>
+            <Switch v-model="autoHideHeader" class="ml-2" />
           </div>
           <div class="mb-2">
             <div class="flex items-center">

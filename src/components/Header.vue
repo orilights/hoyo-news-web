@@ -6,10 +6,12 @@ import IconSetting from '@/components/icon/IconSetting.vue'
 import SettingPanel from '@/components/SettingPanel.vue'
 import { NEWS_LIST } from '@/constants'
 import { useMainStore } from '@/store/main'
+import { useSettingsStore } from '@/store/settings'
 
 const mainStore = useMainStore()
-
+const settings = useSettingsStore()
 const { newsLoading, currentSource, currentChannel } = storeToRefs(mainStore)
+const { autoHideHeader } = storeToRefs(settings)
 
 const headerRef = ref<HTMLElement | null>(null)
 const showSettingPanel = ref(false)
@@ -33,7 +35,7 @@ function handleChangeDialogSettingVisible() {
 function handleScroll() {
   const scrollTop = window.pageYOffset || document.documentElement.scrollTop
 
-  if (scrollTop <= 200) {
+  if (scrollTop <= 800 || autoHideHeader.value === false) {
     showHeader.value = true
   }
   else {
