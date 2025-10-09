@@ -38,6 +38,9 @@ function handleScroll() {
   }
   else {
     showHeader.value = scrollTop < lastScrollTop.value
+    if (!showHeader.value) {
+      showSettingPanel.value = false
+    }
   }
   lastScrollTop.value = scrollTop
 }
