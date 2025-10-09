@@ -13,7 +13,7 @@ const visible = defineModel<boolean>('visible')
 const toast = useToast()
 const mainStore = useMainStore()
 const settingsStore = useSettingsStore()
-const { currentChannel, newsDataSorted, customFilterCount } = storeToRefs(mainStore)
+const { currentChannel, newsDataFiltered, customFilterCount } = storeToRefs(mainStore)
 const {
   showCover,
   showDateWeek,
@@ -37,7 +37,7 @@ onMounted(() => {
 
 function exportVideos() {
   window.umami?.track('a-export-videos')
-  const videoList = newsDataSorted.value.filter(news => news.video)
+  const videoList = newsDataFiltered.value.filter(news => news.video)
   if (videoList.length === 0) {
     toast.warning('当前没有可导出的视频')
     return

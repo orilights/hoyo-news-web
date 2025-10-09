@@ -2,7 +2,14 @@ import { useUrlSearchParams } from '@vueuse/core'
 import { defineStore } from 'pinia'
 import { useToast } from 'vue-toastification'
 import { getNewsApi } from '@/api/news'
-import { DEFAULT_KEYWORD_BLACKLIST, NEWS_LIST, TAG_ALL, TAG_VIDEO, VISIT_PERSIST_KEY, VISIT_PERSIST_MAX } from '@/constants'
+import {
+  DEFAULT_KEYWORD_BLACKLIST,
+  NEWS_LIST,
+  TAG_ALL,
+  TAG_VIDEO,
+  VISIT_PERSIST_KEY,
+  VISIT_PERSIST_MAX,
+} from '@/constants'
 import { formatTime, getNewsType, getTags, limitSetSize } from '@/utils'
 import { useSettingsStore } from './settings'
 
@@ -24,7 +31,6 @@ export const useMainStore = defineStore('main', {
     imageLoaded: new Set<string>(),
     newsVisited: new Set<string>(),
 
-    headerSticky: false,
     customFilterCount: 0,
 
     toast: useToast(),
@@ -60,28 +66,28 @@ export const useMainStore = defineStore('main', {
         data = this.newsData.filter(news => news.tag === this.filterTag)
       }
       if (this.dateFilterStart) {
-        data = data.filter(news => new Date(news.startTime).getTime() >= new Date(`${this.dateFilterStart} 00:00:00`).getTime())
+        data = data.filter(news =>
+          new Date(news.startTime).getTime() >= new Date(`${this.dateFilterStart} 00:00:00`).getTime(),
+        )
       }
       if (this.dateFilterEnd) {
-        data = data.filter(news => new Date(news.startTime).getTime() <= new Date(`${this.dateFilterEnd} 23:59:59`).getTime())
+        data = data.filter(news =>
+          new Date(news.startTime).getTime() <= new Date(`${this.dateFilterEnd} 23:59:59`).getTime(),
+        )
       }
       const originalCount = data.length
       if (settings.customFilter.enable) {
-        data = data.filter(news => !DEFAULT_KEYWORD_BLACKLIST.some(kw => news.title.includes(kw)))
+        data = data.filter(news =>
+          !DEFAULT_KEYWORD_BLACKLIST.some(kw => news.title.includes(kw)),
+        )
       }
 
       this.customFilterCount = originalCount - data.length
 
-      return data
-    },
-
-    newsDataSorted() {
-      const data = this.newsDataFiltered.slice()
-
       if (this.sortBy === 'asc')
         data.reverse()
 
-      return data as NewsData[]
+      return data
     },
   },
   actions: {

@@ -1,31 +1,26 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
 import { useToast } from 'vue-toastification'
-
 import ChannelInfo from '@/components/ChannelInfo.vue'
 import LoadingIndicator from '@/components/common/LoadingIndicator.vue'
 import FloatTool from '@/components/FloatTool.vue'
 import Header from '@/components/Header.vue'
-import IconSetting from '@/components/icon/IconSetting.vue'
 import NewsGridView from '@/components/news/NewsGridView.vue'
 import NewsListView from '@/components/news/NewsListView.vue'
 import NewsFilter from '@/components/NewsFilter.vue'
-import SettingPanel from '@/components/SettingPanel.vue'
 import { CONFIG_API } from '@/constants'
 import { useMainStore } from '@/store/main'
 import { useSettingsStore } from '@/store/settings'
 
 const mainStore = useMainStore()
 const settings = useSettingsStore()
-const { headerSticky, newsLoading } = storeToRefs(mainStore)
+const { newsLoading } = storeToRefs(mainStore)
 const {
   useGridView,
   fullWidth,
 } = storeToRefs(settings)
 
 const toast = useToast()
-
-const showDialogSetting = ref(false)
 
 onMounted(() => {
   mainStore.initialize()
@@ -52,45 +47,16 @@ function fetchNotice() {
       console.error(err)
     })
 }
-
-function handleChangeDialogSettingVisible() {
-  showDialogSetting.value = !showDialogSetting.value
-  if (showDialogSetting.value) {
-    window.umami?.track('d-setting')
-  }
-}
 </script>
 
 <template>
   <div class="min-h-screen bg-gray-100 text-sm transition-[font-size] md:text-base">
     <div
-      class="relative mx-2 py-2 md:mx-4 xl:px-0" :class="{
+      class="relative mx-2 pb-2 md:mx-4 xl:px-0" :class="{
         'lg:mx-auto lg:w-[960px]': !fullWidth,
         'lg:mx-10': fullWidth,
       }"
     >
-      <div class="flex items-center justify-between">
-        <h1 class="py-6 text-2xl font-bold transition-[font-size]">
-          米哈游官网新闻检索
-        </h1>
-      </div>
-
-      <div class="sticky top-0 z-20">
-        <div
-          class="absolute right-0 top-[-54px] w-full" :class="{
-            '!top-4': headerSticky,
-          }"
-        >
-          <div class="absolute right-0 flex gap-4">
-            <button class="setting" @click="handleChangeDialogSettingVisible">
-              <IconSetting class="size-6" />
-            </button>
-          </div>
-
-          <SettingPanel v-model:visible="showDialogSetting" />
-        </div>
-      </div>
-
       <Header />
 
       <ChannelInfo />
@@ -113,6 +79,7 @@ function handleChangeDialogSettingVisible() {
 
 <style>
 body {
+  overflow-x: hidden;
   overflow-y: scroll;
 }
 

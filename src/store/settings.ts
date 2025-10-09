@@ -28,7 +28,9 @@ export const useSettingsStore = defineStore('settings', {
   },
   actions: {
     tryMigrateFromV1Settings() {
-      const settingsV1Keys = Object.keys(localStorage).filter(key => key.startsWith(`${APP_ABBR}-settings-`))
+      const settingsV1Keys = Object.keys(localStorage).filter(key =>
+        key.startsWith(`${APP_ABBR}-settings-`),
+      )
       if (settingsV1Keys.length === 0)
         return
 

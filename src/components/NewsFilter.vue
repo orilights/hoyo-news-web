@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
+import TagList from '@/components/TagList.vue'
 import { useMainStore } from '@/store/main'
-import TagList from './TagList.vue'
 
 const mainStore = useMainStore()
 
 const {
   availableTags,
-  newsDataSorted,
+  newsDataFiltered,
   filterTag,
   searchStr,
   searchEnabled,
@@ -24,7 +24,7 @@ const {
   >
   <div v-show="searchEnabled" class="mb-2">
     <span>
-      搜索结果：{{ newsDataSorted.length }} 条
+      搜索结果：{{ newsDataFiltered.length }} 条
     </span>
     <button class="ml-4 hover:text-blue-500" @click="searchStr = ''">
       取消搜索

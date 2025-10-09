@@ -12,21 +12,21 @@ const toast = useToast()
 const mainStore = useMainStore()
 const settings = useSettingsStore()
 const { useGridView } = storeToRefs(settings)
-const { sortBy, newsDataSorted } = storeToRefs(mainStore)
+const { sortBy, newsDataFiltered } = storeToRefs(mainStore)
 
 const showDialogJump = ref(false)
 const jumpDate = ref('')
 
 const dateRange = computed(() => {
   const range = { min: '', max: '' }
-  if (newsDataSorted.value.length) {
+  if (newsDataFiltered.value.length) {
     if (sortBy.value === 'asc') {
-      range.min = formatTime(newsDataSorted.value[0].startTime, true)
-      range.max = formatTime(newsDataSorted.value[newsDataSorted.value.length - 1].startTime, true)
+      range.min = formatTime(newsDataFiltered.value[0].startTime, true)
+      range.max = formatTime(newsDataFiltered.value[newsDataFiltered.value.length - 1].startTime, true)
     }
     else {
-      range.min = formatTime(newsDataSorted.value[newsDataSorted.value.length - 1].startTime, true)
-      range.max = formatTime(newsDataSorted.value[0].startTime, true)
+      range.min = formatTime(newsDataFiltered.value[newsDataFiltered.value.length - 1].startTime, true)
+      range.max = formatTime(newsDataFiltered.value[0].startTime, true)
     }
   }
   return range

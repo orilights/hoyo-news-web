@@ -13,7 +13,7 @@ const toast = useToast()
 const mainStore = useMainStore()
 const settingsStore = useSettingsStore()
 
-const { currentSource, currentChannel, newsDataSorted, sortBy } = storeToRefs(mainStore)
+const { currentSource, currentChannel, newsDataFiltered, sortBy } = storeToRefs(mainStore)
 const { newsItemConfig } = storeToRefs(settingsStore)
 const { coverSize } = useCoverSize()
 
@@ -28,7 +28,7 @@ const newsItemHeight = useElementSize(shadowItemRef).height
 
 const newsList = computed(() => {
   const list: NewsItemData[] = []
-  newsDataSorted.value.forEach((v, i) => {
+  newsDataFiltered.value.forEach((v, i) => {
     list.push({
       ...v,
       top: (newsItemHeight.value + ITEM_GAP) * i,
@@ -92,7 +92,7 @@ function scrollByDate(date: string) {
     ref="containerRef"
     class="relative overflow-hidden"
     :style="{
-      height: `${newsDataSorted.length * (newsItemHeight + ITEM_GAP)}px`,
+      height: `${newsDataFiltered.length * (newsItemHeight + ITEM_GAP)}px`,
     }"
   >
     <NewsListItem

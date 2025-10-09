@@ -3,14 +3,20 @@ import { useWindowVirtualizer } from '@tanstack/vue-virtual'
 import { useElementSize } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 import NewsGridItem from '@/components/news/NewsGridItem.vue'
-import { GRID_COLUMN_COUNT_DEFAULT, GRID_COLUMN_COUNT_MIN, GRID_ITEM_GAP, GRID_ITEM_WIDTH_MIN, GRID_ROW_HEIGHT } from '@/constants'
+import {
+  GRID_COLUMN_COUNT_DEFAULT,
+  GRID_COLUMN_COUNT_MIN,
+  GRID_ITEM_GAP,
+  GRID_ITEM_WIDTH_MIN,
+  GRID_ROW_HEIGHT,
+} from '@/constants'
 import { useMainStore } from '@/store/main'
 import { useSettingsStore } from '@/store/settings'
 
 const mainStore = useMainStore()
 const settingsStore = useSettingsStore()
 
-const { currentSource, currentChannel, newsDataSorted } = storeToRefs(mainStore)
+const { currentSource, currentChannel, newsDataFiltered } = storeToRefs(mainStore)
 const { newsItemConfig } = storeToRefs(settingsStore)
 const parentRef = ref<HTMLElement>()
 
@@ -27,8 +33,8 @@ function updateColumnCount() {
 
 const rows = computed(() => {
   const result = []
-  for (let i = 0; i < newsDataSorted.value.length; i += columnCount.value) {
-    result.push(newsDataSorted.value.slice(i, i + columnCount.value))
+  for (let i = 0; i < newsDataFiltered.value.length; i += columnCount.value) {
+    result.push(newsDataFiltered.value.slice(i, i + columnCount.value))
   }
   return result
 })

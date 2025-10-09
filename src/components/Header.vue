@@ -2,14 +2,17 @@
 import { storeToRefs } from 'pinia'
 import AnimationText from '@/components/common/AnimationText.vue'
 import Tabs from '@/components/common/Tabs.vue'
+import IconSetting from '@/components/icon/IconSetting.vue'
+import SettingPanel from '@/components/SettingPanel.vue'
 import { NEWS_LIST } from '@/constants'
 import { useMainStore } from '@/store/main'
 
 const mainStore = useMainStore()
 
-const { newsLoading, currentSource, currentChannel, headerSticky } = storeToRefs(mainStore)
+const { newsLoading, currentSource, currentChannel } = storeToRefs(mainStore)
 
 const headerRef = ref<HTMLElement | null>(null)
+const showSettingPanel = ref(false)
 
 const tabs = computed(() => {
   return Object.entries(NEWS_LIST[currentSource.value].channels).map(([key, value]) => ({
@@ -18,33 +21,20 @@ const tabs = computed(() => {
   }))
 })
 
-onMounted(() => {
-  document.addEventListener('scroll', handleScroll)
-})
-
-onUnmounted(() => {
-  document.removeEventListener('scroll', handleScroll)
-})
-
-function handleScroll() {
-  headerSticky.value = (headerRef.value?.getBoundingClientRect().top || 0) === 0 && window.scrollY > 0
+function handleChangeDialogSettingVisible() {
+  showSettingPanel.value = !showSettingPanel.value
+  if (showSettingPanel.value) {
+    window.umami?.track('d-setting')
+  }
 }
 </script>
 
 <template>
   <div
     ref="headerRef"
-    class="header sticky top-0 z-10 pt-2 backdrop-blur transition-all"
-    :class="{
-      'mx-[-8px] bg-[#f3f4f6]/80 pl-2 pr-4 md:mx-[-32px] md:px-8': headerSticky,
-    }"
+    class="header sticky top-0 z-10 mx-[-8px] bg-[#f3f4f6]/80 px-2 pt-4 backdrop-blur transition-all md:mx-[-32px] md:px-8"
   >
-    <div
-      class="mb-2 flex flex-wrap gap-1"
-      :class="{
-        'pr-4': headerSticky,
-      }"
-    >
+    <div class="relative mb-2 flex flex-wrap gap-1 pr-6">
       <button
         v-for="[source_key, source_info] in Object.entries(NEWS_LIST)" :key="source_key"
         class="flex shrink-0 items-center overflow-hidden rounded-full border p-1 transition-colors"
@@ -66,6 +56,14 @@ function handleScroll() {
           </span>
         </AnimationText>
       </button>
+
+      <div class="absolute right-0 top-0 flex gap-4">
+        <button class="setting" @click="handleChangeDialogSettingVisible">
+          <IconSetting class="size-6" />
+        </button>
+      </div>
+
+      <SettingPanel v-model:visible="showSettingPanel" />
     </div>
 
     <Tabs
