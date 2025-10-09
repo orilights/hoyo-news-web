@@ -69,20 +69,22 @@ onUnmounted(() => {
   document.removeEventListener('click', closeAction)
 })
 
+function getVideoUrl() {
+  if (props.news.video?.type === VideoType.MIYOUSHE) {
+    return getMiyousheVideo(props.source, props.channel, props.news.video!.url)
+  }
+  return Promise.resolve(props.news.video!.url)
+}
+
 function openVideo() {
   window.umami?.track('a-open-video', { key: newsKey })
-  if (props.news.video?.type === VideoType.MIYOUSHE) {
-    getMiyousheVideo(props.source, props.channel, props.news.video!.url)
-      .then((videoUrl) => {
-        window.open(videoUrl, '_blank')
-      })
-      .catch((err) => {
-        useToast().error(err.message)
-      })
-  }
-  else {
-    window.open(props.news.video!.url, '_blank')
-  }
+  getVideoUrl()
+    .then((videoUrl) => {
+      window.open(videoUrl, '_blank')
+    })
+    .catch((err) => {
+      useToast().error(err.message)
+    })
 }
 
 function copyLink() {
@@ -110,58 +112,70 @@ function copyCoverLink() {
 async function copyVideoLink() {
   window.umami?.track('a-copy-video-link', { key: newsKey })
 
-  let videoUrl = props.news.video!.url
-  if (props.news.video?.type === VideoType.MIYOUSHE) {
-    videoUrl = await getMiyousheVideo(props.source, props.channel, props.news.video!.url)
-  }
-  copyToClipboard(videoUrl)
-    .then(() => {
-      useToast().success('已复制视频链接')
+  getVideoUrl()
+    .then((videoUrl) => {
+      copyToClipboard(videoUrl)
+        .then(() => {
+          useToast().success('已复制视频链接')
+        })
+        .catch((err) => {
+          useToast().error(err?.message || '复制失败')
+        })
     })
     .catch((err) => {
-      useToast().error(err?.message || '复制失败')
+      useToast().error(err.message)
     })
 }
 
-function sendToPotPlayer(link: string) {
+function sendToPotPlayer() {
   window.umami?.track('a-send-to-potplayer', { key: newsKey })
-  window.open(`potplayer://${link}`)
+  getVideoUrl()
+    .then((videoUrl) => {
+      window.open(`potplayer://${videoUrl}`)
+    })
+    .catch((err) => {
+      useToast().error(err.message)
+    })
 }
 
-function sendToAria2(link: string) {
+function sendToAria2() {
   window.umami?.track('a-send-to-aria2', { key: newsKey })
   const rpcId = `HYN${new Date().getTime()}`
-  const videoExt = link.split('.').pop()
-  const videoOutName = sanitizeFilename(
-    aria2Config.value.filename
-      .replace('{newsTitle}', sanitizeFilename(props.news.title))
-      .replace('{ext}', videoExt || 'mp4'),
-  )
-  fetch(aria2Config.value.rpcUrl, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      jsonrpc: '2.0',
-      id: rpcId,
-      method: 'aria2.addUri',
-      params: [`token:${aria2Config.value.rpcSecret}`, [link], {
-        out: videoOutName,
-      }],
-    }),
-  })
-    .then(res => res.json())
-    .then((data) => {
-      if (data.error) {
-        useToast().error(`aria2 返回错误：${data.error.message}`)
-      }
-      else {
-        useToast().success('已发送至 aria2 RPC')
-      }
-    })
-    .catch(() => {
-      useToast().error('请求失败，请检测 aria2 配置')
+  getVideoUrl()
+    .then((videoUrl) => {
+      const url = new URL(videoUrl) // 检测 URL 合法性
+      const videoExt = url.pathname.split('.').length > 1 ? url.pathname.split('.').pop() : null
+      const videoOutName = sanitizeFilename(
+        aria2Config.value.filename
+          .replace('{newsTitle}', sanitizeFilename(props.news.title))
+          .replace('{ext}', videoExt || 'mp4'),
+      )
+      fetch(aria2Config.value.rpcUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: rpcId,
+          method: 'aria2.addUri',
+          params: [`token:${aria2Config.value.rpcSecret}`, [videoUrl], {
+            out: videoOutName,
+          }],
+        }),
+      })
+        .then(res => res.json())
+        .then((data) => {
+          if (data.error) {
+            useToast().error(`aria2 返回错误：${data.error.message}`)
+          }
+          else {
+            useToast().success('已发送至 aria2 RPC')
+          }
+        })
+        .catch(() => {
+          useToast().error('请求失败，请检测 aria2 配置')
+        })
     })
 }
 
@@ -335,7 +349,7 @@ function closeAction() {
                   v-if="news.video"
                   class="block w-full px-2 py-0.5 text-left transition-colors hover:bg-black/10"
                   title="在 PotPlayer 中打开视频"
-                  @click="showAction = false;sendToPotPlayer(news.video.url)"
+                  @click="showAction = false;sendToPotPlayer()"
                 >
                   在 PotPlayer 中打开视频
                 </button>
@@ -343,7 +357,7 @@ function closeAction() {
                   v-if="news.video"
                   class="block w-full px-2 py-0.5 text-left transition-colors hover:bg-black/10"
                   title="将视频发送至 aria2 下载"
-                  @click="showAction = false;sendToAria2(news.video.url)"
+                  @click="showAction = false;sendToAria2()"
                 >
                   将视频发送至 aria2 下载
                 </button>
