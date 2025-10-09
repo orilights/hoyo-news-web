@@ -13,6 +13,8 @@ const { newsLoading, currentSource, currentChannel } = storeToRefs(mainStore)
 
 const headerRef = ref<HTMLElement | null>(null)
 const showSettingPanel = ref(false)
+const showHeader = ref(true)
+const lastScrollTop = ref(0)
 
 const tabs = computed(() => {
   return Object.entries(NEWS_LIST[currentSource.value].channels).map(([key, value]) => ({
@@ -27,12 +29,33 @@ function handleChangeDialogSettingVisible() {
     window.umami?.track('d-setting')
   }
 }
+
+function handleScroll() {
+  const scrollTop = window.pageYOffset || document.documentElement.scrollTop
+
+  if (scrollTop <= 200) {
+    showHeader.value = true
+  }
+  else {
+    showHeader.value = scrollTop < lastScrollTop.value
+  }
+  lastScrollTop.value = scrollTop
+}
+
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll, { passive: true })
+})
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll)
+})
 </script>
 
 <template>
   <div
     ref="headerRef"
-    class="header sticky top-0 z-10 mx-[-8px] bg-[#f3f4f6]/80 px-2 pt-4 backdrop-blur transition-all md:mx-[-32px] md:px-8"
+    class="header sticky top-0 z-10 mx-[-8px] bg-[#f3f4f6]/80 px-2 pt-4 backdrop-blur transition-all duration-300 md:mx-[-32px] md:px-8"
+    :class="{ '-translate-y-full': !showHeader }"
   >
     <div class="relative mb-2 flex flex-wrap gap-1 pr-6">
       <button
