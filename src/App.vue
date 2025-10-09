@@ -1,159 +1,38 @@
 <script setup lang="ts">
-import { useUrlSearchParams } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 import { useToast } from 'vue-toastification'
-import { getNewsApi } from '@/api/news'
+
+import ChannelInfo from '@/components/ChannelInfo.vue'
 import LoadingIndicator from '@/components/common/LoadingIndicator.vue'
+import FloatTool from '@/components/FloatTool.vue'
 import Header from '@/components/Header.vue'
-import IconArrowDown from '@/components/icon/IconArrowDown.vue'
-import IconArrowUp from '@/components/icon/IconArrowUp.vue'
-import IconJump from '@/components/icon/IconJump.vue'
-import IconRefresh from '@/components/icon/IconRefresh.vue'
-import IconRss from '@/components/icon/IconRss.vue'
 import IconSetting from '@/components/icon/IconSetting.vue'
-import IconUpdateTime from '@/components/icon/IconUpdateTime.vue'
 import NewsGridView from '@/components/news/NewsGridView.vue'
 import NewsListView from '@/components/news/NewsListView.vue'
-import TagList from '@/components/TagList.vue'
-import {
-  CONFIG_API,
-  DEFAULT_KEYWORD_BLACKLIST,
-  NEWS_LIST,
-  TAG_ALL,
-  TAG_VIDEO,
-} from '@/constants'
-import { formatTime, getNewsType, getTags } from '@/utils'
-import SettingPanel from './components/SettingPanel.vue'
-import { useMainStore } from './store/main'
-import { useSettingsStore } from './store/settings'
+import NewsFilter from '@/components/NewsFilter.vue'
+import SettingPanel from '@/components/SettingPanel.vue'
+import { CONFIG_API } from '@/constants'
+import { useMainStore } from '@/store/main'
+import { useSettingsStore } from '@/store/settings'
 
 const mainStore = useMainStore()
-const settingsStore = useSettingsStore()
+const settings = useSettingsStore()
+const { headerSticky, newsLoading } = storeToRefs(mainStore)
 const {
   useGridView,
   fullWidth,
-  customFilter,
-} = storeToRefs(settingsStore)
+} = storeToRefs(settings)
 
 const toast = useToast()
 
-const params = useUrlSearchParams('history')
-
 const showDialogSetting = ref(false)
-const customFilterCount = ref(0)
-
-const source = ref(Object.keys(NEWS_LIST)[0])
-const channel = ref(Object.keys(NEWS_LIST[source.value].channels)[0])
-const tags = ref<TagInfo[]>([])
-const filterTag = ref(TAG_ALL)
-
-const channelConfig = computed(() => NEWS_LIST[source.value].channels[channel.value])
-
-const sortBy = ref<'asc' | 'desc'>('desc')
-const dateFilterStart = ref('')
-const dateFilterEnd = ref('')
-
-const newsListRef = ref<any>(null)
-const headerSticky = ref(false)
-
-const showDialogJump = ref(false)
-const jumpDate = ref('')
-
-const searchStr = ref('')
-const searchEnabled = computed(() => searchStr.value.trim() !== '')
-
-const newsUpdateTime = ref(0)
-const newsLoading = ref(false)
-const newsData = ref<NewsData[]>([])
-
-const newsDataFiltered = computed(() => {
-  let data: NewsData[]
-  if (searchEnabled.value) {
-    data = newsData.value.filter(news =>
-      searchStr.value.toLowerCase().trim().split(' ').every((v) => {
-        const newsKey = news.title.toLowerCase() + news.remoteId
-        return newsKey.includes(v)
-      }),
-    )
-  }
-  else if (filterTag.value === TAG_ALL) {
-    data = newsData.value.slice()
-  }
-  else if (filterTag.value === TAG_VIDEO) {
-    data = newsData.value.filter(news => news.video)
-  }
-  else if (!tags.value.find(tag => tag.name === filterTag.value)) {
-    data = newsData.value.slice()
-  }
-  else {
-    data = newsData.value.filter(news => news.tag === filterTag.value)
-  }
-  if (dateFilterStart.value) {
-    data = data.filter(news => new Date(news.startTime).getTime() >= new Date(`${dateFilterStart.value} 00:00:00`).getTime())
-  }
-  if (dateFilterEnd.value) {
-    data = data.filter(news => new Date(news.startTime).getTime() <= new Date(`${dateFilterEnd.value} 23:59:59`).getTime())
-  }
-  const originalCount = data.length
-  if (customFilter.value.enable) {
-    data = data.filter(news => !DEFAULT_KEYWORD_BLACKLIST.some(kw => news.title.includes(kw)))
-  }
-  // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-  customFilterCount.value = originalCount - data.length
-
-  return data
-})
-
-const newsDataSorted = computed(() => {
-  const data = newsDataFiltered.value.slice()
-
-  if (sortBy.value === 'asc')
-    data.reverse()
-
-  return data as NewsData[]
-})
-
-const dateRange = computed(() => {
-  const range = { min: '', max: '' }
-  if (newsDataSorted.value.length) {
-    if (sortBy.value === 'asc') {
-      range.min = formatTime(newsDataSorted.value[0].startTime, true)
-      range.max = formatTime(newsDataSorted.value[newsDataSorted.value.length - 1].startTime, true)
-    }
-    else {
-      range.min = formatTime(newsDataSorted.value[newsDataSorted.value.length - 1].startTime, true)
-      range.max = formatTime(newsDataSorted.value[0].startTime, true)
-    }
-  }
-  return range
-})
 
 onMounted(() => {
-  document.addEventListener('click', (event) => {
-    if (showDialogJump.value) {
-      if ((event.target as HTMLElement).closest('.dialog-jump') === null)
-        showDialogJump.value = false
-    }
-  })
-
   mainStore.initialize()
-  settingsStore.tryMigrateFromV1Settings()
-
-  if (params.filterTag)
-    filterTag.value = params.filterTag as string
-  if (params.source)
-    source.value = params.source as string
-  if (params.channel)
-    channel.value = params.channel as string
-  else
-    channel.value = Object.keys(NEWS_LIST[source.value].channels)[0]
+  settings.tryMigrateFromV1Settings()
 
   fetchNotice()
-  fetchData()
-
-  watch(source, (val) => {
-    channel.value = Object.keys(NEWS_LIST[val].channels)[0]
-  })
+  mainStore.fetchData()
 })
 
 function fetchNotice() {
@@ -174,181 +53,16 @@ function fetchNotice() {
     })
 }
 
-function fetchData(force_refresh = false) {
-  if (force_refresh) {
-    window.umami?.track('a-manual-refresh')
-  }
-  newsLoading.value = true
-  newsData.value = []
-  tags.value = []
-  const params = {
-    source: source.value,
-    channel: channel.value,
-  }
-  const apiBase = channelConfig.value.apiBase
-  getNewsApi(apiBase, params.source, params.channel, { forceRefresh: force_refresh })
-    .then((res: any) => {
-      if (params.source !== source.value || params.channel !== channel.value) {
-        return
-      }
-      if (res) {
-        newsData.value = res.list.map((news: any) => ({
-          ...news,
-          remoteId: Number(news.remoteId),
-          tag: news.tags || getNewsType(news, params.source, params.channel).type,
-          startTime: formatTime(news.startTime),
-        }))
-        tags.value = getTags(newsData.value, params.source, params.channel)
-        newsUpdateTime.value = res.lastSync
-      }
-    })
-    .catch((err) => {
-      toast.error(`获取新闻数据失败: ${err?.message ?? '未知错误'}`)
-      newsUpdateTime.value = 0
-      console.error(err)
-    })
-    .finally(() => {
-      newsLoading.value = false
-    })
-}
-
-function changeTag(tag: string) {
-  searchStr.value = ''
-  if (filterTag.value === tag)
-    filterTag.value = TAG_ALL
-  else
-    filterTag.value = tag
-
-  if (filterTag.value === TAG_ALL)
-    delete params.filterTag
-  else
-    params.filterTag = filterTag.value
-}
-
-function changeSource(newSource: string) {
-  source.value = newSource
-  channel.value = Object.keys(NEWS_LIST[newSource].channels)[0]
-  handleSourceChange()
-}
-
-function changeChannel(newChannel: string) {
-  channel.value = newChannel
-  handleSourceChange()
-}
-
-function handleSourceChange() {
-  params.source = source.value
-  params.channel = channel.value
-  filterTag.value = TAG_ALL
-  delete params.filterTag
-  fetchData()
-}
-
-function openRssLink() {
-  const apiBase = channelConfig.value.apiBase
-  const rssUrl = `${apiBase}/news/feed/${source.value}.${channel.value}`
-  window.open(rssUrl, '_blank')
-}
-
-function scrollTo(target: 'top' | 'bottom') {
-  if (target === 'top')
-    document.body.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  else
-    document.body.scrollIntoView({ behavior: 'smooth', block: 'end' })
-}
-
-watch(jumpDate, (val) => {
-  if (val) {
-    handleScrollByDate()
-  }
-})
-
-function changeDate(go: number) {
-  if (jumpDate.value) {
-    const date = new Date(jumpDate.value)
-    date.setDate(date.getDate() + go)
-    const year = date.getFullYear()
-    const month = String(date.getMonth() + 1).padStart(2, '0')
-    const day = String(date.getDate()).padStart(2, '0')
-    jumpDate.value = `${year}-${month}-${day}`
-    handleScrollByDate()
-  }
-  else {
-    toast.warning('请先选择日期')
-  }
-}
-
 function handleChangeDialogSettingVisible() {
   showDialogSetting.value = !showDialogSetting.value
   if (showDialogSetting.value) {
     window.umami?.track('d-setting')
   }
 }
-
-function handleChangeDialogJumpVisible() {
-  if (useGridView.value) {
-    toast.warning('网格视图暂不支持跳转功能')
-    return
-  }
-  showDialogJump.value = !showDialogJump.value
-  if (showDialogJump.value) {
-    window.umami?.track('d-jump')
-  }
-}
-
-function handleScrollByDate() {
-  if (!newsListRef.value.scrollByDate(jumpDate.value)) {
-    toast.error('未找到跳转目标')
-  }
-}
 </script>
 
 <template>
   <div class="min-h-screen bg-gray-100 text-sm transition-[font-size] md:text-base">
-    <div class="fixed bottom-4 right-4 z-20 flex items-end gap-2">
-      <Transition name="popup-dialog">
-        <div v-show="showDialogJump" class="dialog-jump rounded-lg bg-white p-4 shadow-md">
-          <div class="font-bold">
-            跳转到日期
-          </div>
-          <div class="my-2 flex items-center">
-            <input
-              v-model="jumpDate" v-bind="dateRange" type="date"
-              class="rounded-md border border-black/20 bg-transparent px-1 transition-colors hover:border-blue-500"
-            >
-          </div>
-          <button class="rounded-md border px-2 py-0.5 transition-colors hover:border-blue-500" @click="changeDate(-1)">
-            向前
-          </button>
-          <button
-            class="ml-2 rounded-md border px-2 py-0.5 transition-colors hover:border-blue-500"
-            @click="changeDate(1)"
-          >
-            向后
-          </button>
-        </div>
-      </Transition>
-      <div class="flex flex-col">
-        <button
-          class="dialog-jump rounded-t-lg border border-gray-300 bg-white p-2 transition-colors hover:z-20 hover:border-blue-500 hover:text-blue-500"
-          @click="handleChangeDialogJumpVisible"
-        >
-          <IconJump class="size-4" />
-        </button>
-        <button
-          class="-mt-px border border-gray-300 bg-white p-2 transition-colors hover:z-20 hover:border-blue-500 hover:text-blue-500"
-          @click="scrollTo('top')"
-        >
-          <IconArrowUp class="size-4" />
-        </button>
-        <button
-          class="-mt-px rounded-b-lg border border-gray-300 bg-white p-2 transition-colors hover:z-20 hover:border-blue-500 hover:text-blue-500"
-          @click="scrollTo('bottom')"
-        >
-          <IconArrowDown class="size-4" />
-        </button>
-      </div>
-    </div>
     <div
       class="relative mx-2 py-2 md:mx-4 xl:px-0" :class="{
         'lg:mx-auto lg:w-[960px]': !fullWidth,
@@ -377,114 +91,22 @@ function handleScrollByDate() {
         </div>
       </div>
 
-      <Header
-        :source="source" :channel="channel" :disabled="newsLoading" @change-source="changeSource"
-        @change-channel="changeChannel" @update:sticky="headerSticky = $event"
-      />
+      <Header />
 
-      <div class="mb-2 flex flex-wrap items-center">
-        <IconUpdateTime class="mr-1 size-4" />
-        <template v-if="newsLoading">
-          加载中
-        </template>
-        <template v-else>
-          <span>
-            {{ newsUpdateTime ? formatTime(newsUpdateTime) : '无数据' }}
-          </span>
-          <button v-if="channelConfig.allowForceRefresh !== false" class="ml-2 flex items-center hover:text-blue-500" @click="fetchData(true)">
-            <IconRefresh class="size-4" />
-            <span class="ml-1">
-              刷新数据
-            </span>
-          </button>
-        </template>
-        <button v-if="channelConfig.rss !== false" class="ml-2 hover:text-blue-500" @click="openRssLink">
-          <IconRss class="size-4" />
-        </button>
-      </div>
+      <ChannelInfo />
 
-      <input
-        v-model="searchStr" type="text" placeholder="搜些什么吧"
-        class="mb-2 w-full rounded-full border px-4 py-2 outline-blue-500 transition-colors hover:border-blue-500"
-      >
-      <div v-show="searchEnabled" class="mb-2">
-        <span>
-          搜索结果：{{ newsDataSorted.length }} 条
-        </span>
-        <button class="ml-4 hover:text-blue-500" @click="searchStr = ''">
-          取消搜索
-        </button>
-      </div>
-
-      <details v-show="!searchEnabled" class="mb-2" open>
-        <summary>分类</summary>
-        <TagList :tags="tags" :filter-tag="filterTag" @change-tag="changeTag" />
-      </details>
-
-      <div class="mb-2 flex flex-wrap items-center gap-x-2 gap-y-1">
-        <span>
-          排序：
-          <select
-            v-model="sortBy"
-            class="rounded-md border border-black/20 bg-transparent px-1 transition-colors hover:border-blue-500"
-          >
-            <option value="desc">
-              降序
-            </option>
-            <option value="asc">
-              升序
-            </option>
-          </select>
-        </span>
-
-        <span>
-          开始日期：
-          <input
-            v-model="dateFilterStart" type="date"
-            class="rounded-md border border-black/20 bg-transparent px-1 transition-colors hover:border-blue-500"
-            :max="dateFilterEnd"
-          >
-        </span>
-
-        <span>
-          结束日期：
-          <input
-            v-model="dateFilterEnd" type="date"
-            class="rounded-md border border-black/20 bg-transparent px-1 transition-colors hover:border-blue-500"
-            :min="dateFilterStart"
-          >
-        </span>
-
-        <button
-          v-if="dateFilterStart || dateFilterEnd" class="hover:text-blue-500"
-          @click="dateFilterStart = ''; dateFilterEnd = ''"
-        >
-          取消筛选
-        </button>
-      </div>
+      <NewsFilter />
 
       <div v-if="newsLoading" class="flex flex-col items-center gap-2 py-16">
         <LoadingIndicator class="size-[60px]" />
         <span class="text-lg">数据加载中</span>
       </div>
 
-      <NewsListView
-        v-if="!useGridView"
-        ref="newsListRef"
-        :news="newsDataSorted"
-        :source="source"
-        :channel="channel"
-        :sort-by="sortBy"
-        @change-filter="changeTag"
-      />
+      <NewsListView v-if="!useGridView" />
 
-      <NewsGridView
-        v-if="useGridView"
-        :news="newsDataSorted"
-        :source="source"
-        :channel="channel"
-        :sort-by="sortBy"
-      />
+      <NewsGridView v-if="useGridView" />
+
+      <FloatTool />
     </div>
   </div>
 </template>

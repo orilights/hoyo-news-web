@@ -1,24 +1,19 @@
 <script setup lang="ts">
 import { useElementBounding, useElementSize, useThrottle } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
+import { useToast } from 'vue-toastification'
 import NewsListItem from '@/components/news/NewsListItem.vue'
 import { useCoverSize } from '@/composables/cover'
 import { ITEM_GAP, SHADOW_ITEM } from '@/constants'
+import { useMainStore } from '@/store/main'
 import { useSettingsStore } from '@/store/settings'
+import { event } from '@/utils'
 
-const props = defineProps<{
-  source: string
-  channel: string
-  news: NewsData[]
-  sortBy: 'asc' | 'desc'
-}>()
-
-defineEmits(['changeFilter', 'visit'])
-
-defineExpose({ scrollByDate })
-
+const toast = useToast()
+const mainStore = useMainStore()
 const settingsStore = useSettingsStore()
 
+const { currentSource, currentChannel, newsDataSorted, sortBy } = storeToRefs(mainStore)
 const { newsItemConfig } = storeToRefs(settingsStore)
 const { coverSize } = useCoverSize()
 
@@ -33,7 +28,7 @@ const newsItemHeight = useElementSize(shadowItemRef).height
 
 const newsList = computed(() => {
   const list: NewsItemData[] = []
-  props.news.forEach((v, i) => {
+  newsDataSorted.value.forEach((v, i) => {
     list.push({
       ...v,
       top: (newsItemHeight.value + ITEM_GAP) * i,
@@ -54,9 +49,23 @@ const renderList = computed(() => {
   })
 })
 
+onMounted(() => {
+  event.on('scrollByDate', handleScrollByDate)
+})
+
+onUnmounted(() => {
+  event.off('scrollByDate', handleScrollByDate)
+})
+
+function handleScrollByDate(date: unknown) {
+  if (!scrollByDate(date as string)) {
+    toast.error('未找到跳转目标')
+  }
+}
+
 function scrollByDate(date: string) {
   let target
-  if (props.sortBy === 'desc') {
+  if (sortBy.value === 'desc') {
     target = newsList.value.find(news => new Date(news.startTime) <= new Date(`${date} 23:59:59`))
     if (!target) {
       target = newsList.value[newsList.value.length - 1]
@@ -83,24 +92,24 @@ function scrollByDate(date: string) {
     ref="containerRef"
     class="relative overflow-hidden"
     :style="{
-      height: `${news.length * (newsItemHeight + ITEM_GAP)}px`,
+      height: `${newsDataSorted.length * (newsItemHeight + ITEM_GAP)}px`,
     }"
   >
     <NewsListItem
       ref="shadowItemRef"
       :news="SHADOW_ITEM"
-      :source="source"
-      :channel="channel"
+      :source="currentSource"
+      :channel="currentChannel"
       :config="config"
       :style="{ pointerEvent: 'none', userSelect: 'none' }"
     />
     <NewsListItem
       v-for="news_data in renderList" :key="news_data.remoteId"
       :news="news_data"
-      :source="source"
-      :channel="channel"
+      :source="currentSource"
+      :channel="currentChannel"
       :config="config"
-      @change-filter="$emit('changeFilter', $event)"
+      @change-filter="mainStore.changeTag"
     />
   </ul>
 </template>

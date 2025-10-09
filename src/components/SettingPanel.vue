@@ -4,13 +4,16 @@ import { useToast } from 'vue-toastification'
 import Switch from '@/components/common/Switch.vue'
 import Tabs from '@/components/common/Tabs.vue'
 import { BUILD_COMMIT, BUILD_DATE, SETTING_TABS } from '@/constants'
+import { useMainStore } from '@/store/main'
 import { useSettingsStore } from '@/store/settings'
 import { exportFile, formatTime, getAria2DownloadTask } from '@/utils'
 
 const visible = defineModel<boolean>('visible')
 
 const toast = useToast()
+const mainStore = useMainStore()
 const settingsStore = useSettingsStore()
+const { currentChannel, newsDataSorted, customFilterCount } = storeToRefs(mainStore)
 const {
   showCover,
   showDateWeek,
@@ -32,24 +35,24 @@ onMounted(() => {
   })
 })
 
-// function exportVideos() {
-//   window.umami?.track('a-export-videos')
-//   const videoList = newsDataSorted.value.filter(news => news.video)
-//   if (videoList.length === 0) {
-//     toast.warning('当前没有可导出的视频')
-//     return
-//   }
-//   if (channel.value.startsWith('bbs')) {
-//     toast.warning('米游社暂不支持导出视频下载任务')
-//     return
-//   }
+function exportVideos() {
+  window.umami?.track('a-export-videos')
+  const videoList = newsDataSorted.value.filter(news => news.video)
+  if (videoList.length === 0) {
+    toast.warning('当前没有可导出的视频')
+    return
+  }
+  if (currentChannel.value.startsWith('bbs')) {
+    toast.warning('米游社暂不支持导出视频下载任务')
+    return
+  }
 
-//   exportFile({
-//     filename: 'videos.txt',
-//     content: getAria2DownloadTask(videoList),
-//   })
-//   toast.success('导出下载任务成功')
-// }
+  exportFile({
+    filename: 'videos.txt',
+    content: getAria2DownloadTask(videoList),
+  })
+  toast.success('导出下载任务成功')
+}
 </script>
 
 <template>
@@ -86,18 +89,18 @@ onMounted(() => {
               <span class="flex-1">启用内置关键词过滤</span>
               <Switch v-model="customFilter.enable" class="ml-2" />
             </div>
-            <!-- <div v-if="customFilter.enable" class="text-xs">
+            <div v-if="customFilter.enable" class="text-xs">
               当前页面过滤数量：{{ customFilterCount }}
-            </div> -->
+            </div>
           </div>
-          <!-- <div class="mb-2">
+          <div class="mb-2">
             <button
               class="rounded-md border px-2 py-0.5 transition-colors hover:border-blue-500"
               @click="exportVideos"
             >
               导出本页视频至 aria2 任务
             </button>
-          </div> -->
+          </div>
         </template>
         <template v-if="currentTab === 'download'">
           <div class="mb-2">
