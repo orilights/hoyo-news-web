@@ -137,6 +137,7 @@ onMounted(() => {
   })
 
   mainStore.initialize()
+  settingsStore.tryMigrateFromV1Settings()
 
   if (params.filterTag)
     filterTag.value = params.filterTag as string
