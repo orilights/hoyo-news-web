@@ -5,6 +5,7 @@ import toastification from 'vue-toastification'
 import App from '@/App.vue'
 import '@/assets/tailwind.css'
 import 'vue-toastification/dist/index.css'
+import 'overlayscrollbars/overlayscrollbars.css'
 
 const app = createApp(App)
 

@@ -1,12 +1,18 @@
 <script setup lang="ts">
+import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue'
 import { storeToRefs } from 'pinia'
 import { useToast } from 'vue-toastification'
+import Draggable from 'vuedraggable'
 import Switch from '@/components/common/Switch.vue'
 import Tabs from '@/components/common/Tabs.vue'
-import { BUILD_COMMIT, BUILD_DATE, SETTING_TABS } from '@/constants'
+import IconChevronDown from '@/components/icon/IconChevronDown.vue'
+import IconMove from '@/components/icon/IconMove.vue'
+import { BUILD_COMMIT, BUILD_DATE, NEWS_LIST, SETTING_TABS } from '@/constants'
 import { useMainStore } from '@/store/main'
 import { useSettingsStore } from '@/store/settings'
 import { exportFile, formatTime, getAria2DownloadTask } from '@/utils'
+import IconView from './icon/IconView.vue'
+import IconViewSlash from './icon/IconViewSlash.vue'
 
 const visible = defineModel<boolean>('visible')
 
@@ -23,9 +29,18 @@ const {
   aria2Config,
   customFilter,
   autoHideHeader,
+  sourceCustom,
 } = storeToRefs(settingsStore)
 
 const currentTab = ref('general')
+const expandSource = ref('')
+
+const dragOptions = {
+  animation: 200,
+  group: 'description',
+  disabled: false,
+  ghostClass: 'ghost',
+}
 
 onMounted(() => {
   document.addEventListener('click', (event) => {
@@ -53,6 +68,13 @@ function exportVideos() {
     content: getAria2DownloadTask(videoList),
   })
   toast.success('导出下载任务成功')
+}
+
+function changeExpandSource(key: string) {
+  if (expandSource.value === key)
+    expandSource.value = ''
+  else
+    expandSource.value = key
 }
 </script>
 
@@ -106,6 +128,75 @@ function exportVideos() {
               导出本页视频至 aria2 任务
             </button>
           </div>
+        </template>
+        <template v-if="currentTab === 'source'">
+          <button
+            class="mb-2 rounded-md border px-2 py-0.5 transition-colors hover:border-blue-500"
+            @click="settingsStore.resetSourceCustom()"
+          >
+            恢复本页默认设置
+          </button>
+          <OverlayScrollbarsComponent
+            defer
+            class="mx-[-16px] max-h-[400px] px-4"
+            :options="{
+              scrollbars: { autoHide: 'scroll' },
+            }"
+          >
+            <Draggable
+              v-model="sourceCustom"
+              v-bind="dragOptions"
+              :group="{ name: 'source' }"
+              item-key="key"
+              handle=".handle-source"
+              @start="changeExpandSource('')"
+            >
+              <template #item="{ element }">
+                <div class="mb-1 rounded-md border px-2 py-1">
+                  <div class="flex cursor-pointer items-center gap-2" @click="changeExpandSource(element.key)">
+                    <img class="size-6 rounded-full" :src="`./images/icon/${element.key}-48px.png`">
+                    <div class="flex-1">
+                      {{ NEWS_LIST[element.key].displayName }}
+                    </div>
+                    <IconMove class="handle-source size-4 cursor-move" />
+                    <IconChevronDown
+                      class="size-4 transition-transform"
+                      :class="{
+                        'rotate-180': expandSource === element.key,
+                      }"
+                    />
+                  </div>
+                  <div v-show="expandSource === element.key" class="mt-2">
+                    <Draggable
+                      v-model="element.channels"
+                      v-bind="dragOptions"
+                      item-key="key"
+                      :group="{ name: element.key }"
+                      class="flex cursor-move flex-col gap-1"
+                    >
+                      <template #item="{ element: channel }">
+                        <div class="flex items-center justify-between rounded border px-1 py-0.5">
+                          <span class="text-sm transition-colors" :class="{ 'text-gray-400': !channel.enable }">
+                            {{ NEWS_LIST[element.key].channels[channel.key].displayName }}
+                          </span>
+                          <IconView
+                            v-if="channel.enable"
+                            class="size-4 cursor-pointer text-gray-400 transition-colors hover:text-gray-600"
+                            @click.stop="channel.enable = false"
+                          />
+                          <IconViewSlash
+                            v-else
+                            class="size-4 cursor-pointer text-gray-400 transition-colors hover:text-gray-600"
+                            @click.stop="channel.enable = true"
+                          />
+                        </div>
+                      </template>
+                    </Draggable>
+                  </div>
+                </div>
+              </template>
+            </Draggable>
+          </OverlayScrollbarsComponent>
         </template>
         <template v-if="currentTab === 'download'">
           <div class="mb-2">

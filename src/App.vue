@@ -24,7 +24,7 @@ const toast = useToast()
 
 onMounted(() => {
   mainStore.initialize()
-  settings.tryMigrateFromV1Settings()
+  settings.initialize()
 
   fetchNotice()
   mainStore.fetchData()

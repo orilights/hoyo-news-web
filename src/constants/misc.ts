@@ -40,6 +40,7 @@ export const ARIA2_RPC_URL = 'http://localhost:6800/jsonrpc'
 
 export const SETTING_TABS = [
   { key: 'general', label: '常规' },
+  { key: 'source', label: '内容源' },
   { key: 'download', label: '下载' },
   { key: 'about', label: '关于' },
 ]

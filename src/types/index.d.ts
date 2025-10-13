@@ -38,8 +38,18 @@ declare global {
     }
   }
 
+  interface HeaderSourceInfo {
+    key: string
+    displayName: string
+    channels: {
+      key: string
+      label: string
+    }[]
+  }
+
   interface ChannelInfo {
     displayName: string
+    type: ChannelType
     apiBase: string
     newsDetailLink: string
     coverWidth: number
@@ -73,5 +83,13 @@ declare global {
     name: string
     count: number
     video: boolean
+  }
+
+  interface SourceCustomData {
+    key: string
+    channels: {
+      key: string
+      enable: boolean
+    }[]
   }
 }

@@ -1,3 +1,4 @@
+import type { ChannelType } from '@/types/enum'
 import { getMiyousheVideoApi } from '@/api/news'
 import { NEWS_CLASSIFY_RULE, NEWS_LIST, TAG_OTHER } from '@/constants'
 import { sanitizeFilename } from '.'
@@ -120,4 +121,16 @@ export async function getMiyousheVideo(source: string, channel: string, newsId: 
     .catch((err) => {
       throw new Error(`获取视频信息失败：${err?.message ?? '未知错误'}`)
     })
+}
+
+export function getChannels(source: string, includeChannelTypes: ChannelType[] = []) {
+  const channels = Object.entries(NEWS_LIST[source].channels)
+    .map(([key, value]) => ({
+      key,
+      label: value.displayName,
+    }))
+  if (includeChannelTypes.length) {
+    return channels.filter(channel => includeChannelTypes.includes(NEWS_LIST[source].channels[channel.key].type))
+  }
+  return channels
 }

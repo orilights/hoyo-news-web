@@ -70,7 +70,7 @@ onUnmounted(() => {
 })
 
 function getVideoUrl() {
-  if (props.news.video?.type === VideoType.MIYOUSHE) {
+  if (props.news.video?.type === VideoType.MIYOUSHE_POST) {
     return getMiyousheVideo(props.source, props.channel, props.news.video!.url)
   }
   return Promise.resolve(props.news.video!.url)

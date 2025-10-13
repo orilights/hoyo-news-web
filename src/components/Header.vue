@@ -4,26 +4,20 @@ import AnimationText from '@/components/common/AnimationText.vue'
 import Tabs from '@/components/common/Tabs.vue'
 import IconSetting from '@/components/icon/IconSetting.vue'
 import SettingPanel from '@/components/SettingPanel.vue'
-import { NEWS_LIST } from '@/constants'
 import { useMainStore } from '@/store/main'
 import { useSettingsStore } from '@/store/settings'
 
 const mainStore = useMainStore()
 const settings = useSettingsStore()
 const { newsLoading, currentSource, currentChannel } = storeToRefs(mainStore)
-const { autoHideHeader } = storeToRefs(settings)
+const { autoHideHeader, headerSourceList } = storeToRefs(settings)
 
 const headerRef = ref<HTMLElement | null>(null)
 const showSettingPanel = ref(false)
 const showHeader = ref(true)
 const lastScrollTop = ref(0)
 
-const tabs = computed(() => {
-  return Object.entries(NEWS_LIST[currentSource.value].channels).map(([key, value]) => ({
-    key,
-    label: value.displayName,
-  }))
-})
+const tabs = computed(() => headerSourceList.value.find(item => item.key === currentSource.value)?.channels ?? [])
 
 function handleChangeDialogSettingVisible() {
   showSettingPanel.value = !showSettingPanel.value
@@ -64,23 +58,23 @@ onUnmounted(() => {
   >
     <div class="relative mb-2 flex flex-wrap gap-1 pr-6">
       <button
-        v-for="[source_key, source_info] in Object.entries(NEWS_LIST)" :key="source_key"
+        v-for="sourceInfo in headerSourceList" :key="sourceInfo.key"
         class="flex shrink-0 items-center overflow-hidden rounded-full border p-1 transition-colors"
         :class="{
           'hover:border-blue-500': !newsLoading,
-          'border-blue-500 text-blue-500': currentSource === source_key,
+          'border-blue-500 text-blue-500': currentSource === sourceInfo.key,
         }"
-        :disabled="newsLoading || currentSource === source_key"
-        @click="mainStore.changeSource(source_key)"
+        :disabled="newsLoading || currentSource === sourceInfo.key"
+        @click="mainStore.changeSource(sourceInfo.key)"
       >
         <img
           class="size-6 rounded-full md:size-8"
-          :alt="source_info.displayName"
-          :src="`./images/icon/${source_key}-48px.png`"
+          :alt="sourceInfo.displayName"
+          :src="`./images/icon/${sourceInfo.key}-48px.png`"
         >
-        <AnimationText :show="currentSource === source_key">
+        <AnimationText :show="currentSource === sourceInfo.key">
           <span class="mx-1 sm:mx-2">
-            {{ source_info.displayName }}
+            {{ sourceInfo.displayName }}
           </span>
         </AnimationText>
       </button>
