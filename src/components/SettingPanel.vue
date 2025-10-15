@@ -10,6 +10,7 @@ import IconMove from '@/components/icon/IconMove.vue'
 import { BUILD_COMMIT, BUILD_DATE, NEWS_LIST, SETTING_TABS } from '@/constants'
 import { useMainStore } from '@/store/main'
 import { useSettingsStore } from '@/store/settings'
+import { ChannelType, getChannelLabel } from '@/types/enum'
 import { exportFile, formatTime, getAria2DownloadTask } from '@/utils'
 import IconView from './icon/IconView.vue'
 import IconViewSlash from './icon/IconViewSlash.vue'
@@ -30,10 +31,12 @@ const {
   customFilter,
   autoHideHeader,
   sourceCustom,
+  enabledChannelType,
 } = storeToRefs(settingsStore)
 
 const currentTab = ref('general')
 const expandSource = ref('')
+const sourceDragging = ref(false)
 
 const dragOptions = {
   animation: 200,
@@ -75,6 +78,46 @@ function changeExpandSource(key: string) {
     expandSource.value = ''
   else
     expandSource.value = key
+}
+
+function changeSourceVisibility(sourceKey: string) {
+  const source = sourceCustom.value.find(source => source.key === sourceKey)
+  const enabledSources = sourceCustom.value.filter(source => source.channels.some((channel: any) => channel.enable))
+  if (enabledSources.length === 1 && enabledSources[0].key === sourceKey) {
+    toast.warning('需至少保留一个内容源')
+    return
+  }
+
+  if (source) {
+    const sourceDisabled = source.channels.every((channel: any) => !channel.enable)
+    source.channels.forEach((channel: any) => {
+      channel.enable = sourceDisabled
+    })
+  }
+}
+
+function toggleChannelTypeEnable(channelType: ChannelType) {
+  const index = enabledChannelType.value.indexOf(channelType)
+  if (index === -1) {
+    enabledChannelType.value.push(channelType)
+  }
+  else {
+    if (enabledChannelType.value.length === 1) {
+      toast.warning('需至少保留一个源类型')
+      return
+    }
+    enabledChannelType.value.splice(index, 1)
+  }
+  settingsStore.initCustomData()
+}
+
+function onSourceDragStart() {
+  changeExpandSource('')
+  sourceDragging.value = true
+}
+
+function onSourceDragEnd() {
+  sourceDragging.value = false
 }
 </script>
 
@@ -136,9 +179,22 @@ function changeExpandSource(key: string) {
           >
             恢复本页默认设置
           </button>
+          <div class="mb-2 flex flex-wrap gap-1 text-xs">
+            <div
+              v-for="channelType in Object.values(ChannelType)" :key="channelType"
+              class="cursor-pointer break-keep rounded-md border px-1 py-0.5 transition-all "
+              :class="{
+                'border-blue-500 bg-blue-500 text-white': enabledChannelType.includes(channelType),
+                'hover:border-blue-400 hover:text-blue-400': !enabledChannelType.includes(channelType),
+              }"
+              @click="toggleChannelTypeEnable(channelType)"
+            >
+              {{ getChannelLabel(channelType) }}
+            </div>
+          </div>
           <OverlayScrollbarsComponent
             defer
-            class="mx-[-16px] max-h-[400px] px-4"
+            class="mx-[-16px] max-h-[400px] select-none px-4"
             :options="{
               scrollbars: { autoHide: 'scroll' },
             }"
@@ -149,18 +205,35 @@ function changeExpandSource(key: string) {
               :group="{ name: 'source' }"
               item-key="key"
               handle=".handle-source"
-              @start="changeExpandSource('')"
+              @start="onSourceDragStart"
+              @end="onSourceDragEnd"
             >
               <template #item="{ element }">
-                <div class="mb-1 rounded-md border px-2 py-1">
+                <div
+                  class="mb-1 rounded-md border px-2 py-1 transition-colors"
+                  :class="{
+                    'hover:border-gray-400': !sourceDragging,
+                    'border-gray-400': expandSource === element.key,
+                  }"
+                >
                   <div class="flex cursor-pointer items-center gap-2" @click="changeExpandSource(element.key)">
                     <img class="size-6 rounded-full" :src="`./images/icon/${element.key}-48px.png`">
-                    <div class="flex-1">
+                    <div class="flex-1" :class="{ 'text-gray-400': element.channels.every((channel: any) => !channel.enable) }">
                       {{ NEWS_LIST[element.key].displayName }}
                     </div>
-                    <IconMove class="handle-source size-4 cursor-move" />
+                    <IconView
+                      v-if="element.channels.some((channel: any) => channel.enable)"
+                      class="size-4 cursor-pointer text-gray-400 transition-colors hover:text-gray-600"
+                      @click.stop="changeSourceVisibility(element.key)"
+                    />
+                    <IconViewSlash
+                      v-else
+                      class="size-4 cursor-pointer text-gray-400 transition-colors hover:text-gray-600"
+                      @click.stop="changeSourceVisibility(element.key)"
+                    />
+                    <IconMove class="handle-source size-4 cursor-move text-gray-400 transition-colors hover:text-gray-600" />
                     <IconChevronDown
-                      class="size-4 transition-transform"
+                      class="size-4 text-gray-400 transition-transform"
                       :class="{
                         'rotate-180': expandSource === element.key,
                       }"
@@ -170,8 +243,8 @@ function changeExpandSource(key: string) {
                     <Draggable
                       v-model="element.channels"
                       v-bind="dragOptions"
+                      :group="{ name: `channel-${element.key}` }"
                       item-key="key"
-                      :group="{ name: element.key }"
                       class="flex cursor-move flex-col gap-1"
                     >
                       <template #item="{ element: channel }">
@@ -259,5 +332,7 @@ function changeExpandSource(key: string) {
 </template>
 
 <style scoped>
-
+.ghost {
+  opacity: 0.5;
+}
 </style>

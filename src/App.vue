@@ -23,8 +23,8 @@ const {
 const toast = useToast()
 
 onMounted(() => {
-  mainStore.initialize()
   settings.initialize()
+  mainStore.initialize()
 
   fetchNotice()
   mainStore.fetchData()

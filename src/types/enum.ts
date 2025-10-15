@@ -21,7 +21,7 @@ export enum ChannelType {
   /** 米游社-新闻-子分类 */
   MIYOUSHE_NEWS_SUB = 'miyoushe_news_sub',
   /** 米游社-崩坏3WIKI */
-  MIYOUSHE_BH3_WIKI = 'miyoushe_bh3_wiki',
+  // MIYOUSHE_BH3_WIKI = 'miyoushe_bh3_wiki',
 }
 
 export function getChannelLabel(type: ChannelType) {
@@ -34,7 +34,7 @@ export function getChannelLabel(type: ChannelType) {
       return '米游社'
     case ChannelType.MIYOUSHE_NEWS_SUB:
       return '米游社-子分类'
-    case ChannelType.MIYOUSHE_BH3_WIKI:
-      return '米游社-崩坏3WIKI'
+    // case ChannelType.MIYOUSHE_BH3_WIKI:
+    //   return '米游社-崩坏3WIKI'
   }
 }

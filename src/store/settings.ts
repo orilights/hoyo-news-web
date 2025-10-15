@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia'
 import { APP_ABBR, ARIA2_RPC_URL, NEWS_LIST } from '@/constants'
+import { ChannelType } from '@/types/enum'
+import { useMainStore } from './main'
 
 export const useSettingsStore = defineStore('settings', {
   state: () => ({
@@ -18,6 +20,7 @@ export const useSettingsStore = defineStore('settings', {
     },
     autoHideHeader: false,
     sourceCustom: [] as SourceCustomData[],
+    enabledChannelType: Object.values(ChannelType),
   }),
   getters: {
     newsItemConfig: (state) => {
@@ -56,19 +59,34 @@ export const useSettingsStore = defineStore('settings', {
       this.tryMigrateFromV1Settings()
     },
     initCustomData() {
+      const mainStore = useMainStore()
       Object.keys(NEWS_LIST).forEach((sourceKey) => {
         if (!this.sourceCustom.find(item => item.key === sourceKey)) {
           this.sourceCustom.push({ key: sourceKey, channels: [] })
         }
         const source = this.sourceCustom.find(item => item.key === sourceKey)
-        Object.keys(NEWS_LIST[sourceKey].channels).forEach((channelKey) => {
-          if (!source!.channels.find(item => item.key === channelKey)) {
-            source!.channels.push({ key: channelKey, enable: true })
-          }
-        })
+        Object.keys(NEWS_LIST[sourceKey].channels)
+          .forEach((channelKey) => {
+            if (!source!.channels.find(item => item.key === channelKey)) {
+              source!.channels.push({ key: channelKey, enable: true })
+            }
+          })
+        source!.channels = source!.channels.filter(channel =>
+          this.enabledChannelType.includes(NEWS_LIST[sourceKey]?.channels[channel.key]?.type),
+        )
       })
+      const enabledSources = this.sourceCustom.filter(source =>
+        source.channels.some(channel => channel.enable),
+      )
+      if (enabledSources.length === 0) {
+        enabledSources.push(this.sourceCustom[0])
+        enabledSources[0].channels[0].enable = true
+      }
+      mainStore.currentSource = enabledSources[0].key
+      mainStore.currentChannel = enabledSources[0].channels.find(channel => channel.enable)!.key
     },
     resetSourceCustom() {
+      this.enabledChannelType = Object.values(ChannelType)
       this.sourceCustom = []
       this.initCustomData()
     },
