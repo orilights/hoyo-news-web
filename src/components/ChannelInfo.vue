@@ -3,24 +3,19 @@ import { storeToRefs } from 'pinia'
 import IconRefresh from '@/components/icon/IconRefresh.vue'
 import IconRss from '@/components/icon/IconRss.vue'
 import IconUpdateTime from '@/components/icon/IconUpdateTime.vue'
+import RssInfo from '@/components/RssInfo.vue'
 import { useMainStore } from '@/store/main'
 import { formatTime } from '@/utils'
 
 const mainStore = useMainStore()
 
 const {
-  currentSource,
-  currentChannel,
   newsLoading,
   newsUpdateTime,
   channelConfig,
 } = storeToRefs(mainStore)
 
-function openRssLink() {
-  const apiBase = channelConfig.value.apiBase
-  const rssUrl = `${apiBase}/news/feed/${currentSource.value}.${currentChannel.value}`
-  window.open(rssUrl, '_blank')
-}
+const rssInfoVisible = ref(false)
 </script>
 
 <template>
@@ -40,9 +35,12 @@ function openRssLink() {
         </span>
       </button>
     </template>
-    <button v-if="channelConfig.rss !== false" class="ml-2 hover:text-blue-500" @click="openRssLink">
+    <button v-if="channelConfig.rss !== false" class="ml-2 hover:text-blue-500" @click="rssInfoVisible = true">
       <IconRss class="size-4" />
     </button>
+    <Transition name="fade">
+      <RssInfo v-if="rssInfoVisible" @close="rssInfoVisible = false" />
+    </Transition>
   </div>
 </template>
 
