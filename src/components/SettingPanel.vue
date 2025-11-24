@@ -19,7 +19,7 @@ const visible = defineModel<boolean>('visible')
 
 const toast = useToast()
 const mainStore = useMainStore()
-const settingsStore = useSettingsStore()
+const settings = useSettingsStore()
 const { currentChannel, newsDataFiltered, customFilterCount } = storeToRefs(mainStore)
 const {
   showCover,
@@ -32,7 +32,7 @@ const {
   autoHideHeader,
   sourceCustom,
   enabledChannelType,
-} = storeToRefs(settingsStore)
+} = storeToRefs(settings)
 
 const currentTab = ref('general')
 const expandSource = ref('')
@@ -108,7 +108,7 @@ function toggleChannelTypeEnable(channelType: ChannelType) {
     }
     enabledChannelType.value.splice(index, 1)
   }
-  settingsStore.initCustomData()
+  settings.initCustomData()
 }
 
 function onSourceDragStart() {
@@ -175,7 +175,7 @@ function onSourceDragEnd() {
         <template v-if="currentTab === 'source'">
           <button
             class="mb-2 rounded-md border px-2 py-0.5 transition-colors hover:border-blue-500"
-            @click="settingsStore.resetSourceCustom()"
+            @click="settings.resetSourceCustom()"
           >
             恢复本页默认设置
           </button>

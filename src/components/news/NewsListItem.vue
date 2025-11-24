@@ -22,9 +22,9 @@ const props = defineProps<{
 defineEmits(['changeFilter'])
 
 const mainStore = useMainStore()
-const settingsStore = useSettingsStore()
+const settings = useSettingsStore()
 
-const { aria2Config } = storeToRefs(settingsStore)
+const { aria2Config } = storeToRefs(settings)
 let timer: NodeJS.Timeout | null = null
 const newsKey = `${props.source}_${props.channel}_${props.news.remoteId}`
 

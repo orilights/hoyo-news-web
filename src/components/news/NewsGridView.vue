@@ -14,10 +14,10 @@ import { useMainStore } from '@/store/main'
 import { useSettingsStore } from '@/store/settings'
 
 const mainStore = useMainStore()
-const settingsStore = useSettingsStore()
+const settings = useSettingsStore()
 
 const { currentSource, currentChannel, newsDataFiltered } = storeToRefs(mainStore)
-const { newsItemConfig } = storeToRefs(settingsStore)
+const { newsItemConfig } = storeToRefs(settings)
 const parentRef = ref<HTMLElement>()
 
 const columnCount = ref(GRID_COLUMN_COUNT_DEFAULT)

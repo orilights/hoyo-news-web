@@ -2,6 +2,7 @@
 import { storeToRefs } from 'pinia'
 import { useToast } from 'vue-toastification'
 import { useMainStore } from '@/store/main'
+import { useSettingsStore } from '@/store/settings'
 import { copyToClipboard } from '@/utils'
 
 const emit = defineEmits<{
@@ -9,6 +10,8 @@ const emit = defineEmits<{
 }>()
 
 const mainStore = useMainStore()
+const settings = useSettingsStore()
+const toast = useToast()
 
 const {
   currentSource,
@@ -16,44 +19,65 @@ const {
   channelConfig,
 } = storeToRefs(mainStore)
 
-const whitelist = ref<string[]>([])
-const blacklist = ref<string[]>([])
+const {
+  rssFilter,
+} = storeToRefs(settings)
 
 const filterInput = ref({
   whitelist: '',
   blacklist: '',
 })
 
-function generateRssLink() {
-  const url = new URL(`${channelConfig.value.apiBase}/news/feed/${currentSource.value}.${currentChannel.value}`)
-  whitelist.value.length && url.searchParams.append('whitelist', whitelist.value.join(','))
-  blacklist.value.length && url.searchParams.append('blacklist', blacklist.value.join(','))
-  return url.toString()
+function generateRssLink(encode = true) {
+  let baseRssUrl = `${channelConfig.value.apiBase}/news/feed/${currentSource.value}.${currentChannel.value}`
+  if (rssFilter.value.whitelist.length) {
+    const whitelistStr = rssFilter.value.whitelist.join(',')
+    baseRssUrl += `?whitelist=${encode ? encodeURIComponent(whitelistStr) : whitelistStr}`
+  }
+  if (rssFilter.value.blacklist.length) {
+    const blacklistStr = rssFilter.value.blacklist.join(',')
+    baseRssUrl += `${rssFilter.value.whitelist.length ? '&' : '?'}blacklist=${encode ? encodeURIComponent(blacklistStr) : blacklistStr}`
+  }
+  return baseRssUrl.toString()
+}
+
+function validateFilterInput(input: string) {
+  // 检查是否包含URL中需要转义的特殊字符
+  const unsafeChars = /[ #%'()*+,/;<=>?@[\\\]^`{|}]/
+  return !unsafeChars.test(input)
 }
 
 function addWhitelist() {
   const value = filterInput.value.whitelist.trim()
-  if (value && !whitelist.value.includes(value)) {
-    whitelist.value.push(value)
+  if (!validateFilterInput(value)) {
+    toast.warning('关键词中不能包含特殊符号或空格')
+    return
+  }
+  if (value && !rssFilter.value.whitelist.includes(value)) {
+    rssFilter.value.whitelist.push(value)
     filterInput.value.whitelist = ''
   }
 }
 
 function addBlacklist() {
   const value = filterInput.value.blacklist.trim()
-  if (value && !blacklist.value.includes(value)) {
-    blacklist.value.push(value)
+  if (!validateFilterInput(value)) {
+    toast.warning('关键词中不能包含特殊符号或空格')
+    return
+  }
+  if (value && !rssFilter.value.blacklist.includes(value)) {
+    rssFilter.value.blacklist.push(value)
     filterInput.value.blacklist = ''
   }
 }
 
 function copyRssLink() {
-  copyToClipboard(generateRssLink())
+  copyToClipboard(generateRssLink(true))
     .then(() => {
-      useToast().success('已复制RSS链接')
+      toast.success('已复制RSS链接')
     })
     .catch((err) => {
-      useToast().error(err?.message || '复制失败')
+      toast.error(err?.message || '复制失败')
     })
   emit('close')
 }
@@ -67,8 +91,8 @@ function copyRssLink() {
         生成RSS订阅链接
       </div>
 
-      <div class="overflow-x-auto rounded bg-gray-100 p-2 font-mono shadow-md">
-        {{ generateRssLink() }}
+      <div class="overflow-x-auto rounded bg-gray-100 p-2 font-mono text-sm shadow-md">
+        {{ generateRssLink(false) }}
       </div>
 
       <div class="mt-2">
@@ -85,8 +109,8 @@ function copyRssLink() {
           </button>
         </div>
         <div class="flex flex-wrap gap-1">
-          <template v-for="(item, index) in whitelist" :key="`whitelist-${index}`">
-            <span class="rounded bg-green-100 px-2 py-0.5" @click="whitelist.splice(index, 1)">
+          <template v-for="(item, index) in rssFilter.whitelist" :key="`whitelist-${index}`">
+            <span class="rounded bg-green-100 px-2 py-0.5" @click="rssFilter.whitelist.splice(index, 1)">
               {{ item }}
             </span>
           </template>
@@ -107,8 +131,8 @@ function copyRssLink() {
           </button>
         </div>
         <div class="flex flex-wrap gap-1">
-          <template v-for="(item, index) in blacklist" :key="`blacklist-${index}`">
-            <span class="rounded bg-red-100 px-2 py-0.5" @click="blacklist.splice(index, 1)">
+          <template v-for="(item, index) in rssFilter.blacklist" :key="`blacklist-${index}`">
+            <span class="rounded bg-red-100 px-2 py-0.5" @click="rssFilter.blacklist.splice(index, 1)">
               {{ item }}
             </span>
           </template>

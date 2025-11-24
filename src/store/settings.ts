@@ -21,6 +21,10 @@ export const useSettingsStore = defineStore('settings', {
     autoHideHeader: false,
     sourceCustom: [] as SourceCustomData[],
     enabledChannelType: Object.values(ChannelType),
+    rssFilter: {
+      whitelist: [] as string[],
+      blacklist: [] as string[],
+    },
   }),
   getters: {
     newsItemConfig: (state) => {

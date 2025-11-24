@@ -11,10 +11,10 @@ import { event } from '@/utils'
 
 const toast = useToast()
 const mainStore = useMainStore()
-const settingsStore = useSettingsStore()
+const settings = useSettingsStore()
 
 const { currentSource, currentChannel, newsDataFiltered, sortBy } = storeToRefs(mainStore)
-const { newsItemConfig } = storeToRefs(settingsStore)
+const { newsItemConfig } = storeToRefs(settings)
 const { coverSize } = useCoverSize()
 
 const config = computed(() => ({
