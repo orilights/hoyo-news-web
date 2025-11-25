@@ -28,15 +28,32 @@ const filterInput = ref({
   blacklist: '',
 })
 
+const whitelist = ref<string[]>([])
+const blacklist = ref<string[]>([])
+
+const cacheKey = computed(() => `${currentSource.value}_${currentChannel.value}`)
+
+onMounted(() => {
+  whitelist.value = rssFilter.value[cacheKey.value]?.whitelist || []
+  blacklist.value = rssFilter.value[cacheKey.value]?.blacklist || []
+})
+
+function saveFilter() {
+  settings.rssFilter[cacheKey.value] = {
+    whitelist: whitelist.value,
+    blacklist: blacklist.value,
+  }
+}
+
 function generateRssLink(encode = true) {
   let baseRssUrl = `${channelConfig.value.apiBase}/news/feed/${currentSource.value}.${currentChannel.value}`
-  if (rssFilter.value.whitelist.length) {
-    const whitelistStr = rssFilter.value.whitelist.join(',')
+  if (whitelist.value.length) {
+    const whitelistStr = whitelist.value.join(',')
     baseRssUrl += `?whitelist=${encode ? encodeURIComponent(whitelistStr) : whitelistStr}`
   }
-  if (rssFilter.value.blacklist.length) {
-    const blacklistStr = rssFilter.value.blacklist.join(',')
-    baseRssUrl += `${rssFilter.value.whitelist.length ? '&' : '?'}blacklist=${encode ? encodeURIComponent(blacklistStr) : blacklistStr}`
+  if (blacklist.value.length) {
+    const blacklistStr = blacklist.value.join(',')
+    baseRssUrl += `${whitelist.value.length ? '&' : '?'}blacklist=${encode ? encodeURIComponent(blacklistStr) : blacklistStr}`
   }
   return baseRssUrl.toString()
 }
@@ -53,9 +70,10 @@ function addWhitelist() {
     toast.warning('关键词中不能包含特殊符号或空格')
     return
   }
-  if (value && !rssFilter.value.whitelist.includes(value)) {
-    rssFilter.value.whitelist.push(value)
+  if (value && !whitelist.value.includes(value)) {
+    whitelist.value.push(value)
     filterInput.value.whitelist = ''
+    saveFilter()
   }
 }
 
@@ -65,10 +83,16 @@ function addBlacklist() {
     toast.warning('关键词中不能包含特殊符号或空格')
     return
   }
-  if (value && !rssFilter.value.blacklist.includes(value)) {
-    rssFilter.value.blacklist.push(value)
+  if (value && !blacklist.value.includes(value)) {
+    blacklist.value.push(value)
     filterInput.value.blacklist = ''
+    saveFilter()
   }
+}
+
+function removeFilterItem(list: string[], index: number) {
+  list.splice(index, 1)
+  saveFilter()
 }
 
 function copyRssLink() {
@@ -109,8 +133,8 @@ function copyRssLink() {
           </button>
         </div>
         <div class="flex flex-wrap gap-1">
-          <template v-for="(item, index) in rssFilter.whitelist" :key="`whitelist-${index}`">
-            <span class="rounded bg-green-100 px-2 py-0.5" @click="rssFilter.whitelist.splice(index, 1)">
+          <template v-for="(item, index) in whitelist" :key="`whitelist-${index}`">
+            <span class="rounded bg-green-100 px-2 py-0.5" @click="removeFilterItem(whitelist, index)">
               {{ item }}
             </span>
           </template>
@@ -131,8 +155,8 @@ function copyRssLink() {
           </button>
         </div>
         <div class="flex flex-wrap gap-1">
-          <template v-for="(item, index) in rssFilter.blacklist" :key="`blacklist-${index}`">
-            <span class="rounded bg-red-100 px-2 py-0.5" @click="rssFilter.blacklist.splice(index, 1)">
+          <template v-for="(item, index) in blacklist" :key="`blacklist-${index}`">
+            <span class="rounded bg-red-100 px-2 py-0.5" @click="removeFilterItem(blacklist, index)">
               {{ item }}
             </span>
           </template>

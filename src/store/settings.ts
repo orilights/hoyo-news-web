@@ -3,6 +3,13 @@ import { APP_ABBR, ARIA2_RPC_URL, NEWS_LIST } from '@/constants'
 import { ChannelType } from '@/types/enum'
 import { useMainStore } from './main'
 
+interface RssFilterCache {
+  [cache: string]: {
+    whitelist: string[]
+    blacklist: string[]
+  }
+}
+
 export const useSettingsStore = defineStore('settings', {
   state: () => ({
     showCover: true,
@@ -21,10 +28,7 @@ export const useSettingsStore = defineStore('settings', {
     autoHideHeader: false,
     sourceCustom: [] as SourceCustomData[],
     enabledChannelType: Object.values(ChannelType),
-    rssFilter: {
-      whitelist: [] as string[],
-      blacklist: [] as string[],
-    },
+    rssFilter: { } as RssFilterCache,
   }),
   getters: {
     newsItemConfig: (state) => {
