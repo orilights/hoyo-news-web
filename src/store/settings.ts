@@ -68,6 +68,7 @@ export const useSettingsStore = defineStore('settings', {
     },
     initCustomData() {
       const mainStore = useMainStore()
+      this.enabledChannelType = Object.values(ChannelType)
       Object.keys(NEWS_LIST).forEach((sourceKey) => {
         if (!this.sourceCustom.find(item => item.key === sourceKey)) {
           this.sourceCustom.push({ key: sourceKey, channels: [] })

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { ChannelType } from '@/types/enum'
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue'
 import { storeToRefs } from 'pinia'
 import { useToast } from 'vue-toastification'
@@ -10,7 +11,7 @@ import IconMove from '@/components/icon/IconMove.vue'
 import { BUILD_COMMIT, BUILD_DATE, NEWS_LIST, SETTING_TABS } from '@/constants'
 import { useMainStore } from '@/store/main'
 import { useSettingsStore } from '@/store/settings'
-import { ChannelType, getChannelLabel } from '@/types/enum'
+import { getChannelLabel } from '@/types/enum'
 import { exportFile, formatTime, getAria2DownloadTask } from '@/utils'
 import IconView from './icon/IconView.vue'
 import IconViewSlash from './icon/IconViewSlash.vue'
@@ -179,7 +180,7 @@ function onSourceDragEnd() {
           >
             恢复本页默认设置
           </button>
-          <div class="mb-2 flex flex-wrap gap-1 text-xs">
+          <!-- <div class="mb-2 flex flex-wrap gap-1 text-xs">
             <div
               v-for="channelType in Object.values(ChannelType)" :key="channelType"
               class="cursor-pointer break-keep rounded-md border px-1 py-0.5 transition-all "
@@ -191,7 +192,7 @@ function onSourceDragEnd() {
             >
               {{ getChannelLabel(channelType) }}
             </div>
-          </div>
+          </div> -->
           <OverlayScrollbarsComponent
             defer
             class="mx-[-16px] max-h-[400px] select-none px-4"
