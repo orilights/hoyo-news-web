@@ -61,7 +61,7 @@ function exportVideos() {
     toast.warning('当前没有可导出的视频')
     return
   }
-  if (currentChannel.value.startsWith('bbs')) {
+  if (currentChannel.value.startsWith('bbs_cn')) {
     toast.warning('米游社暂不支持导出视频下载任务')
     return
   }

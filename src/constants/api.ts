@@ -106,19 +106,19 @@ export const NEWS_LIST: Record<string, SourceInfo> = {
   honkai3: {
     displayName: '崩坏3',
     channels: {
-      web_cn: {
-        displayName: '官网',
-        type: ChannelType.WEBSITE_NEWS,
-        apiBase: API_ENDPOINT.CN,
-        newsDetailLink: 'https://bh3.mihoyo.com/news/693/{id}',
-        coverWidth: COVER_WIDTH.default,
-      },
       bbs_cn_all: {
         displayName: '米游社',
         type: ChannelType.MIYOUSHE_NEWS,
         apiBase: API_ENDPOINT.CN,
         newsDetailLink: 'https://www.miyoushe.com/bh3/article/{id}',
         coverWidth: COVER_WIDTH.bbs,
+      },
+      bbs_wiki: {
+        displayName: '圣芙蕾雅档案馆',
+        type: ChannelType.MIYOUSHE_BH3_WIKI,
+        apiBase: API_ENDPOINT.CN,
+        newsDetailLink: 'https://baike.mihoyo.com/bh3/wiki/content/{id}/detail?bbs_presentation_style=no_header',
+        coverWidth: COVER_WIDTH.bbs_wiki,
       },
       bbs_cn_1: {
         displayName: '米游社-公告',
@@ -140,6 +140,13 @@ export const NEWS_LIST: Record<string, SourceInfo> = {
         apiBase: API_ENDPOINT.CN,
         newsDetailLink: 'https://www.miyoushe.com/bh3/article/{id}',
         coverWidth: COVER_WIDTH.bbs,
+      },
+      web_cn: {
+        displayName: '官网',
+        type: ChannelType.WEBSITE_NEWS,
+        apiBase: API_ENDPOINT.CN,
+        newsDetailLink: 'https://bh3.mihoyo.com/news/693/{id}',
+        coverWidth: COVER_WIDTH.default,
       },
       web_os: {
         displayName: '国际服 官网',

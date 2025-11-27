@@ -9,7 +9,7 @@ import IconVideo from '@/components/icon/IconVideo.vue'
 import { DEFAULT_BANNER, LOAD_DELAY, NEWS_LIST } from '@/constants'
 import { useMainStore } from '@/store/main'
 import { useSettingsStore } from '@/store/settings'
-import { CoverSize, VideoType } from '@/types/enum'
+import { ChannelType, CoverSize, VideoType } from '@/types/enum'
 import { copyToClipboard, formatDuration, getMiyousheVideo, getWeek, sanitizeFilename } from '@/utils'
 
 const props = defineProps<{
@@ -49,6 +49,12 @@ const coverWidth = computed(() => {
   return 75
 })
 const coverHeight = computed(() => props.config.coverSize === CoverSize.Large ? 150 : 75)
+const coverThumbnailUrl = computed(() => {
+  if (channelConfig.value.type === ChannelType.MIYOUSHE_BH3_WIKI) {
+    return `${props.news.coverUrl}?x-oss-process=image/quality,q_75/resize,h_300`
+  }
+  return props.news.coverUrl
+})
 const isNewsVisited = computed(() => mainStore.isNewsVisited(newsKey))
 
 onMounted(() => {
@@ -248,7 +254,7 @@ function closeAction() {
         <Transition name="fade">
           <img
             v-show="imageLoaded"
-            :src="loadImage ? (news.coverUrl || DEFAULT_BANNER) : ''"
+            :src="loadImage ? (coverThumbnailUrl || DEFAULT_BANNER) : ''"
             class="absolute size-full rounded-md bg-gray-100 object-cover sm:object-contain"
             alt="banner"
             referrerpolicy="no-referrer"

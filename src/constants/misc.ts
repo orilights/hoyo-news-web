@@ -15,6 +15,7 @@ export const ITEM_GAP = 8
 export const COVER_WIDTH = {
   default: 300,
   bbs: 323.4375,
+  bbs_wiki: 266.6667,
   none: 0,
 }
 
