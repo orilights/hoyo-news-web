@@ -48,7 +48,7 @@ export const useMainStore = defineStore('main', {
       if (this.searchEnabled) {
         data = this.newsData.filter(news =>
           this.searchStr.toLowerCase().trim().split(' ').every((v) => {
-            const newsKey = news.title.toLowerCase() + news.remoteId
+            const newsKey = `${news.title.toLowerCase()}${news.tag}${news.remoteId}`
             return newsKey.includes(v)
           }),
         )
