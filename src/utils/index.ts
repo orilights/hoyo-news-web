@@ -59,6 +59,11 @@ export function highlightText(text: string, keywords: string[]) {
   if (!keywords.length)
     return text
 
-  const regex = new RegExp(keywords.join('|'), 'gi')
+  // 转义正则表达式中的特殊字符
+  const escapedKeywords = keywords.map(keyword =>
+    keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
+  )
+
+  const regex = new RegExp(escapedKeywords.join('|'), 'gi')
   return text.replace(regex, match => `<em>${match}</em>`)
 }
