@@ -3,13 +3,6 @@ import { APP_ABBR, ARIA2_RPC_URL, NEWS_LIST } from '@/constants'
 import { ChannelType } from '@/types/enum'
 import { useMainStore } from './main'
 
-interface RssFilterCache {
-  [cache: string]: {
-    whitelist: string[]
-    blacklist: string[]
-  }
-}
-
 export const useSettingsStore = defineStore('settings', {
   state: () => ({
     showCover: true,
@@ -27,7 +20,7 @@ export const useSettingsStore = defineStore('settings', {
     },
     autoHideHeader: false,
     sourceCustom: [] as SourceCustomData[],
-    enabledChannelType: Object.values(ChannelType),
+    channelCustom: [] as ChannelCustomData[],
     rssFilter: { } as RssFilterCache,
   }),
   getters: {
@@ -68,7 +61,11 @@ export const useSettingsStore = defineStore('settings', {
     },
     initCustomData() {
       const mainStore = useMainStore()
-      this.enabledChannelType = Object.values(ChannelType)
+      this.channelCustom = Object.values(ChannelType).map(channelType => ({
+        key: channelType,
+        enable: this.channelCustom.find(item => item.key === channelType)?.enable ?? true,
+      }))
+
       Object.keys(NEWS_LIST).forEach((sourceKey) => {
         if (!this.sourceCustom.find(item => item.key === sourceKey)) {
           this.sourceCustom.push({ key: sourceKey, channels: [] })
@@ -81,7 +78,7 @@ export const useSettingsStore = defineStore('settings', {
             }
           })
         source!.channels = source!.channels.filter(channel =>
-          this.enabledChannelType.includes(NEWS_LIST[sourceKey]?.channels[channel.key]?.type),
+          this.channelCustom.find(item => item.key === NEWS_LIST[sourceKey]?.channels[channel.key]?.type)?.enable,
         )
       })
       const enabledSources = this.sourceCustom.filter(source =>
@@ -95,7 +92,7 @@ export const useSettingsStore = defineStore('settings', {
       mainStore.currentChannel = enabledSources[0].channels.find(channel => channel.enable)!.key
     },
     resetSourceCustom() {
-      this.enabledChannelType = Object.values(ChannelType)
+      this.channelCustom = []
       this.sourceCustom = []
       this.initCustomData()
     },

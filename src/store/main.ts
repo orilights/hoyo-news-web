@@ -45,8 +45,6 @@ export const useMainStore = defineStore('main', {
       return state.searchStr.toLowerCase().trim().split(' ')
     },
     newsDataFiltered() {
-      const settings = useSettingsStore()
-
       let data: NewsData[]
       if (this.searchEnabled) {
         data = this.newsData.filter(news =>
@@ -78,14 +76,6 @@ export const useMainStore = defineStore('main', {
           new Date(news.startTime).getTime() <= new Date(`${this.dateFilterEnd} 23:59:59`).getTime(),
         )
       }
-      const originalCount = data.length
-      if (settings.customFilter.enable) {
-        data = data.filter(news =>
-          !DEFAULT_KEYWORD_BLACKLIST.some(kw => news.title.includes(kw)),
-        )
-      }
-
-      this.customFilterCount = originalCount - data.length
 
       if (this.sortBy === 'asc')
         data.reverse()
@@ -126,6 +116,8 @@ export const useMainStore = defineStore('main', {
     },
 
     fetchData(force_refresh = false) {
+      const settings = useSettingsStore()
+
       if (force_refresh) {
         window.umami?.track('a-manual-refresh')
       }
@@ -149,6 +141,12 @@ export const useMainStore = defineStore('main', {
               tag: news.tags || getNewsType(news, params.source, params.channel).type,
               startTime: formatTime(news.startTime),
             }))
+            if (settings.customFilter.enable) {
+              this.newsData = this.newsData.filter(news =>
+                !DEFAULT_KEYWORD_BLACKLIST.some(kw => news.title.includes(kw)),
+              )
+              this.customFilterCount = res.list.length - this.newsData.length
+            }
             this.availableTags = getTags(this.newsData, params.source, params.channel)
             this.newsUpdateTime = res.lastSync
           }
@@ -172,8 +170,9 @@ export const useMainStore = defineStore('main', {
     },
 
     changeSource(newSource: string) {
+      const settings = useSettingsStore()
       this.currentSource = newSource
-      this.currentChannel = Object.keys(NEWS_LIST[newSource].channels)[0]
+      this.currentChannel = settings.headerSourceList.find(item => item.key === newSource)!.channels[0].key
       this.handleSourceChange()
     },
 

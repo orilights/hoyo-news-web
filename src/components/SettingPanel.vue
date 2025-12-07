@@ -32,7 +32,7 @@ const {
   customFilter,
   autoHideHeader,
   sourceCustom,
-  enabledChannelType,
+  channelCustom,
 } = storeToRefs(settings)
 
 const currentTab = ref('general')
@@ -45,6 +45,10 @@ const dragOptions = {
   disabled: false,
   ghostClass: 'ghost',
 }
+
+watch(() => customFilter.value.enable, () => {
+  mainStore.handleSourceChange()
+})
 
 onMounted(() => {
   document.addEventListener('click', (event) => {
@@ -98,17 +102,16 @@ function changeSourceVisibility(sourceKey: string) {
 }
 
 function toggleChannelTypeEnable(channelType: ChannelType) {
-  const index = enabledChannelType.value.indexOf(channelType)
-  if (index === -1) {
-    enabledChannelType.value.push(channelType)
+  const enabledChannelTypes = channelCustom.value.filter(channel => channel.enable)
+  if (enabledChannelTypes.length === 1 && enabledChannelTypes[0].key === channelType) {
+    toast.warning('需至少保留一个内容源')
+    return
   }
-  else {
-    if (enabledChannelType.value.length === 1) {
-      toast.warning('需至少保留一个源类型')
-      return
+  channelCustom.value.forEach((channel) => {
+    if (channel.key === channelType) {
+      channel.enable = !channel.enable
     }
-    enabledChannelType.value.splice(index, 1)
-  }
+  })
   settings.initCustomData()
 }
 
@@ -180,19 +183,19 @@ function onSourceDragEnd() {
           >
             恢复本页默认设置
           </button>
-          <!-- <div class="mb-2 flex flex-wrap gap-1 text-xs">
+          <div class="mb-2 flex flex-wrap gap-1 text-xs">
             <div
-              v-for="channelType in Object.values(ChannelType)" :key="channelType"
+              v-for="channelState in channelCustom" :key="channelState.key"
               class="cursor-pointer break-keep rounded-md border px-1 py-0.5 transition-all "
               :class="{
-                'border-blue-500 bg-blue-500 text-white': enabledChannelType.includes(channelType),
-                'hover:border-blue-400 hover:text-blue-400': !enabledChannelType.includes(channelType),
+                'border-blue-500 bg-blue-500 text-white': channelState.enable,
+                'hover:border-blue-400 hover:text-blue-400': !channelState.enable,
               }"
-              @click="toggleChannelTypeEnable(channelType)"
+              @click="toggleChannelTypeEnable(channelState.key)"
             >
-              {{ getChannelLabel(channelType) }}
+              {{ getChannelLabel(channelState.key) }}
             </div>
-          </div> -->
+          </div>
           <OverlayScrollbarsComponent
             defer
             class="mx-[-16px] max-h-[400px] select-none px-4"

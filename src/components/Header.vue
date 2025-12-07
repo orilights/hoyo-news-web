@@ -12,7 +12,6 @@ const settings = useSettingsStore()
 const { newsLoading, currentSource, currentChannel } = storeToRefs(mainStore)
 const { autoHideHeader, headerSourceList } = storeToRefs(settings)
 
-const headerRef = ref<HTMLElement | null>(null)
 const showSettingPanel = ref(false)
 const showHeader = ref(true)
 const lastScrollTop = ref(0)
@@ -52,7 +51,6 @@ onUnmounted(() => {
 
 <template>
   <div
-    ref="headerRef"
     class="header sticky top-0 z-10 mx-[-8px] bg-[#f3f4f6]/80 px-2 pt-4 backdrop-blur transition-all duration-300 md:mx-[-32px] md:px-8"
     :class="{ '-translate-y-full': !showHeader }"
   >

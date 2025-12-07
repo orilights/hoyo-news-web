@@ -1,3 +1,5 @@
+import type { ChannelType } from './enum'
+
 export { }
 
 declare global {
@@ -92,4 +94,17 @@ declare global {
       enable: boolean
     }[]
   }
+
+  interface ChannelCustomData {
+    key: ChannelType
+    enable: boolean
+  }
+
+  interface RssFilterCache {
+    [cacheKey: string]: {
+      whitelist: string[]
+      blacklist: string[]
+    }
+  }
+
 }
