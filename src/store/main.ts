@@ -41,13 +41,16 @@ export const useMainStore = defineStore('main', {
       return NEWS_LIST[state.currentSource].channels[state.currentChannel]
     },
     searchEnabled: state => state.searchStr.trim() !== '',
+    searchKeywords: (state) => {
+      return state.searchStr.toLowerCase().trim().split(' ')
+    },
     newsDataFiltered() {
       const settings = useSettingsStore()
 
       let data: NewsData[]
       if (this.searchEnabled) {
         data = this.newsData.filter(news =>
-          this.searchStr.toLowerCase().trim().split(' ').every((v) => {
+          this.searchKeywords.every((v) => {
             const newsKey = `${news.title.toLowerCase()}${news.tag}${news.remoteId}`
             return newsKey.includes(v)
           }),

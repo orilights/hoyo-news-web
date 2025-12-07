@@ -1,8 +1,9 @@
 <script setup lang="ts">
+import { storeToRefs } from 'pinia'
 import LoadingIndicatorImage from '@/components/common/LoadingIndicatorImage.vue'
 import { DEFAULT_BANNER, LOAD_DELAY, NEWS_LIST } from '@/constants'
 import { useMainStore } from '@/store/main'
-import { formatDuration, formatTime } from '@/utils'
+import { formatDuration, formatTime, highlightText } from '@/utils'
 
 const props = defineProps<{
   news: NewsData
@@ -16,6 +17,7 @@ const mainStore = useMainStore()
 let timer: NodeJS.Timeout | null = null
 const newsKey = `${props.source}_${props.channel}_${props.news.remoteId}`
 
+const { searchKeywords } = storeToRefs(mainStore)
 const loadImage = ref(false)
 const imageLoaded = ref(false)
 
@@ -87,9 +89,8 @@ function onClick() {
           'text-gray-400': config.showVisited && isNewsVisited,
         }"
         :title="news.title"
-      >
-        {{ news.title }}
-      </div>
+        v-html="highlightText(news.title, searchKeywords)"
+      />
       <div class="mt-1 text-xs text-gray-500">
         {{ formatTime(news.startTime, true) }}
       </div>

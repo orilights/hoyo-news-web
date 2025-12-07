@@ -83,6 +83,11 @@ body {
   overflow-y: scroll;
 }
 
+em {
+  font-style: normal;
+  @apply text-red-600;
+}
+
 .popup-setting-enter-active,
 .popup-setting-leave-active,
 .popup-dialog-enter-active,

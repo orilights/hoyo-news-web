@@ -10,7 +10,7 @@ import { DEFAULT_BANNER, LOAD_DELAY, NEWS_LIST } from '@/constants'
 import { useMainStore } from '@/store/main'
 import { useSettingsStore } from '@/store/settings'
 import { ChannelType, CoverSize, VideoType } from '@/types/enum'
-import { copyToClipboard, formatDuration, getMiyousheVideo, getWeek, sanitizeFilename } from '@/utils'
+import { copyToClipboard, formatDuration, getMiyousheVideo, getWeek, highlightText, sanitizeFilename } from '@/utils'
 
 const props = defineProps<{
   news: NewsItemData
@@ -24,6 +24,7 @@ defineEmits(['changeFilter'])
 const mainStore = useMainStore()
 const settings = useSettingsStore()
 
+const { searchKeywords } = storeToRefs(mainStore)
 const { aria2Config } = storeToRefs(settings)
 let timer: NodeJS.Timeout | null = null
 const newsKey = `${props.source}_${props.channel}_${props.news.remoteId}`
@@ -269,9 +270,8 @@ function closeAction() {
           :class="{
             'text-gray-400': config.showVisited && isNewsVisited,
           }"
-        >
-          {{ news.title }}
-        </h2>
+          v-html="highlightText(news.title, searchKeywords)"
+        />
         <div class="my-1 flex flex-wrap gap-x-2 gap-y-0.5 whitespace-nowrap text-xs md:my-2 md:text-sm">
           <div
             title="筛选此标签"

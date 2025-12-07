@@ -54,3 +54,11 @@ export async function copyToClipboard(text: string) {
     }
   }
 }
+
+export function highlightText(text: string, keywords: string[]) {
+  if (!keywords.length)
+    return text
+
+  const regex = new RegExp(keywords.join('|'), 'gi')
+  return text.replace(regex, match => `<em>${match}</em>`)
+}
