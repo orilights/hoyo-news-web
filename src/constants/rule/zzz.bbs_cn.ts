@@ -15,7 +15,7 @@ export default {
   '版本更新通知': {
     keyword: [/版本.*更新通知/],
   },
-  '前瞻情报总览': {
+  '前瞻回顾长图': {
     keyword: ['情报总览', '回顾长图'],
   },
   '前瞻预告': {
@@ -31,6 +31,10 @@ export default {
   },
   '策划面对面': {
     keyword: ['策划面对面'],
+    meta: { video: true },
+  },
+  '幕后花絮': {
+    keyword: ['幕后'],
     meta: { video: true },
   },
   '代理人档案': {
@@ -98,6 +102,9 @@ export default {
   },
   '生日贺图': {
     keyword: ['生日快乐'],
+  },
+  '时装杂志': {
+    keyword: ['New Eridan'],
   },
   '过塑手账': {
     keyword: ['过塑手账'],

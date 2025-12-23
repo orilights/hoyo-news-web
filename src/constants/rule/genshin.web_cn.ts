@@ -15,7 +15,7 @@ export default {
     keyword: ['集录祈愿'],
   },
   '角色活动祈愿': {
-    keyword: ['祈愿即将开启', '祈愿现已开启', '活动祈愿', /祈愿.*概率UP/],
+    keyword: ['祈愿即将开启', '祈愿现已开启', /活动祈愿.*(即将|现已)开启/, /祈愿.*概率UP/],
   },
   '表情包': {
     keyword: ['表情包'],
@@ -27,7 +27,7 @@ export default {
       'web_cn.116345', // 刻晴
       'web_cn.116353', // 砂糖
       'web_cn.116362', // 凯亚
-      'web_cn.116381',
+      'web_cn.116381', // 温迪
       'web_cn.117542', // 九条裟罗
       'web_cn.117546', // 胡桃
     ],
@@ -55,7 +55,7 @@ export default {
     filter: { video: true },
   },
   '版本活动汇总': {
-    keyword: ['活动汇总'],
+    keyword: [/版本.*活动汇总/],
     meta: { video: true },
   },
   '前瞻预告': {
@@ -171,6 +171,9 @@ export default {
   },
   '角色演示': {
     keyword: ['全新角色展示', '角色演示', '角色预告'],
+    exclude: [
+      'web_cn.127803', // 玛薇卡预告
+    ],
     meta: { video: true },
   },
   '拾枝杂谈': {
@@ -182,8 +185,7 @@ export default {
     meta: { video: true },
   },
   '角色复刻小记': {
-    keyword: ['小记'],
-    include: ['web_cn.160511'], // 芙宁娜
+    keyword: ['小记', '概率UP'],
   },
   '角色技能演示': {
     keyword: ['技能演示', '角色技能展示'],

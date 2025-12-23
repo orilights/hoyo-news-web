@@ -240,19 +240,19 @@ export const NEWS_LIST: Record<string, SourceInfo> = {
   planet: {
     displayName: '星布谷地',
     channels: {
-      web_cn: {
-        displayName: '官网',
-        type: ChannelType.WEBSITE_NEWS,
-        apiBase: API_ENDPOINT.CN,
-        newsDetailLink: 'https://planet.mihoyo.com/news/detail/{id}',
-        coverWidth: COVER_WIDTH.none,
-      },
       bbs_cn_all: {
         displayName: '米游社',
         type: ChannelType.MIYOUSHE_NEWS,
         apiBase: API_ENDPOINT.CN,
         newsDetailLink: 'https://www.miyoushe.com/planet/article/{id}',
         coverWidth: COVER_WIDTH.bbs,
+      },
+      web_cn: {
+        displayName: '官网',
+        type: ChannelType.WEBSITE_NEWS,
+        apiBase: API_ENDPOINT.CN,
+        newsDetailLink: 'https://planet.mihoyo.com/news/detail/{id}',
+        coverWidth: COVER_WIDTH.none,
       },
       bbs_cn_1: {
         displayName: '米游社-公告',
@@ -280,19 +280,19 @@ export const NEWS_LIST: Record<string, SourceInfo> = {
   wd: {
     displayName: '未定事件簿',
     channels: {
-      web_cn: {
-        displayName: '官网',
-        type: ChannelType.WEBSITE_NEWS,
-        apiBase: API_ENDPOINT.CN,
-        newsDetailLink: 'https://wd.mihoyo.com/information/detail/{id}',
-        coverWidth: COVER_WIDTH.none,
-      },
       bbs_cn_all: {
         displayName: '米游社',
         type: ChannelType.MIYOUSHE_NEWS,
         apiBase: API_ENDPOINT.CN,
         newsDetailLink: 'https://www.miyoushe.com/wd/article/{id}',
         coverWidth: COVER_WIDTH.bbs,
+      },
+      web_cn: {
+        displayName: '官网',
+        type: ChannelType.WEBSITE_NEWS,
+        apiBase: API_ENDPOINT.CN,
+        newsDetailLink: 'https://wd.mihoyo.com/information/detail/{id}',
+        coverWidth: COVER_WIDTH.none,
       },
       bbs_cn_1: {
         displayName: '米游社-公告',

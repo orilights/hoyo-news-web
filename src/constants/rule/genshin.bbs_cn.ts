@@ -15,7 +15,13 @@ export default {
     keyword: ['集录祈愿'],
   },
   '角色活动祈愿': {
-    keyword: ['祈愿即将开启', '祈愿现已开启', '活动祈愿', /^(?!祈愿).*祈愿.*概率UP/],
+    keyword: [
+      '祈愿即将开启',
+      '祈愿现已开启',
+      /活动祈愿.*(即将|现已)开启/,
+      /祈愿.*概率UP/,
+      '闪焰的驻足', // 可莉
+    ],
   },
   '表情包': {
     keyword: ['表情包'],
@@ -85,7 +91,6 @@ export default {
   '幕后花絮': {
     keyword: ['的幕后', '幕后的故事', '合作幕后'],
     meta: { video: true },
-    exclude: ['bbs_cn.64017785'], // 挪德卡莱预告
   },
   '周年视频': {
     keyword: ['周年手札', '配音演员祝福'],
@@ -166,6 +171,7 @@ export default {
     keyword: ['全新角色展示', '角色演示', '角色预告'],
     exclude: [
       'bbs_cn.60643852', // 玛薇卡预告
+      'bbs_cn.423425', // 凝光北斗预告
     ],
     meta: { video: true },
   },
@@ -178,8 +184,7 @@ export default {
     meta: { video: true },
   },
   '角色复刻小记': {
-    keyword: ['小记'],
-    include: ['bbs_cn.69811538'], // 芙宁娜
+    keyword: ['小记', '概率UP'],
   },
   '角色技能演示': {
     keyword: ['技能演示', '角色技能展示'],
