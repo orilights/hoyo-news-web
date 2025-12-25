@@ -8,6 +8,7 @@ import IconTime from '@/components/icon/IconTime.vue'
 import IconVideo from '@/components/icon/IconVideo.vue'
 import { DEFAULT_BANNER, LOAD_DELAY, NEWS_LIST } from '@/constants'
 import { useMainStore } from '@/store/main'
+import { usePlayerStore } from '@/store/player'
 import { useSettingsStore } from '@/store/settings'
 import { ChannelType, CoverSize, VideoType } from '@/types/enum'
 import { copyToClipboard, formatDuration, getMiyousheVideo, getWeek, highlightText, sanitizeFilename } from '@/utils'
@@ -22,10 +23,11 @@ const props = defineProps<{
 defineEmits(['changeFilter'])
 
 const mainStore = useMainStore()
+const playerStore = usePlayerStore()
 const settings = useSettingsStore()
 
 const { searchKeywords } = storeToRefs(mainStore)
-const { aria2Config } = storeToRefs(settings)
+const { aria2Config, useWebPlayer } = storeToRefs(settings)
 let timer: NodeJS.Timeout | null = null
 const newsKey = `${props.source}_${props.channel}_${props.news.remoteId}`
 
@@ -87,7 +89,12 @@ function openVideo() {
   window.umami?.track('a-open-video', { key: newsKey })
   getVideoUrl()
     .then((videoUrl) => {
-      window.open(videoUrl, '_blank')
+      if (useWebPlayer.value) {
+        playerStore.playVideo(props.news.title, videoUrl)
+      }
+      else {
+        window.open(videoUrl, '_blank')
+      }
     })
     .catch((err) => {
       useToast().error(err.message)
@@ -230,47 +237,34 @@ function closeAction() {
   <li
     :style="{
       transform: `translateY(${news.top}px)`,
-    }"
-    class="absolute mb-2 w-full"
+    }" class="absolute mb-2 w-full"
   >
     <a
-      :href="newsUrl"
-      :title="news.title"
+      :href="newsUrl" :title="news.title"
       class="group flex rounded-md border-2 border-transparent bg-white p-2 transition-colors hover:border-blue-500 sm:p-3"
-      target="_blank"
-      @click="onClick"
+      target="_blank" @click="onClick"
     >
       <div
         v-if="config.showBanner && channelConfig.coverWidth"
-        class="relative mr-2 flex shrink-0 items-center justify-center md:mr-4"
-        :style="{
+        class="relative mr-2 flex shrink-0 items-center justify-center md:mr-4" :style="{
           width: `${coverWidth}px`,
           height: `${coverHeight}px`,
         }"
       >
-        <LoadingIndicatorImage
-          v-if="!imageLoaded"
-          class="w-10"
-        />
+        <LoadingIndicatorImage v-if="!imageLoaded" class="w-10" />
         <Transition name="fade">
           <img
-            v-show="imageLoaded"
-            :src="loadImage ? (coverThumbnailUrl || DEFAULT_BANNER) : ''"
-            class="absolute size-full rounded-md bg-gray-100 object-cover sm:object-contain"
-            alt="banner"
-            referrerpolicy="no-referrer"
-            @load="onImageLoaded"
+            v-show="imageLoaded" :src="loadImage ? (coverThumbnailUrl || DEFAULT_BANNER) : ''"
+            class="absolute size-full rounded-md bg-gray-100 object-cover sm:object-contain" alt="banner"
+            referrerpolicy="no-referrer" @load="onImageLoaded"
           >
         </Transition>
       </div>
       <div class="flex min-w-0 flex-1 flex-col self-stretch">
         <h2
-          :title="news.title"
-          class="w-full truncate font-bold transition-colors md:text-lg"
-          :class="{
+          :title="news.title" class="w-full truncate font-bold transition-colors md:text-lg" :class="{
             'text-gray-400': config.showVisited && isNewsVisited,
-          }"
-          v-html="highlightText(news.title, searchKeywords)"
+          }" v-html="highlightText(news.title, searchKeywords)"
         />
         <div class="my-1 flex flex-wrap gap-x-2 gap-y-0.5 whitespace-nowrap text-xs md:my-2 md:text-sm">
           <div
@@ -284,8 +278,7 @@ function closeAction() {
             </span>
           </div>
           <div
-            v-if="news.video"
-            title="播放视频"
+            v-if="news.video" title="播放视频"
             class="flex items-center gap-1 rounded-full border border-slate-200 bg-slate-100 px-1 py-0.5 text-xs text-gray-600 transition-colors hover:bg-slate-200 md:px-2 md:py-1 md:text-sm"
             @click.stop.prevent="openVideo"
           >
@@ -299,7 +292,9 @@ function closeAction() {
           </div>
         </div>
         <div class="mt-auto flex flex-wrap gap-x-2 gap-y-0.5 whitespace-nowrap text-xs md:text-sm">
-          <div class="flex items-center gap-1 rounded-full border border-slate-200 bg-slate-100 px-1 py-0.5 text-xs text-gray-600 md:px-2 md:py-1 md:text-sm">
+          <div
+            class="flex items-center gap-1 rounded-full border border-slate-200 bg-slate-100 px-1 py-0.5 text-xs text-gray-600 md:px-2 md:py-1 md:text-sm"
+          >
             <IconTime class="size-4 p-0.5 md:size-5" />
             <span>
               {{ news.startTime }} <span v-if="config.showDateWeek">星期{{ getWeek(news.startTime) }}</span>
@@ -311,59 +306,52 @@ function closeAction() {
             :class="{
               'bg-slate-200': showAction,
               'bg-slate-100': !showAction,
-            }"
-            @click.stop.prevent="toggleAction"
+            }" @click.stop.prevent="toggleAction"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-4 p-0.5 md:size-5">
-              <path d="M3 10a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0ZM8.5 10a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0ZM15.5 8.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+              class="size-4 p-0.5 md:size-5"
+            >
+              <path
+                d="M3 10a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0ZM8.5 10a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0ZM15.5 8.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z"
+              />
             </svg>
             <Transition name="fade">
               <div
-                v-show="showAction"
-                ref="actionMenuRef"
-                class="absolute bottom-0 z-30 w-fit overflow-hidden rounded-md border bg-white text-black"
-                :style="{
+                v-show="showAction" ref="actionMenuRef"
+                class="absolute bottom-0 z-30 w-fit overflow-hidden rounded-md border bg-white text-black" :style="{
                   left: popupFromLeft ? `-${actionMenuWidth + 8}px` : undefined,
                   right: popupFromLeft ? undefined : `-${actionMenuWidth + 8}px`,
-                }"
-                @click.stop.prevent
+                }" @click.stop.prevent
               >
                 <button
                   class="block w-full px-2 py-0.5 text-left transition-colors hover:bg-black/10"
-                  title="复制新闻链接至剪贴板"
-                  @click="showAction = false;copyLink()"
+                  title="复制新闻链接至剪贴板" @click="showAction = false; copyLink()"
                 >
                   复制链接
                 </button>
                 <button
                   v-if="news.coverUrl"
-                  class="block w-full px-2 py-0.5 text-left transition-colors hover:bg-black/10"
-                  title="复制封面链接至剪贴板"
-                  @click="showAction = false;copyCoverLink()"
+                  class="block w-full px-2 py-0.5 text-left transition-colors hover:bg-black/10" title="复制封面链接至剪贴板"
+                  @click="showAction = false; copyCoverLink()"
                 >
                   复制封面链接
                 </button>
                 <button
-                  v-if="news.video"
-                  class="block w-full px-2 py-0.5 text-left transition-colors hover:bg-black/10"
-                  title="复制视频链接至剪贴板"
-                  @click="showAction = false;copyVideoLink()"
+                  v-if="news.video" class="block w-full px-2 py-0.5 text-left transition-colors hover:bg-black/10"
+                  title="复制视频链接至剪贴板" @click="showAction = false; copyVideoLink()"
                 >
                   复制视频链接
                 </button>
                 <button
-                  v-if="news.video"
-                  class="block w-full px-2 py-0.5 text-left transition-colors hover:bg-black/10"
-                  title="在 PotPlayer 中打开视频"
-                  @click="showAction = false;sendToPotPlayer()"
+                  v-if="news.video" class="block w-full px-2 py-0.5 text-left transition-colors hover:bg-black/10"
+                  title="在 PotPlayer 中打开视频" @click="showAction = false; sendToPotPlayer()"
                 >
                   在 PotPlayer 中打开视频
                 </button>
                 <button
-                  v-if="news.video"
-                  class="block w-full px-2 py-0.5 text-left transition-colors hover:bg-black/10"
-                  title="将视频发送至 aria2 下载"
-                  @click="showAction = false;sendToAria2()"
+                  v-if="news.video" class="block w-full px-2 py-0.5 text-left transition-colors hover:bg-black/10"
+                  title="将视频发送至 aria2 下载" @click="showAction = false; sendToAria2()"
                 >
                   将视频发送至 aria2 下载
                 </button>

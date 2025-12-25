@@ -26,6 +26,7 @@ const {
   showCover,
   showDateWeek,
   showVisited,
+  useWebPlayer,
   useGridView,
   fullWidth,
   aria2Config,
@@ -153,6 +154,10 @@ function onSourceDragEnd() {
           <div class="mb-2 flex items-center">
             <span class="flex-1">置灰已阅读新闻</span>
             <Switch v-model="showVisited" class="ml-2" />
+          </div>
+          <div class="mb-2 flex items-center">
+            <span class="flex-1">使用内置播放器</span>
+            <Switch v-model="useWebPlayer" class="ml-2" />
           </div>
           <div class="mb-2 flex items-center">
             <span class="flex-1">自动隐藏顶栏</span>

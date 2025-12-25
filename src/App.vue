@@ -11,6 +11,7 @@ import NewsFilter from '@/components/NewsFilter.vue'
 import { CONFIG_API } from '@/constants'
 import { useMainStore } from '@/store/main'
 import { useSettingsStore } from '@/store/settings'
+import VideoPlayer from './components/VideoPlayer.vue'
 
 const mainStore = useMainStore()
 const settings = useSettingsStore()
@@ -73,6 +74,8 @@ function fetchNotice() {
       <NewsGridView v-if="useGridView" />
 
       <FloatTool />
+
+      <VideoPlayer />
     </div>
   </div>
 </template>

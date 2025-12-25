@@ -108,7 +108,7 @@ function copyRssLink() {
 </script>
 
 <template>
-  <div class="fixed left-0 top-0 z-50 h-screen w-screen bg-black/30">
+  <div class="fixed inset-0 z-50 h-screen w-screen bg-black/30">
     <div class="size-full" @click="emit('close')" />
     <div class="fixed left-1/2 top-1/2 z-50 w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white p-4 shadow-md">
       <div class="mb-2 font-bold">

@@ -29,4 +29,30 @@ export default defineConfig({
     }),
     buildInfoPlugin,
   ],
+  server: {
+    host: true,
+  },
+  build: {
+    rolldownOptions: {
+      output: {
+        advancedChunks: {
+          groups: [
+            {
+              name: 'player',
+              test: /node_modules[\\/]artplayer/,
+            },
+            {
+              name: 'vendor',
+              test: /node_modules/,
+            },
+          ],
+        },
+      },
+      onwarn(warning, defaultHandler) {
+        if (warning.code === 'COMMONJS_VARIABLE_IN_ESM')
+          return
+        defaultHandler(warning)
+      },
+    },
+  },
 })

@@ -6,13 +6,14 @@
   "packageManager": "pnpm@10.13.1",
   "scripts": {
     "build": "vue-tsc && vite build",
-    "dev": "vite --host",
-    "lint": "eslint src",
-    "preview": "vite preview"
+    "dev": "vite",
+    "preview": "vite preview",
+    "lint": "eslint src"
   },
   "dependencies": {
     "@tanstack/vue-virtual": "^3.13.13",
     "@vueuse/core": "^14.1.0",
+    "artplayer": "^5.3.0",
     "axios": "^1.13.2",
     "mitt": "^3.0.1",
     "overlayscrollbars": "^2.13.0",

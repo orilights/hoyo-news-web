@@ -8,6 +8,7 @@ export const useSettingsStore = defineStore('settings', {
     showCover: true,
     showDateWeek: false,
     showVisited: false,
+    useWebPlayer: true,
     useGridView: false,
     fullWidth: false,
     aria2Config: {
