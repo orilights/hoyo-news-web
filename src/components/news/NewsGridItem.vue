@@ -3,6 +3,8 @@ import { storeToRefs } from 'pinia'
 import LoadingIndicatorImage from '@/components/common/LoadingIndicatorImage.vue'
 import { DEFAULT_BANNER, LOAD_DELAY, NEWS_LIST } from '@/constants'
 import { useMainStore } from '@/store/main'
+import { usePlayerStore } from '@/store/player'
+import { useSettingsStore } from '@/store/settings'
 import { formatDuration, formatTime, highlightText } from '@/utils'
 
 const props = defineProps<{
@@ -13,11 +15,14 @@ const props = defineProps<{
 }>()
 
 const mainStore = useMainStore()
+const playerStore = usePlayerStore()
+const settings = useSettingsStore()
 
 let timer: NodeJS.Timeout | null = null
 const newsKey = `${props.source}_${props.channel}_${props.news.remoteId}`
 
 const { searchKeywords } = storeToRefs(mainStore)
+const { useWebPlayer } = storeToRefs(settings)
 const loadImage = ref(false)
 const imageLoaded = ref(false)
 
@@ -46,11 +51,18 @@ function onImageLoaded() {
   mainStore.imageLoaded.add(newsKey)
 }
 
-function onClick() {
+function onClick(event: PointerEvent) {
   window.umami?.track('a-visit-news', { key: newsKey })
-  if (!props.config.showVisited)
-    return
-  mainStore.setNewsVisited(newsKey)
+  if (props.config.showVisited) {
+    mainStore.setNewsVisited(newsKey)
+  }
+
+  if (useWebPlayer.value && props.news.video) {
+    event.preventDefault()
+    window.umami?.track('a-open-video', { key: newsKey })
+    playerStore.setCurrentListAsPlaylist()
+    playerStore.playVideo(props.news)
+  }
 }
 </script>
 

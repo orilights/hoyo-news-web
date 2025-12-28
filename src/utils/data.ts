@@ -1,6 +1,7 @@
 import type { ChannelType } from '@/types/enum'
 import { getMiyousheVideoApi } from '@/api/news'
 import { NEWS_CLASSIFY_RULE, NEWS_LIST, TAG_OTHER } from '@/constants'
+import { VideoType } from '@/types/enum'
 import { sanitizeFilename } from '.'
 
 export function getClassifyRules(source: string, channel: string): SourceClassifyRule | undefined {
@@ -133,4 +134,11 @@ export function getChannels(source: string, includeChannelTypes: ChannelType[] =
     return channels.filter(channel => includeChannelTypes.includes(NEWS_LIST[source].channels[channel.key].type))
   }
   return channels
+}
+
+export function getVideoUrl(data: NewsData, source: string, channel: string): Promise<string> {
+  if (data.video?.type === VideoType.MIYOUSHE_POST) {
+    return getMiyousheVideo(source, channel, data.video!.url)
+  }
+  return Promise.resolve(data.video!.url)
 }

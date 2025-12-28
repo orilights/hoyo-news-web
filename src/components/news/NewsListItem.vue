@@ -10,8 +10,8 @@ import { DEFAULT_BANNER, LOAD_DELAY, NEWS_LIST } from '@/constants'
 import { useMainStore } from '@/store/main'
 import { usePlayerStore } from '@/store/player'
 import { useSettingsStore } from '@/store/settings'
-import { ChannelType, CoverSize, VideoType } from '@/types/enum'
-import { copyToClipboard, formatDuration, getMiyousheVideo, getWeek, highlightText, sanitizeFilename } from '@/utils'
+import { ChannelType, CoverSize } from '@/types/enum'
+import { copyToClipboard, formatDuration, getVideoUrl, getWeek, highlightText, sanitizeFilename } from '@/utils'
 
 const props = defineProps<{
   news: NewsItemData
@@ -78,27 +78,22 @@ onUnmounted(() => {
   document.removeEventListener('click', closeAction)
 })
 
-function getVideoUrl() {
-  if (props.news.video?.type === VideoType.MIYOUSHE_POST) {
-    return getMiyousheVideo(props.source, props.channel, props.news.video!.url)
-  }
-  return Promise.resolve(props.news.video!.url)
-}
-
 function openVideo() {
   window.umami?.track('a-open-video', { key: newsKey })
-  getVideoUrl()
-    .then((videoUrl) => {
-      if (useWebPlayer.value) {
-        playerStore.playVideo(props.news.title, videoUrl)
-      }
-      else {
+
+  if (useWebPlayer.value) {
+    playerStore.setCurrentListAsPlaylist()
+    playerStore.playVideo(props.news)
+  }
+  else {
+    getVideoUrl(props.news, props.source, props.channel)
+      .then((videoUrl) => {
         window.open(videoUrl, '_blank')
-      }
-    })
-    .catch((err) => {
-      useToast().error(err.message)
-    })
+      })
+      .catch((err) => {
+        useToast().error(err.message)
+      })
+  }
 }
 
 function copyLink() {
@@ -126,7 +121,7 @@ function copyCoverLink() {
 async function copyVideoLink() {
   window.umami?.track('a-copy-video-link', { key: newsKey })
 
-  getVideoUrl()
+  getVideoUrl(props.news, props.source, props.channel)
     .then((videoUrl) => {
       copyToClipboard(videoUrl)
         .then(() => {
@@ -143,7 +138,7 @@ async function copyVideoLink() {
 
 function sendToPotPlayer() {
   window.umami?.track('a-send-to-potplayer', { key: newsKey })
-  getVideoUrl()
+  getVideoUrl(props.news, props.source, props.channel)
     .then((videoUrl) => {
       window.open(`potplayer://${videoUrl}`)
     })
@@ -155,7 +150,7 @@ function sendToPotPlayer() {
 function sendToAria2() {
   window.umami?.track('a-send-to-aria2', { key: newsKey })
   const rpcId = `HYN${new Date().getTime()}`
-  getVideoUrl()
+  getVideoUrl(props.news, props.source, props.channel)
     .then((videoUrl) => {
       const url = new URL(videoUrl) // 检测 URL 合法性
       const videoExt = url.pathname.split('.').length > 1 ? url.pathname.split('.').pop() : null

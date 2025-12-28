@@ -8,7 +8,6 @@ export const useSettingsStore = defineStore('settings', {
     showCover: true,
     showDateWeek: false,
     showVisited: false,
-    useWebPlayer: true,
     useGridView: false,
     fullWidth: false,
     aria2Config: {
@@ -23,6 +22,10 @@ export const useSettingsStore = defineStore('settings', {
     sourceCustom: [] as SourceCustomData[],
     channelCustom: [] as ChannelCustomData[],
     rssFilter: { } as RssFilterCache,
+
+    // Player settings
+    useWebPlayer: true,
+    autoPlayNext: true,
   }),
   getters: {
     newsItemConfig: (state) => {

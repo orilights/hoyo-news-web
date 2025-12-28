@@ -8,7 +8,7 @@ const props = defineProps<{
   option: Partial<Option>
 }>()
 
-const emit = defineEmits(['getInstance'])
+const emit = defineEmits(['getInstance', 'videoEnded', 'destroy'])
 
 const art = shallowRef<Artplayer | null>(null)
 const $container = ref<HTMLDivElement | null>(null)
@@ -17,12 +17,18 @@ onMounted(() => {
   art.value = new Artplayer({
     ...props.option,
     container: $container.value!,
-  } as Option)
+  } as Option, function onReady() {
+    this.play()
+  })
   emit('getInstance', art.value)
+  art.value.on('video:ended', () => {
+    emit('videoEnded')
+  })
 })
 
 onBeforeUnmount(() => {
-  art.value?.destroy(false)
+  art.value?.destroy()
+  emit('destroy')
 })
 </script>
 
