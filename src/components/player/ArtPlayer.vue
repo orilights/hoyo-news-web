@@ -20,9 +20,51 @@ onMounted(() => {
   } as Option, function onReady() {
     this.play()
   })
+
   emit('getInstance', art.value)
+
   art.value.on('video:ended', () => {
     emit('videoEnded')
+  })
+
+  art.value.controls.add({
+    name: 'previousFrame',
+    position: 'left',
+    html: art.value.icons.arrowLeft,
+    tooltip: '上一帧',
+    index: 25,
+    click() {
+      const player = art.value
+      if (!player)
+        return
+
+      if (player.playing) {
+        player.pause()
+      }
+
+      const frameDuration = 1.001 / 60
+      player.currentTime = Math.max(0, player.currentTime - frameDuration)
+    },
+  })
+
+  art.value.controls.add({
+    name: 'nextFrame',
+    position: 'left',
+    html: art.value.icons.arrowRight,
+    tooltip: '下一帧',
+    index: 26,
+    click() {
+      const player = art.value
+      if (!player)
+        return
+
+      if (player.playing) {
+        player.pause()
+      }
+
+      const frameDuration = 1.001 / 60
+      player.currentTime = Math.min(player.duration, player.currentTime + frameDuration)
+    },
   })
 })
 
