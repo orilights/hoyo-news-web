@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import type Artplayer from 'artplayer'
+import type { OverlayScrollbarsComponentRef } from 'overlayscrollbars-vue'
+import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue'
 import { storeToRefs } from 'pinia'
 import { DEFAULT_BANNER } from '@/constants'
 import { usePlayerStore } from '@/store/player'
@@ -20,7 +22,7 @@ const { title, videoId, videoSrc, playlist } = storeToRefs(playerStore)
 const { autoPlayNext } = storeToRefs(settings)
 
 const artInstance = ref<Artplayer | null>(null)
-const playlistScrollContainer = ref<HTMLDivElement | null>(null)
+const playlistScrollContainer = ref<OverlayScrollbarsComponentRef | null>(null)
 
 const playingIndex = computed(() => {
   if (!videoId.value || playlist.value.length === 0) {
@@ -30,9 +32,10 @@ const playingIndex = computed(() => {
 })
 
 function handleWheel(event: WheelEvent) {
-  if (playlistScrollContainer.value) {
-    event.preventDefault()
-    playlistScrollContainer.value.scrollLeft += event.deltaY
+  const scrollbar = playlistScrollContainer.value?.getElement()
+  const container = scrollbar?.querySelector('div[data-overlayscrollbars-contents]')
+  if (container) {
+    container.scrollLeft += event.deltaY
   }
 }
 
@@ -48,7 +51,8 @@ watch(playingIndex, (newIndex) => {
     return
 
   nextTick(() => {
-    const container = playlistScrollContainer.value
+    const scrollbar = playlistScrollContainer.value?.getElement()
+    const container = scrollbar?.querySelector('div[data-overlayscrollbars-contents]')
     if (!container)
       return
 
@@ -94,6 +98,8 @@ const playerOption = computed(() => ({
   fullscreen: true,
   playbackRate: true,
   aspectRatio: true,
+  fastForward: true,
+  lock: true,
   setting: true,
 }))
 
@@ -111,7 +117,7 @@ function handlePlayNext() {
 
 <template>
   <div v-show="videoSrc" class="fixed inset-0 z-50 flex h-screen w-screen items-center justify-center bg-black/30 backdrop-blur-sm">
-    <div class="w-full max-w-[960px] rounded-lg bg-white p-4 shadow-md">
+    <div class="w-full max-w-[960px] rounded-lg bg-white px-2 py-4 shadow-md md:px-4">
       <div class="mb-4 flex items-center justify-between">
         <div>{{ title }}</div>
         <button @click="playerStore.stopVideo()">
@@ -120,7 +126,7 @@ function handlePlayNext() {
       </div>
       <ArtPlayer
         v-if="videoSrc"
-        class="mx-auto"
+        class="mx-[-8px] md:mx-auto"
         :option="playerOption"
         @get-instance="handleGetInstance"
         @video-ended="handlePlayNext"
@@ -133,23 +139,32 @@ function handlePlayNext() {
             自动连播<Switch v-model="autoPlayNext" class="ml-2" />
           </div>
         </div>
-        <div ref="playlistScrollContainer" class="mt-2 w-full overflow-x-auto" @wheel="handleWheel">
-          <div class="flex space-x-2 pb-2">
+        <OverlayScrollbarsComponent
+          ref="playlistScrollContainer"
+          defer
+          class="mt-2 w-full"
+          :options="{
+            overflow: { x: 'scroll', y: 'hidden' },
+          }"
+
+          @wheel.stop="handleWheel"
+        >
+          <div class="flex space-x-2 pb-3">
             <button
               v-for="(item, index) in playlist"
               :key="index"
-              class="relative w-[200px] shrink-0 overflow-hidden whitespace-nowrap rounded-md bg-white text-sm hover:bg-slate-200"
+              class="relative w-[150px] shrink-0 overflow-hidden whitespace-nowrap rounded-md bg-white hover:bg-slate-200 md:w-[200px]"
               :title="item.title"
               @click="playerStore.playVideo(item)"
             >
               <div v-if="index === playingIndex" class="pointer-events-none absolute inset-0 rounded-md border-2 border-blue-500" />
-              <img class="h-[100px] w-full" loading="lazy" :src="item.coverUrl || DEFAULT_BANNER">
-              <div class="overflow-hidden text-ellipsis object-cover object-center p-2 text-sm">
+              <img class="h-[75px] w-full object-cover object-center md:h-[100px]" loading="lazy" :src="item.coverUrl || DEFAULT_BANNER">
+              <div class="overflow-hidden text-ellipsis p-0.5 text-xs md:p-2 md:text-sm">
                 {{ item.title }}
               </div>
             </button>
           </div>
-        </div>
+        </OverlayScrollbarsComponent>
       </div>
     </div>
   </div>

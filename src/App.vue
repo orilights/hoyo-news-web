@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useOverlayScrollbars } from 'overlayscrollbars-vue'
 import { storeToRefs } from 'pinia'
 import { useToast } from 'vue-toastification'
 import ChannelInfo from '@/components/ChannelInfo.vue'
@@ -15,15 +16,37 @@ import VideoPlayer from './components/VideoPlayer.vue'
 
 const mainStore = useMainStore()
 const settings = useSettingsStore()
-const { newsLoading } = storeToRefs(mainStore)
+const { newsLoading, lockBodyScroll } = storeToRefs(mainStore)
 const {
   useGridView,
   fullWidth,
 } = storeToRefs(settings)
 
 const toast = useToast()
+const [initBodyOverlayScrollbars, getOverlayScrollbarsInstance]
+  = useOverlayScrollbars({
+    defer: true,
+    options: {
+      scrollbars: {
+        theme: 'os-theme-dark',
+        clickScroll: true,
+      },
+    },
+  })
+
+watch(lockBodyScroll, (val) => {
+  const osInstance = getOverlayScrollbarsInstance()
+  if (val) {
+    osInstance?.options({ overflow: { y: 'hidden' }, scrollbars: { visibility: 'hidden' } })
+  }
+  else {
+    osInstance?.options({ overflow: { y: 'scroll' }, scrollbars: { visibility: 'auto' } })
+  }
+}, { immediate: true })
 
 onMounted(() => {
+  initBodyOverlayScrollbars(document.body)
+
   settings.initialize()
   mainStore.initialize()
 

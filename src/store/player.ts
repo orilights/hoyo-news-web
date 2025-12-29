@@ -19,15 +19,18 @@ export const usePlayerStore = defineStore('player', {
           this.title = newsData.title
           this.videoId = newsData.remoteId
           this.videoSrc = videoUrl || ''
+          mainStore.showVideoPlayer = true
         })
         .catch((err) => {
           useToast().error(err.message)
         })
     },
     stopVideo() {
+      const mainStore = useMainStore()
       this.title = ''
       this.videoId = ''
       this.videoSrc = ''
+      mainStore.showVideoPlayer = false
     },
     setPlaylist(playlist: NewsData[] = []) {
       this.playlist = playlist

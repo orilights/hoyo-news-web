@@ -33,6 +33,9 @@ export const useMainStore = defineStore('main', {
 
     customFilterCount: 0,
 
+    showRssInfo: false,
+    showVideoPlayer: false,
+
     toast: useToast(),
     queryParams: useUrlSearchParams('history'),
   }),
@@ -81,6 +84,9 @@ export const useMainStore = defineStore('main', {
         data.reverse()
 
       return data
+    },
+    lockBodyScroll(): boolean {
+      return this.showVideoPlayer || this.showRssInfo
     },
   },
   actions: {

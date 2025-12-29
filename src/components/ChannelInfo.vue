@@ -13,9 +13,8 @@ const {
   newsLoading,
   newsUpdateTime,
   channelConfig,
+  showRssInfo,
 } = storeToRefs(mainStore)
-
-const rssInfoVisible = ref(false)
 </script>
 
 <template>
@@ -35,11 +34,11 @@ const rssInfoVisible = ref(false)
         </span>
       </button>
     </template>
-    <button v-if="channelConfig.rss !== false" class="ml-2 hover:text-blue-500" @click="rssInfoVisible = true">
+    <button v-if="channelConfig.rss !== false" class="ml-2 hover:text-blue-500" @click="showRssInfo = true">
       <IconRss class="size-4" />
     </button>
     <Transition name="fade">
-      <RssInfo v-if="rssInfoVisible" @close="rssInfoVisible = false" />
+      <RssInfo v-if="showRssInfo" @close="showRssInfo = false" />
     </Transition>
   </div>
 </template>
