@@ -15,6 +15,32 @@ const $container = ref<HTMLDivElement | null>(null)
 
 Artplayer.PLAYBACK_RATE = [0.1, 0.5, 0.75, 1, 1.25, 1.5, 2, 3]
 
+function handleToPreviousFrame() {
+  const player = art.value
+  if (!player)
+    return
+
+  if (player.playing) {
+    player.pause()
+  }
+
+  const frameDuration = 1.001 / 60
+  player.currentTime = Math.max(0, player.currentTime - frameDuration)
+}
+
+function handleToNextFrame() {
+  const player = art.value
+  if (!player)
+    return
+
+  if (player.playing) {
+    player.pause()
+  }
+
+  const frameDuration = 1.001 / 60
+  player.currentTime = Math.min(player.duration, player.currentTime + frameDuration)
+}
+
 onMounted(() => {
   art.value = new Artplayer({
     ...props.option,
@@ -33,41 +59,23 @@ onMounted(() => {
     name: 'previousFrame',
     position: 'left',
     html: art.value.icons.arrowLeft,
-    tooltip: '上一帧',
+    tooltip: '上一帧(D)',
     index: 25,
-    click() {
-      const player = art.value
-      if (!player)
-        return
-
-      if (player.playing) {
-        player.pause()
-      }
-
-      const frameDuration = 1.001 / 60
-      player.currentTime = Math.max(0, player.currentTime - frameDuration)
-    },
+    click: handleToPreviousFrame,
   })
 
   art.value.controls.add({
     name: 'nextFrame',
     position: 'left',
     html: art.value.icons.arrowRight,
-    tooltip: '下一帧',
+    tooltip: '下一帧(F)',
     index: 26,
-    click() {
-      const player = art.value
-      if (!player)
-        return
-
-      if (player.playing) {
-        player.pause()
-      }
-
-      const frameDuration = 1.001 / 60
-      player.currentTime = Math.min(player.duration, player.currentTime + frameDuration)
-    },
+    click: handleToNextFrame,
   })
+
+  art.value.hotkey.add('KeyD', handleToPreviousFrame)
+
+  art.value.hotkey.add('KeyF', handleToNextFrame)
 })
 
 onBeforeUnmount(() => {

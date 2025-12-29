@@ -4,9 +4,10 @@ import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 
 import toastification from 'vue-toastification'
 import App from '@/App.vue'
-import '@/assets/tailwind.css'
 import 'vue-toastification/dist/index.css'
 import 'overlayscrollbars/overlayscrollbars.css'
+import '@/assets/tailwind.css'
+import '@/assets/style.css'
 
 OverlayScrollbars.plugin(ClickScrollPlugin)
 

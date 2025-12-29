@@ -104,51 +104,5 @@ function fetchNotice() {
 </template>
 
 <style>
-body {
-  overflow-x: hidden;
-  overflow-y: scroll;
-  @apply bg-gray-100;
-}
 
-em {
-  font-style: normal;
-  @apply text-red-600;
-}
-
-.popup-setting-enter-active,
-.popup-setting-leave-active,
-.popup-dialog-enter-active,
-.popup-dialog-leave-active,
-.popup-action-enter-active,
-.popup-action-leave-active {
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.popup-setting-enter-from,
-.popup-setting-leave-to {
-  opacity: 0;
-  transform: translate(10px, -10px) scale(0.9);
-}
-
-.popup-dialog-enter-from,
-.popup-dialog-leave-to {
-  opacity: 0;
-  transform: translateX(10px) scale(0.9);
-}
-
-.popup-action-enter-from,
-.popup-action-leave-to {
-  opacity: 0;
-  transform: translate(-15px, -5px) scale(0.9);
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
 </style>
