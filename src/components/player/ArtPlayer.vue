@@ -13,6 +13,8 @@ const emit = defineEmits(['getInstance', 'videoEnded', 'destroy'])
 const art = shallowRef<Artplayer | null>(null)
 const $container = ref<HTMLDivElement | null>(null)
 
+Artplayer.PLAYBACK_RATE = [0.1, 0.5, 0.75, 1, 1.25, 1.5, 2, 3]
+
 onMounted(() => {
   art.value = new Artplayer({
     ...props.option,
