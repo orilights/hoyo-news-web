@@ -12,11 +12,19 @@ const settings = useSettingsStore()
 const { newsLoading, currentSource, currentChannel } = storeToRefs(mainStore)
 const { autoHideHeader, headerSourceList } = storeToRefs(settings)
 
+const headerRef = ref<HTMLElement | null>(null)
+const headerPaddingRef = ref<HTMLElement | null>(null)
 const showSettingPanel = ref(false)
 const showHeader = ref(true)
 const lastScrollTop = ref(0)
 
 const tabs = computed(() => headerSourceList.value.find(item => item.key === currentSource.value)?.channels ?? [])
+
+const resizeObserver = new ResizeObserver((entries) => {
+  for (const entry of entries) {
+    headerPaddingRef.value!.style.height = `${entry.contentRect.height + 20}px`
+  }
+})
 
 function handleChangeDialogSettingVisible() {
   showSettingPanel.value = !showSettingPanel.value
@@ -42,16 +50,20 @@ function handleScroll() {
 
 onMounted(() => {
   window.addEventListener('scroll', handleScroll, { passive: true })
+  resizeObserver.observe(headerRef.value!)
 })
 
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
+  resizeObserver.disconnect()
 })
 </script>
 
 <template>
-  <div
-    class="header sticky top-0 z-10 mx-[-8px] bg-[#f3f4f6]/80 px-2 pt-4 backdrop-blur transition-all duration-300 md:mx-[-32px] md:px-8"
+  <div ref="headerPaddingRef" />
+  <header
+    ref="headerRef"
+    class="fixed inset-x-0 top-0 z-10 bg-[#f3f4f6]/80 px-2 pt-4 backdrop-blur transition-all duration-300 md:mx-0 md:px-4 lg:inset-x-[calc(50%-480px)] lg:mx-[-32px] lg:px-8"
     :class="{ '-translate-y-full': !showHeader }"
   >
     <div class="relative mb-2 flex flex-wrap gap-1 pr-6">
@@ -87,11 +99,11 @@ onUnmounted(() => {
     </div>
 
     <Tabs
-      class="mb-2 overflow-x-auto whitespace-nowrap"
+      class="overflow-x-auto whitespace-nowrap"
       :tabs="tabs"
       :selected-key="currentChannel"
       :disabled="newsLoading"
       @update:selected-key="mainStore.changeChannel($event!)"
     />
-  </div>
+  </header>
 </template>

@@ -107,6 +107,7 @@ function fetchNotice() {
 body {
   overflow-x: hidden;
   overflow-y: scroll;
+  @apply bg-gray-100;
 }
 
 em {
