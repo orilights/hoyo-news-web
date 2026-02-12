@@ -184,7 +184,7 @@ export default {
     meta: { video: true },
   },
   '角色复刻小记': {
-    keyword: ['小记', '概率UP'],
+    keyword: ['小记', '概率UP', '近闻'],
   },
   '角色技能演示': {
     keyword: ['技能演示', '角色技能展示'],
@@ -194,6 +194,7 @@ export default {
   },
   '开发组座谈会': {
     keyword: ['开发组座谈会', '更新施工笔记'],
+    include: ['bbs_cn.72281297'], // 月之四
   },
   '开发者共研计划': {
     keyword: ['开发者共研计划'],

@@ -97,7 +97,7 @@ export default {
     meta: { video: true },
   },
   '漫画': {
-    keyword: ['条漫', '四格漫画'],
+    keyword: ['条漫', '四格漫画', '趣味漫画'],
   },
   '声优小剧场': {
     keyword: ['蒙德茶会', '璃月雅集'],
@@ -185,7 +185,7 @@ export default {
     meta: { video: true },
   },
   '角色复刻小记': {
-    keyword: ['小记', '概率UP'],
+    keyword: ['小记', '概率UP', '近闻'],
   },
   '角色技能演示': {
     keyword: ['技能演示', '角色技能展示'],
@@ -195,6 +195,7 @@ export default {
   },
   '开发组座谈会': {
     keyword: ['开发组座谈会', '更新施工笔记'],
+    include: ['web_cn.162140'], // 月之四
   },
   '开发者共研计划': {
     keyword: ['开发者共研计划'],

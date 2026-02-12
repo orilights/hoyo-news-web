@@ -10,7 +10,7 @@ export default {
     meta: { video: true },
   },
   '版本更新说明': {
-    keyword: ['更新说明'],
+    keyword: [/版本.*更新(说明|公告)/],
   },
   '版本更新通知': {
     keyword: [/版本.*更新通知/],
@@ -23,6 +23,7 @@ export default {
   },
   '前瞻特别节目': {
     keyword: ['前瞻特别节目'],
+    include: ['web_cn.162455'], // 2.6 「妄想天使」出道发布会
     meta: { video: true },
   },
   '丽都修葺漫谈': {
@@ -91,7 +92,7 @@ export default {
     filter: { video: true },
   },
   '主线更新': {
-    keyword: [/新剧情.*主线/],
+    keyword: [/新剧情.*(主线|间章)/],
   },
   '独家视界更新': {
     keyword: ['独家视界开启'],
