@@ -34,8 +34,23 @@ export default {
   },
   '生日贺图': {
     keyword: ['生日贺图', /生日.*快乐/],
-    include: ['web_cn.116277'], // 神里绫华
+    include: [
+      'web_cn.155526', // 魈
+      'web_cn.116277', // 神里绫华
+    ],
     filter: { video: false },
+  },
+  '角色立绘': {
+    keyword: [],
+    include: [
+      'web_cn.116253', // 刻晴
+      'web_cn.116250', // 莫娜
+      'web_cn.116241', // 七七
+      'web_cn.116216', // 重云
+      'web_cn.116211', // 菲谢尔
+      'web_cn.116209', // 安柏
+      'web_cn.116207', // 主角
+    ],
   },
   '音乐会': {
     keyword: ['音乐会'],
