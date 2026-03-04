@@ -17,7 +17,6 @@ export const useMainStore = defineStore('main', {
   state: () => ({
     currentSource: Object.keys(NEWS_LIST)[0],
     currentChannel: Object.keys(NEWS_LIST[Object.keys(NEWS_LIST)[0]].channels)[0],
-    availableTags: [] as TagInfo[],
     filterTag: TAG_ALL,
     searchStr: '',
     sortBy: 'desc' as 'asc' | 'desc',
@@ -47,28 +46,33 @@ export const useMainStore = defineStore('main', {
     searchKeywords: (state) => {
       return state.searchStr.toLowerCase().trim().split(' ')
     },
-    newsDataFiltered() {
-      let data: NewsData[]
+    allTags: (state) => {
+      return getTags(state.newsData, state.currentSource, state.currentChannel)
+    },
+    newsDataKeywordFiltered(): NewsData[] {
+      let data: NewsData[] = this.newsData.slice()
       if (this.searchEnabled) {
-        data = this.newsData.filter(news =>
+        data = data.filter(news =>
           this.searchKeywords.every((v) => {
             const newsKey = `${news.title.toLowerCase()}${news.tag}${news.remoteId}`
             return newsKey.includes(v)
           }),
         )
       }
-      else if (this.filterTag === TAG_ALL) {
-        data = this.newsData.slice()
+      return data
+    },
+    newsDataFiltered(): NewsData[] {
+      let data: NewsData[] = this.newsDataKeywordFiltered.slice()
+
+      if (this.filterTag !== TAG_ALL) {
+        if (this.filterTag === TAG_VIDEO) {
+          data = data.filter(news => news.video)
+        }
+        else if (this.allTags.find(tag => tag.name === this.filterTag)) {
+          data = data.filter(news => news.tag === this.filterTag)
+        }
       }
-      else if (this.filterTag === TAG_VIDEO) {
-        data = this.newsData.filter(news => news.video)
-      }
-      else if (!this.availableTags.find(tag => tag.name === this.filterTag)) {
-        data = this.newsData.slice()
-      }
-      else {
-        data = this.newsData.filter(news => news.tag === this.filterTag)
-      }
+
       if (this.dateFilterStart) {
         data = data.filter(news =>
           new Date(news.startTime).getTime() >= new Date(`${this.dateFilterStart} 00:00:00`).getTime(),
@@ -84,6 +88,9 @@ export const useMainStore = defineStore('main', {
         data.reverse()
 
       return data
+    },
+    availableTags(): TagInfo[] {
+      return getTags(this.newsDataKeywordFiltered, this.currentSource, this.currentChannel)
     },
     lockBodyScroll(): boolean {
       return this.showVideoPlayer || this.showRssInfo
@@ -129,7 +136,6 @@ export const useMainStore = defineStore('main', {
       }
       this.newsLoading = true
       this.newsData = []
-      this.availableTags = []
       const params = {
         source: this.currentSource,
         channel: this.currentChannel,
@@ -153,7 +159,6 @@ export const useMainStore = defineStore('main', {
               )
               this.customFilterCount = res.list.length - this.newsData.length
             }
-            this.availableTags = getTags(this.newsData, params.source, params.channel)
             this.newsUpdateTime = res.lastSync
           }
         })
@@ -170,6 +175,7 @@ export const useMainStore = defineStore('main', {
     handleSourceChange() {
       this.queryParams.source = this.currentSource
       this.queryParams.channel = this.currentChannel
+      this.searchStr = ''
       this.filterTag = TAG_ALL
       delete this.queryParams.filterTag
       this.fetchData()
@@ -188,7 +194,6 @@ export const useMainStore = defineStore('main', {
     },
 
     changeTag(tag: string) {
-      this.searchStr = ''
       if (this.filterTag === tag)
         this.filterTag = TAG_ALL
       else

@@ -19,7 +19,7 @@ const {
 
 <template>
   <input
-    v-model="searchStr" type="text" placeholder="搜些什么吧"
+    v-model="searchStr" type="text" placeholder="请输入关键词（可使用空格分隔多个关键词）"
     class="mb-2 w-full rounded-full border px-4 py-2 outline-blue-500 transition-colors hover:border-blue-500"
   >
   <div v-show="searchEnabled" class="mb-2">
@@ -31,7 +31,7 @@ const {
     </button>
   </div>
 
-  <details v-show="!searchEnabled" class="mb-2" open>
+  <details class="mb-2" open>
     <summary>分类</summary>
     <TagList :tags="availableTags" :filter-tag="filterTag" @change-tag="mainStore.changeTag" />
   </details>

@@ -306,7 +306,7 @@ function onSourceDragEnd() {
             一个用于检索米哈游旗下游戏官网新闻的小工具
           </div>
           <div class="mb-2 flex items-center gap-2">
-            <span class="flex-1">作者</span>
+            <span class="flex-1">开发者</span>
             <a href="https://orilight.top" target="_blank" class="text-blue-500 hover:underline">
               OriLight
             </a>
