@@ -1,17 +1,15 @@
 <script setup lang="ts">
 import { useElementSize } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
-import { useToast } from 'vue-toastification'
 import LoadingIndicatorImage from '@/components/common/LoadingIndicatorImage.vue'
 import IconTag from '@/components/icon/IconTag.vue'
 import IconTime from '@/components/icon/IconTime.vue'
 import IconVideo from '@/components/icon/IconVideo.vue'
-import { DEFAULT_BANNER, LOAD_DELAY, NEWS_LIST } from '@/constants'
+import { useNewsItem } from '@/composables/newsItem'
+import { DEFAULT_BANNER } from '@/constants'
 import { useMainStore } from '@/store/main'
-import { usePlayerStore } from '@/store/player'
-import { useSettingsStore } from '@/store/settings'
-import { ChannelType, CoverSize } from '@/types/enum'
-import { copyToClipboard, formatDuration, getVideoUrl, getWeek, highlightText, sanitizeFilename } from '@/utils'
+import { CoverSize } from '@/types/enum'
+import { formatDuration, getWeek, highlightText } from '@/utils'
 
 const props = defineProps<{
   news: NewsItemData
@@ -23,25 +21,37 @@ const props = defineProps<{
 defineEmits(['changeFilter'])
 
 const mainStore = useMainStore()
-const playerStore = usePlayerStore()
-const settings = useSettingsStore()
 
 const { searchKeywords } = storeToRefs(mainStore)
-const { aria2Config, useWebPlayer } = storeToRefs(settings)
-let timer: NodeJS.Timeout | null = null
-const newsKey = `${props.source}_${props.channel}_${props.news.remoteId}`
+
+const {
+  channelConfig,
+  coverThumbnailUrl,
+  isNewsVisited,
+  newsUrl,
+  isLoadCover,
+  isCoverLoaded,
+  openNews,
+  openVideo,
+  copyLink,
+  copyCoverLink,
+  copyVideoLink,
+  sendToPotPlayer,
+  sendToAria2,
+  onImageLoaded,
+} = useNewsItem({
+  news: props.news,
+  source: props.source,
+  channel: props.channel,
+})
 
 const actionMenuRef = ref<HTMLElement | null>(null)
 const actionMenuWidth = useElementSize(actionMenuRef).width
 const distanceToRight = ref(0)
 const popupFromLeft = computed(() => distanceToRight.value < actionMenuWidth.value)
 
-const loadImage = ref(false)
-const imageLoaded = ref(false)
 const showAction = ref(false)
 
-const channelConfig = computed(() => NEWS_LIST[props.source].channels[props.channel])
-const newsUrl = computed(() => channelConfig.value.newsDetailLink.replace('{id}', String(props.news.remoteId)))
 const coverWidth = computed(() => {
   if (props.config.coverSize === CoverSize.Large) {
     return channelConfig.value.coverWidth
@@ -52,153 +62,6 @@ const coverWidth = computed(() => {
   return 75
 })
 const coverHeight = computed(() => props.config.coverSize === CoverSize.Large ? 150 : 75)
-const coverThumbnailUrl = computed(() => {
-  if (channelConfig.value.type === ChannelType.MIYOUSHE_BH3_WIKI) {
-    return `${props.news.coverUrl}?x-oss-process=image/quality,q_75/resize,h_300`
-  }
-  return props.news.coverUrl
-})
-const isNewsVisited = computed(() => mainStore.isNewsVisited(newsKey))
-
-onMounted(() => {
-  if (mainStore.imageLoaded.has(newsKey)) {
-    loadImage.value = true
-    return
-  }
-  timer = setTimeout(() => {
-    loadImage.value = true
-    timer = null
-  }, LOAD_DELAY)
-})
-
-onUnmounted(() => {
-  if (timer)
-    clearTimeout(timer)
-  // 确保组件销毁时移除事件监听器
-  document.removeEventListener('click', closeAction)
-})
-
-function openVideo() {
-  window.umami?.track('a-open-video', { key: newsKey })
-
-  if (useWebPlayer.value) {
-    playerStore.setCurrentListAsPlaylist()
-    playerStore.playVideo(props.news)
-  }
-  else {
-    getVideoUrl(props.news, props.source, props.channel)
-      .then((videoUrl) => {
-        window.open(videoUrl, '_blank')
-      })
-      .catch((err) => {
-        useToast().error(err.message)
-      })
-  }
-}
-
-function copyLink() {
-  window.umami?.track('a-copy-news-link', { key: newsKey })
-  copyToClipboard(newsUrl.value)
-    .then(() => {
-      useToast().success('已复制链接')
-    })
-    .catch((err) => {
-      useToast().error(err?.message || '复制失败')
-    })
-}
-
-function copyCoverLink() {
-  window.umami?.track('a-copy-cover-link', { key: newsKey })
-  copyToClipboard(props.news.coverUrl)
-    .then(() => {
-      useToast().success('已复制封面链接')
-    })
-    .catch((err) => {
-      useToast().error(err?.message || '复制失败')
-    })
-}
-
-async function copyVideoLink() {
-  window.umami?.track('a-copy-video-link', { key: newsKey })
-
-  getVideoUrl(props.news, props.source, props.channel)
-    .then((videoUrl) => {
-      copyToClipboard(videoUrl)
-        .then(() => {
-          useToast().success('已复制视频链接')
-        })
-        .catch((err) => {
-          useToast().error(err?.message || '复制失败')
-        })
-    })
-    .catch((err) => {
-      useToast().error(err.message)
-    })
-}
-
-function sendToPotPlayer() {
-  window.umami?.track('a-send-to-potplayer', { key: newsKey })
-  getVideoUrl(props.news, props.source, props.channel)
-    .then((videoUrl) => {
-      window.open(`potplayer://${videoUrl}`)
-    })
-    .catch((err) => {
-      useToast().error(err.message)
-    })
-}
-
-function sendToAria2() {
-  window.umami?.track('a-send-to-aria2', { key: newsKey })
-  const rpcId = `HYN${new Date().getTime()}`
-  getVideoUrl(props.news, props.source, props.channel)
-    .then((videoUrl) => {
-      const url = new URL(videoUrl) // 检测 URL 合法性
-      const videoExt = url.pathname.split('.').length > 1 ? url.pathname.split('.').pop() : null
-      const videoOutName = sanitizeFilename(
-        aria2Config.value.filename
-          .replace('{newsTitle}', sanitizeFilename(props.news.title))
-          .replace('{ext}', videoExt || 'mp4'),
-      )
-      fetch(aria2Config.value.rpcUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          jsonrpc: '2.0',
-          id: rpcId,
-          method: 'aria2.addUri',
-          params: [`token:${aria2Config.value.rpcSecret}`, [videoUrl], {
-            out: videoOutName,
-          }],
-        }),
-      })
-        .then(res => res.json())
-        .then((data) => {
-          if (data.error) {
-            useToast().error(`aria2 返回错误：${data.error.message}`)
-          }
-          else {
-            useToast().success('已发送至 aria2 RPC')
-          }
-        })
-        .catch(() => {
-          useToast().error('请求失败，请检测 aria2 配置')
-        })
-    })
-}
-
-function onImageLoaded() {
-  imageLoaded.value = true
-  mainStore.imageLoaded.add(newsKey)
-}
-
-function onClick() {
-  window.umami?.track('a-visit-news', { key: newsKey })
-  if (!props.config.showVisited)
-    return
-  mainStore.setNewsVisited(newsKey)
-}
 
 function checkPopupDirection(target: HTMLElement | null) {
   if (!target)
@@ -226,6 +89,11 @@ function closeAction() {
   showAction.value = false
   document.removeEventListener('click', closeAction)
 }
+
+onUnmounted(() => {
+  // 确保组件销毁时移除事件监听器
+  document.removeEventListener('click', closeAction)
+})
 </script>
 
 <template>
@@ -237,7 +105,7 @@ function closeAction() {
     <a
       :href="newsUrl" :title="news.title"
       class="group flex rounded-md border-2 border-transparent bg-white p-2 transition-colors hover:border-blue-500 sm:p-3"
-      target="_blank" @click="onClick"
+      target="_blank" @click="openNews"
     >
       <div
         v-if="config.showBanner && channelConfig.coverWidth"
@@ -246,10 +114,10 @@ function closeAction() {
           height: `${coverHeight}px`,
         }"
       >
-        <LoadingIndicatorImage v-if="!imageLoaded" class="w-10" />
+        <LoadingIndicatorImage v-if="!isCoverLoaded" class="w-10" />
         <Transition name="fade">
           <img
-            v-show="imageLoaded" :src="loadImage ? (coverThumbnailUrl || DEFAULT_BANNER) : ''"
+            v-show="isCoverLoaded" :src="isLoadCover ? (coverThumbnailUrl || DEFAULT_BANNER) : ''"
             class="absolute size-full rounded-md bg-gray-100 object-cover sm:object-contain" alt="banner"
             referrerpolicy="no-referrer" @load="onImageLoaded"
           >

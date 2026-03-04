@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
 import LoadingIndicatorImage from '@/components/common/LoadingIndicatorImage.vue'
-import { DEFAULT_BANNER, LOAD_DELAY, NEWS_LIST } from '@/constants'
+import { useNewsItem } from '@/composables/newsItem'
+import { DEFAULT_BANNER } from '@/constants'
 import { useMainStore } from '@/store/main'
-import { usePlayerStore } from '@/store/player'
-import { useSettingsStore } from '@/store/settings'
 import { formatDuration, formatTime, highlightText } from '@/utils'
 
 const props = defineProps<{
@@ -15,55 +14,22 @@ const props = defineProps<{
 }>()
 
 const mainStore = useMainStore()
-const playerStore = usePlayerStore()
-const settings = useSettingsStore()
-
-let timer: NodeJS.Timeout | null = null
-const newsKey = `${props.source}_${props.channel}_${props.news.remoteId}`
 
 const { searchKeywords } = storeToRefs(mainStore)
-const { useWebPlayer } = storeToRefs(settings)
-const loadImage = ref(false)
-const imageLoaded = ref(false)
 
-const channelConfig = computed(() => NEWS_LIST[props.source].channels[props.channel])
-const isNewsVisited = computed(() => mainStore.isNewsVisited(newsKey))
-
-onMounted(() => {
-  if (mainStore.imageLoaded.has(newsKey)) {
-    loadImage.value = true
-    imageLoaded.value = true
-    return
-  }
-  timer = setTimeout(() => {
-    loadImage.value = true
-    timer = null
-  }, LOAD_DELAY)
+const {
+  channelConfig,
+  coverThumbnailUrl,
+  isNewsVisited,
+  isLoadCover,
+  isCoverLoaded,
+  openNews,
+  onImageLoaded,
+} = useNewsItem({
+  news: props.news,
+  source: props.source,
+  channel: props.channel,
 })
-
-onUnmounted(() => {
-  if (timer)
-    clearTimeout(timer)
-})
-
-function onImageLoaded() {
-  imageLoaded.value = true
-  mainStore.imageLoaded.add(newsKey)
-}
-
-function onClick(event: PointerEvent) {
-  window.umami?.track('a-visit-news', { key: newsKey })
-  if (props.config.showVisited) {
-    mainStore.setNewsVisited(newsKey)
-  }
-
-  if (useWebPlayer.value && props.news.video) {
-    event.preventDefault()
-    window.umami?.track('a-open-video', { key: newsKey })
-    playerStore.setCurrentListAsPlaylist()
-    playerStore.playVideo(props.news)
-  }
-}
 </script>
 
 <template>
@@ -71,7 +37,7 @@ function onClick(event: PointerEvent) {
     class="group cursor-pointer"
     :href="channelConfig.newsDetailLink.replace('{id}', String(news.remoteId))"
     target="_blank"
-    @click="onClick"
+    @click="openNews"
   >
     <div class="relative h-[120px] w-full overflow-hidden rounded-xl bg-slate-200">
       <div v-if="news.video?.duration" class="absolute bottom-2 right-2 z-[5] rounded-md bg-black/60 px-1 text-xs text-white opacity-80 transition-opacity group-hover:opacity-100">
@@ -79,14 +45,14 @@ function onClick(event: PointerEvent) {
       </div>
       <div class="absolute inset-0 flex items-center justify-center">
         <LoadingIndicatorImage
-          v-if="!imageLoaded"
+          v-if="!isCoverLoaded"
           class="w-8 opacity-50"
         />
       </div>
       <Transition name="fade">
         <img
-          v-show="imageLoaded"
-          :src="loadImage ? (news.coverUrl || DEFAULT_BANNER) : ''"
+          v-show="isCoverLoaded"
+          :src="isLoadCover ? (coverThumbnailUrl || DEFAULT_BANNER) : ''"
           class="size-full object-cover transition-transform duration-300 group-hover:scale-105"
           alt="banner"
           referrerpolicy="no-referrer"
