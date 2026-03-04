@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
 import TagList from '@/components/TagList.vue'
+import { TAG_ALL } from '@/constants'
 import { useMainStore } from '@/store/main'
 
 const mainStore = useMainStore()
 
 const {
   availableTags,
-  newsDataFiltered,
+  newsDataKeywordFiltered,
   filterTag,
   searchStr,
   searchEnabled,
@@ -24,11 +25,19 @@ const {
   >
   <div v-show="searchEnabled" class="mb-2">
     <span>
-      搜索结果：{{ newsDataFiltered.length }} 条
+      搜索到 {{ newsDataKeywordFiltered.length }} 个结果
     </span>
-    <button class="ml-4 hover:text-blue-500" @click="searchStr = ''">
+    <button class="ml-2 text-gray-500 hover:text-blue-500" @click="searchStr = ''">
       取消搜索
     </button>
+    <template v-if="filterTag !== TAG_ALL">
+      <span class="ml-4">
+        当前过滤：{{ filterTag }}
+      </span>
+      <button class="ml-2 text-gray-500 hover:text-blue-500" @click="mainStore.changeTag(TAG_ALL)">
+        取消过滤
+      </button>
+    </template>
   </div>
 
   <details class="mb-2" open>
