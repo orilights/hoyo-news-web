@@ -9,25 +9,24 @@ import { copyToClipboard, getVideoUrl, sanitizeFilename } from '@/utils'
 
 interface NewsItemOptions {
   news: NewsData
-  source: string
-  channel: string
 }
 
 export function useNewsItem(options: NewsItemOptions) {
-  const { news, source, channel } = options
+  const { news } = options
 
   const mainStore = useMainStore()
   const playerStore = usePlayerStore()
   const settings = useSettingsStore()
+  const { currentSource, currentChannel } = storeToRefs(mainStore)
   const { aria2Config, useWebPlayer, showVisited } = storeToRefs(settings)
 
   let timer: NodeJS.Timeout | null = null
   const isLoadCover = ref(false)
   const isCoverLoaded = ref(false)
 
-  const newsKey = `${source}_${channel}_${news.remoteId}`
+  const newsKey = `${currentSource.value}_${currentChannel.value}_${news.remoteId}`
 
-  const channelConfig = computed(() => NEWS_LIST[source].channels[channel])
+  const channelConfig = computed(() => NEWS_LIST[currentSource.value].channels[currentChannel.value])
 
   const newsUrl = computed(() => channelConfig.value.newsDetailLink.replace('{id}', String(news.remoteId)))
   const coverThumbnailUrl = computed(() => {
@@ -63,7 +62,7 @@ export function useNewsItem(options: NewsItemOptions) {
       playerStore.playVideo(news)
     }
     else {
-      getVideoUrl(news, source, channel)
+      getVideoUrl(news, currentSource.value, currentChannel.value)
         .then((videoUrl) => {
           window.open(videoUrl, '_blank')
         })
@@ -98,7 +97,7 @@ export function useNewsItem(options: NewsItemOptions) {
   async function copyVideoLink() {
     window.umami?.track('a-copy-video-link', { key: newsKey })
 
-    getVideoUrl(news, source, channel)
+    getVideoUrl(news, currentSource.value, currentChannel.value)
       .then((videoUrl) => {
         copyToClipboard(videoUrl)
           .then(() => {
@@ -115,7 +114,7 @@ export function useNewsItem(options: NewsItemOptions) {
 
   function sendToPotPlayer() {
     window.umami?.track('a-send-to-potplayer', { key: newsKey })
-    getVideoUrl(news, source, channel)
+    getVideoUrl(news, currentSource.value, currentChannel.value)
       .then((videoUrl) => {
         window.open(`potplayer://${videoUrl}`)
       })
@@ -127,7 +126,7 @@ export function useNewsItem(options: NewsItemOptions) {
   function sendToAria2() {
     window.umami?.track('a-send-to-aria2', { key: newsKey })
     const rpcId = `HYN${new Date().getTime()}`
-    getVideoUrl(news, source, channel)
+    getVideoUrl(news, currentSource.value, currentChannel.value)
       .then((videoUrl) => {
         const url = new URL(videoUrl) // 检测 URL 合法性
         const videoExt = url.pathname.split('.').length > 1 ? url.pathname.split('.').pop() : null

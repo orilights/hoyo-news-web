@@ -27,7 +27,7 @@ declare global {
   }
 
   interface NewsItemConfig {
-    showBanner: boolean
+    showCover: boolean
     showDateWeek: boolean
     showVisited: boolean
     coverSize: CoverSize

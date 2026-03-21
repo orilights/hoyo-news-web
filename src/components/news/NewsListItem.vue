@@ -13,8 +13,6 @@ import { formatDuration, getWeek, highlightText } from '@/utils'
 
 const props = defineProps<{
   news: NewsItemData
-  source: string
-  channel: string
   config: NewsItemConfig
 }>()
 
@@ -41,8 +39,6 @@ const {
   onImageLoaded,
 } = useNewsItem({
   news: props.news,
-  source: props.source,
-  channel: props.channel,
 })
 
 const actionMenuRef = ref<HTMLElement | null>(null)
@@ -108,7 +104,7 @@ onUnmounted(() => {
       target="_blank" @click="openNews"
     >
       <div
-        v-if="config.showBanner && channelConfig.coverWidth"
+        v-if="config.showCover && channelConfig.coverWidth"
         class="relative mr-2 flex shrink-0 items-center justify-center md:mr-4" :style="{
           width: `${coverWidth}px`,
           height: `${coverHeight}px`,

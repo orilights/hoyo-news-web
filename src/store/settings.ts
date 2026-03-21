@@ -30,7 +30,7 @@ export const useSettingsStore = defineStore('settings', {
   getters: {
     newsItemConfig: (state) => {
       return {
-        showBanner: state.showCover,
+        showCover: state.showCover,
         showDateWeek: state.showDateWeek,
         showVisited: state.showVisited,
       }

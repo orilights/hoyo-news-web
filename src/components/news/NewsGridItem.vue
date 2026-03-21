@@ -8,8 +8,6 @@ import { formatDuration, formatTime, highlightText } from '@/utils'
 
 const props = defineProps<{
   news: NewsData
-  source: string
-  channel: string
   config: Omit<NewsItemConfig, 'coverSize'>
 }>()
 
@@ -27,8 +25,6 @@ const {
   onImageLoaded,
 } = useNewsItem({
   news: props.news,
-  source: props.source,
-  channel: props.channel,
 })
 </script>
 

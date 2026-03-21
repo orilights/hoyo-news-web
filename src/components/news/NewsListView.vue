@@ -13,7 +13,7 @@ const toast = useToast()
 const mainStore = useMainStore()
 const settings = useSettingsStore()
 
-const { currentSource, currentChannel, newsDataFiltered, sortBy } = storeToRefs(mainStore)
+const { newsDataFiltered, sortBy } = storeToRefs(mainStore)
 const { newsItemConfig } = storeToRefs(settings)
 const { coverSize } = useCoverSize()
 
@@ -98,16 +98,12 @@ function scrollByDate(date: string) {
     <NewsListItem
       ref="shadowItemRef"
       :news="SHADOW_ITEM"
-      :source="currentSource"
-      :channel="currentChannel"
       :config="config"
       :style="{ pointerEvent: 'none', userSelect: 'none' }"
     />
     <NewsListItem
       v-for="news_data in renderList" :key="news_data.remoteId"
       :news="news_data"
-      :source="currentSource"
-      :channel="currentChannel"
       :config="config"
       @change-filter="mainStore.changeTag"
     />

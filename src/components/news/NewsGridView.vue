@@ -16,7 +16,7 @@ import { useSettingsStore } from '@/store/settings'
 const mainStore = useMainStore()
 const settings = useSettingsStore()
 
-const { currentSource, currentChannel, newsDataFiltered } = storeToRefs(mainStore)
+const { newsDataFiltered } = storeToRefs(mainStore)
 const { newsItemConfig } = storeToRefs(settings)
 const parentRef = ref<HTMLElement>()
 
@@ -88,8 +88,6 @@ onMounted(() => {
           <NewsGridItem
             v-for="item in rows[virtualRow.index]" :key="item.remoteId"
             :news="item"
-            :source="currentSource"
-            :channel="currentChannel"
             :config="newsItemConfig"
           />
         </div>
