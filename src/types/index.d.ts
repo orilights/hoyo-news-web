@@ -104,6 +104,8 @@ declare global {
     [cacheKey: string]: {
       whitelist: string[]
       blacklist: string[]
+      contentWhitelist?: string[]
+      contentBlacklist?: string[]
     }
   }
 
