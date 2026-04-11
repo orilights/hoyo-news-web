@@ -1,6 +1,6 @@
 import { storeToRefs } from 'pinia'
 import { useToast } from 'vue-toastification'
-import { LOAD_DELAY, NEWS_LIST } from '@/constants'
+import { DEFAULT_BANNER, LOAD_DELAY, NEWS_LIST } from '@/constants'
 import { useMainStore } from '@/store/main'
 import { usePlayerStore } from '@/store/player'
 import { useSettingsStore } from '@/store/settings'
@@ -20,7 +20,7 @@ export function useNewsItem(options: NewsItemOptions) {
   const { currentSource, currentChannel } = storeToRefs(mainStore)
   const { aria2Config, useWebPlayer, showVisited } = storeToRefs(settings)
 
-  let timer: NodeJS.Timeout | null = null
+  let timer: ReturnType<typeof setTimeout> | null = null
   const isLoadCover = ref(false)
   const isCoverLoaded = ref(false)
 
@@ -30,6 +30,9 @@ export function useNewsItem(options: NewsItemOptions) {
 
   const newsUrl = computed(() => channelConfig.value.newsDetailLink.replace('{id}', String(news.remoteId)))
   const coverThumbnailUrl = computed(() => {
+    if (!news.coverUrl) {
+      return DEFAULT_BANNER
+    }
     if (channelConfig.value.type === ChannelType.MIYOUSHE_NEWS || channelConfig.value.type === ChannelType.MIYOUSHE_NEWS_SUB) {
       return `${news.coverUrl}?x-oss-process=image/resize,s_300/quality,q_80/auto-orient,0/interlace,1/format,jpg`
     }

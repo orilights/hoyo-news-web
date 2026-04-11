@@ -6,7 +6,6 @@ import IconTag from '@/components/icon/IconTag.vue'
 import IconTime from '@/components/icon/IconTime.vue'
 import IconVideo from '@/components/icon/IconVideo.vue'
 import { useNewsItem } from '@/composables/newsItem'
-import { DEFAULT_BANNER } from '@/constants'
 import { useMainStore } from '@/store/main'
 import { CoverSize } from '@/types/enum'
 import { formatDuration, getWeek, highlightText } from '@/utils'
@@ -113,7 +112,7 @@ onUnmounted(() => {
         <LoadingIndicatorImage v-if="!isCoverLoaded" class="w-10" />
         <Transition name="fade">
           <img
-            v-show="isCoverLoaded" :src="isLoadCover ? (coverThumbnailUrl || DEFAULT_BANNER) : ''"
+            v-show="isCoverLoaded" :src="isLoadCover ? coverThumbnailUrl : ''"
             class="absolute size-full rounded-md bg-gray-100 object-cover sm:object-contain" alt="banner"
             referrerpolicy="no-referrer" @load="onImageLoaded"
           >

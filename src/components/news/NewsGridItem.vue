@@ -2,7 +2,6 @@
 import { storeToRefs } from 'pinia'
 import LoadingIndicatorImage from '@/components/common/LoadingIndicatorImage.vue'
 import { useNewsItem } from '@/composables/newsItem'
-import { DEFAULT_BANNER } from '@/constants'
 import { useMainStore } from '@/store/main'
 import { formatDuration, formatTime, highlightText } from '@/utils'
 
@@ -48,7 +47,7 @@ const {
       <Transition name="fade">
         <img
           v-show="isCoverLoaded"
-          :src="isLoadCover ? (coverThumbnailUrl || DEFAULT_BANNER) : ''"
+          :src="isLoadCover ? coverThumbnailUrl : ''"
           class="size-full object-cover transition-transform duration-300 group-hover:scale-105"
           alt="banner"
           referrerpolicy="no-referrer"
