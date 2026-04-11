@@ -128,7 +128,7 @@ export function useNewsItem(options: NewsItemOptions) {
 
   function sendToAria2() {
     window.umami?.track('a-send-to-aria2', { key: newsKey })
-    const rpcId = `HYN${new Date().getTime()}`
+    const rpcId = `HYN${Date.now()}`
     getVideoUrl(news, currentSource.value, currentChannel.value)
       .then((videoUrl) => {
         const url = new URL(videoUrl) // 检测 URL 合法性

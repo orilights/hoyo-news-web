@@ -68,13 +68,13 @@ function scrollByDate(date: string) {
   if (sortBy.value === 'desc') {
     target = newsList.value.find(news => new Date(news.startTime) <= new Date(`${date} 23:59:59`))
     if (!target) {
-      target = newsList.value[newsList.value.length - 1]
+      target = newsList.value.at(-1)
     }
   }
   else {
     target = newsList.value.find(news => new Date(news.startTime) >= new Date(`${date} 00:00:00`))
     if (!target) {
-      target = newsList.value[newsList.value.length - 1]
+      target = newsList.value.at(-1)
     }
   }
   if (target) {

@@ -22,10 +22,10 @@ const dateRange = computed(() => {
   if (newsDataFiltered.value.length) {
     if (sortBy.value === 'asc') {
       range.min = formatTime(newsDataFiltered.value[0].startTime, true)
-      range.max = formatTime(newsDataFiltered.value[newsDataFiltered.value.length - 1].startTime, true)
+      range.max = formatTime(newsDataFiltered.value.at(-1)!.startTime, true)
     }
     else {
-      range.min = formatTime(newsDataFiltered.value[newsDataFiltered.value.length - 1].startTime, true)
+      range.min = formatTime(newsDataFiltered.value.at(-1)!.startTime, true)
       range.max = formatTime(newsDataFiltered.value[0].startTime, true)
     }
   }

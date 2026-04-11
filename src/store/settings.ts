@@ -71,13 +71,13 @@ export const useSettingsStore = defineStore('settings', {
       }))
 
       Object.keys(NEWS_LIST).forEach((sourceKey) => {
-        if (!this.sourceCustom.find(item => item.key === sourceKey)) {
+        if (!this.sourceCustom.some(item => item.key === sourceKey)) {
           this.sourceCustom.push({ key: sourceKey, channels: [] })
         }
         const source = this.sourceCustom.find(item => item.key === sourceKey)
         Object.keys(NEWS_LIST[sourceKey].channels)
           .forEach((channelKey) => {
-            if (!source!.channels.find(item => item.key === channelKey)) {
+            if (!source!.channels.some(item => item.key === channelKey)) {
               source!.channels.push({ key: channelKey, enable: true })
             }
           })

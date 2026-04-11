@@ -68,7 +68,7 @@ export const useMainStore = defineStore('main', {
         if (this.filterTag === TAG_VIDEO) {
           data = data.filter(news => news.video)
         }
-        else if (this.allTags.find(tag => tag.name === this.filterTag)) {
+        else if (this.allTags.some(tag => tag.name === this.filterTag)) {
           data = data.filter(news => news.tag === this.filterTag)
         }
       }

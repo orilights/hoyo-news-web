@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
 import { useToast } from 'vue-toastification'
+import { UNSAFE_CHARS_REGEX } from '@/constants'
 import { useMainStore } from '@/store/main'
 import { useSettingsStore } from '@/store/settings'
 import { copyToClipboard } from '@/utils'
@@ -60,8 +61,7 @@ function generateRssLink(encode = true) {
 
 function validateFilterInput(input: string) {
   // 检查是否包含URL中需要转义的特殊字符
-  const unsafeChars = /[ #%'()*+,/;<=>?@[\\\]^`{|}]/
-  return !unsafeChars.test(input)
+  return !UNSAFE_CHARS_REGEX.test(input)
 }
 
 function addWhitelist() {
