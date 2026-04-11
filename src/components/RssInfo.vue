@@ -27,34 +27,54 @@ const {
 const filterInput = ref({
   whitelist: '',
   blacklist: '',
+  contentWhitelist: '',
+  contentBlacklist: '',
 })
 
-const whitelist = ref<string[]>([])
-const blacklist = ref<string[]>([])
+const titleWhitelist = ref<string[]>([])
+const titleBlacklist = ref<string[]>([])
+const contentWhitelist = ref<string[]>([])
+const contentBlacklist = ref<string[]>([])
 
 const cacheKey = computed(() => `${currentSource.value}_${currentChannel.value}`)
 
 onMounted(() => {
-  whitelist.value = rssFilter.value[cacheKey.value]?.whitelist || []
-  blacklist.value = rssFilter.value[cacheKey.value]?.blacklist || []
+  titleWhitelist.value = rssFilter.value[cacheKey.value]?.whitelist || []
+  titleBlacklist.value = rssFilter.value[cacheKey.value]?.blacklist || []
+  contentWhitelist.value = rssFilter.value[cacheKey.value]?.contentWhitelist || []
+  contentBlacklist.value = rssFilter.value[cacheKey.value]?.contentBlacklist || []
 })
 
 function saveFilter() {
   settings.rssFilter[cacheKey.value] = {
-    whitelist: whitelist.value,
-    blacklist: blacklist.value,
+    whitelist: titleWhitelist.value,
+    blacklist: titleBlacklist.value,
+    contentWhitelist: contentWhitelist.value,
+    contentBlacklist: contentBlacklist.value,
   }
 }
 
 function generateRssLink(encode = true) {
   let baseRssUrl = `${channelConfig.value.apiBase}/news/feed/${currentSource.value}.${currentChannel.value}`
-  if (whitelist.value.length) {
-    const whitelistStr = whitelist.value.join(',')
-    baseRssUrl += `?whitelist=${encode ? encodeURIComponent(whitelistStr) : whitelistStr}`
+  let firstParam = true
+  if (titleWhitelist.value.length) {
+    const whitelistStr = titleWhitelist.value.join(',')
+    baseRssUrl += `${firstParam ? '?' : '&'}whitelist=${encode ? encodeURIComponent(whitelistStr) : whitelistStr}`
+    firstParam = false
   }
-  if (blacklist.value.length) {
-    const blacklistStr = blacklist.value.join(',')
-    baseRssUrl += `${whitelist.value.length ? '&' : '?'}blacklist=${encode ? encodeURIComponent(blacklistStr) : blacklistStr}`
+  if (titleBlacklist.value.length) {
+    const blacklistStr = titleBlacklist.value.join(',')
+    baseRssUrl += `${firstParam ? '?' : '&'}blacklist=${encode ? encodeURIComponent(blacklistStr) : blacklistStr}`
+    firstParam = false
+  }
+  if (contentWhitelist.value.length) {
+    const contentWhitelistStr = contentWhitelist.value.join(',')
+    baseRssUrl += `${firstParam ? '?' : '&'}contentWhitelist=${encode ? encodeURIComponent(contentWhitelistStr) : contentWhitelistStr}`
+    firstParam = false
+  }
+  if (contentBlacklist.value.length) {
+    const contentBlacklistStr = contentBlacklist.value.join(',')
+    baseRssUrl += `${firstParam ? '?' : '&'}contentBlacklist=${encode ? encodeURIComponent(contentBlacklistStr) : contentBlacklistStr}`
   }
   return baseRssUrl.toString()
 }
@@ -64,28 +84,15 @@ function validateFilterInput(input: string) {
   return !UNSAFE_CHARS_REGEX.test(input)
 }
 
-function addWhitelist() {
-  const value = filterInput.value.whitelist.trim()
+function addFilterItem(inputKey: keyof typeof filterInput.value, list: string[]) {
+  const value = filterInput.value[inputKey].trim()
   if (!validateFilterInput(value)) {
     toast.warning('关键词中不能包含特殊符号或空格')
     return
   }
-  if (value && !whitelist.value.includes(value)) {
-    whitelist.value.push(value)
-    filterInput.value.whitelist = ''
-    saveFilter()
-  }
-}
-
-function addBlacklist() {
-  const value = filterInput.value.blacklist.trim()
-  if (!validateFilterInput(value)) {
-    toast.warning('关键词中不能包含特殊符号或空格')
-    return
-  }
-  if (value && !blacklist.value.includes(value)) {
-    blacklist.value.push(value)
-    filterInput.value.blacklist = ''
+  if (value && !list.includes(value)) {
+    list.push(value)
+    filterInput.value[inputKey] = ''
     saveFilter()
   }
 }
@@ -122,19 +129,19 @@ function copyRssLink() {
       <div class="mt-2">
         <div class="flex gap-2">
           <div class="shrink-0">
-            关键词白名单：
+            标题关键词白名单：
           </div>
           <input v-model="filterInput.whitelist" placeholder="请输入" type="text" class="flex-1 border px-2">
           <button
             class="shrink-0 rounded-md border px-2 py-0.5 transition-colors hover:border-blue-500"
-            @click="addWhitelist"
+            @click="addFilterItem('whitelist', titleWhitelist)"
           >
             添加
           </button>
         </div>
         <div class="flex flex-wrap gap-1">
-          <template v-for="(item, index) in whitelist" :key="`whitelist-${index}`">
-            <span class="rounded bg-green-100 px-2 py-0.5" @click="removeFilterItem(whitelist, index)">
+          <template v-for="(item, index) in titleWhitelist" :key="`whitelist-${index}`">
+            <span class="rounded bg-green-100 px-2 py-0.5" @click="removeFilterItem(titleWhitelist, index)">
               {{ item }}
             </span>
           </template>
@@ -144,19 +151,63 @@ function copyRssLink() {
       <div class="mt-2">
         <div class="flex gap-2">
           <div class="shrink-0">
-            关键词黑名单：
+            标题关键词黑名单：
           </div>
           <input v-model="filterInput.blacklist" placeholder="请输入" type="text" class="flex-1 border px-2">
           <button
             class="shrink-0 rounded-md border px-2 py-0.5 transition-colors hover:border-blue-500"
-            @click="addBlacklist"
+            @click="addFilterItem('blacklist', titleBlacklist)"
           >
             添加
           </button>
         </div>
         <div class="flex flex-wrap gap-1">
-          <template v-for="(item, index) in blacklist" :key="`blacklist-${index}`">
-            <span class="rounded bg-red-100 px-2 py-0.5" @click="removeFilterItem(blacklist, index)">
+          <template v-for="(item, index) in titleBlacklist" :key="`blacklist-${index}`">
+            <span class="rounded bg-red-100 px-2 py-0.5" @click="removeFilterItem(titleBlacklist, index)">
+              {{ item }}
+            </span>
+          </template>
+        </div>
+      </div>
+
+      <div class="mt-2">
+        <div class="flex gap-2">
+          <div class="shrink-0">
+            内容关键词白名单：
+          </div>
+          <input v-model="filterInput.contentWhitelist" placeholder="请输入" type="text" class="flex-1 border px-2">
+          <button
+            class="shrink-0 rounded-md border px-2 py-0.5 transition-colors hover:border-blue-500"
+            @click="addFilterItem('contentWhitelist', contentWhitelist)"
+          >
+            添加
+          </button>
+        </div>
+        <div class="flex flex-wrap gap-1">
+          <template v-for="(item, index) in contentWhitelist" :key="`content-whitelist-${index}`">
+            <span class="rounded bg-green-100 px-2 py-0.5" @click="removeFilterItem(contentWhitelist, index)">
+              {{ item }}
+            </span>
+          </template>
+        </div>
+      </div>
+
+      <div class="mt-2">
+        <div class="flex gap-2">
+          <div class="shrink-0">
+            内容关键词黑名单：
+          </div>
+          <input v-model="filterInput.contentBlacklist" placeholder="请输入" type="text" class="flex-1 border px-2">
+          <button
+            class="shrink-0 rounded-md border px-2 py-0.5 transition-colors hover:border-blue-500"
+            @click="addFilterItem('contentBlacklist', contentBlacklist)"
+          >
+            添加
+          </button>
+        </div>
+        <div class="flex flex-wrap gap-1">
+          <template v-for="(item, index) in contentBlacklist" :key="`content-blacklist-${index}`">
+            <span class="rounded bg-red-100 px-2 py-0.5" @click="removeFilterItem(contentBlacklist, index)">
               {{ item }}
             </span>
           </template>
