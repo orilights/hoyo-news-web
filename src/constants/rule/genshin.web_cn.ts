@@ -200,7 +200,7 @@ export default {
     meta: { video: true },
   },
   '角色复刻小记': {
-    keyword: ['小记', '概率UP', '近闻'],
+    keyword: ['小记', '侧记', '概率UP', '近闻'],
   },
   '角色技能演示': {
     keyword: ['技能演示', '角色技能展示'],
