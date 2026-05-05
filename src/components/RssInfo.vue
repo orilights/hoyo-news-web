@@ -87,7 +87,7 @@ function validateFilterInput(input: string) {
 function addFilterItem(inputKey: keyof typeof filterInput.value, list: string[]) {
   const value = filterInput.value[inputKey].trim()
   if (!validateFilterInput(value)) {
-    toast.warning('关键词中不能包含特殊符号或空格')
+    toast.warning('关键词中不能包含特殊符号')
     return
   }
   if (value && !list.includes(value)) {

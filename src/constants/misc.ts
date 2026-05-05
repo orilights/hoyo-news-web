@@ -56,4 +56,4 @@ export const DEFAULT_KEYWORD_BLACKLIST = [
   '米游币祈愿盒',
 ]
 
-export const UNSAFE_CHARS_REGEX = /[ #%'()*+,/;<=>?@[\\\]^`{|}]/
+export const UNSAFE_CHARS_REGEX = /[#%'()*+,/;<=>?@[\\\]^`{|}]/
