@@ -10,7 +10,7 @@ import { useSettingsStore } from '@/store/settings'
 const mainStore = useMainStore()
 const settings = useSettingsStore()
 const { newsLoading, currentSource, currentChannel } = storeToRefs(mainStore)
-const { autoHideHeader, headerSourceList } = storeToRefs(settings)
+const { autoHideHeader, headerSourceList, fullWidth } = storeToRefs(settings)
 
 const headerRef = ref<HTMLElement | null>(null)
 const headerPaddingRef = ref<HTMLElement | null>(null)
@@ -63,8 +63,11 @@ onUnmounted(() => {
   <div ref="headerPaddingRef" />
   <header
     ref="headerRef"
-    class="fixed inset-x-0 top-0 z-10 bg-[#f3f4f6]/80 px-2 pt-4 backdrop-blur transition-all duration-300 md:mx-0 md:px-4 lg:inset-x-[calc(50%-480px)] lg:mx-[-32px] lg:px-8"
-    :class="{ '-translate-y-full': !showHeader }"
+    class="fixed inset-x-0 top-0 z-10 bg-[#f3f4f6]/80 px-2 pt-4 backdrop-blur transition-all duration-300 md:mx-0 md:px-4 lg:mx-[-32px] lg:px-8"
+    :class="{
+      '-translate-y-full': !showHeader,
+      'lg:inset-x-[calc(50%-480px)]': !fullWidth,
+      'lg:inset-x-10': fullWidth }"
   >
     <div class="relative mb-2 flex flex-wrap gap-1 pr-6">
       <button
