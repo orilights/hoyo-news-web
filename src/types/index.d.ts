@@ -69,6 +69,7 @@ declare global {
     filter?: {
       video?: boolean
     }
+    func?: (news: NewsData) => boolean
   }
 
   interface SourceClassifyRule {

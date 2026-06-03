@@ -48,6 +48,45 @@ export default {
     ],
     filter: { video: false },
   },
+  '情人节贺图': {
+    keyword: [],
+    func: (news) => {
+      if (!news.title.trim().startsWith('原神｜') && !news.title.trim().includes('原神 |'))
+        return false
+      const date = new Date(news.startTime)
+      return date.getMonth() === 1 && date.getDate() === 14
+    },
+    include: [
+      'bbs_cn.4411767', // 甘雨
+      'bbs_cn.4411766', // 刻晴
+    ],
+    exclude: [
+      'bbs_cn.49255842',
+    ],
+  },
+  '白情贺图': {
+    keyword: [],
+    func: (news) => {
+      if (!news.title.trim().startsWith('原神｜') && !news.title.trim().includes('原神 |'))
+        return false
+      const date = new Date(news.startTime)
+      return date.getMonth() === 2 && date.getDate() === 14
+    },
+    include: [
+      'bbs_cn.4942848', // 钟离
+      'bbs_cn.4942847', // 公子
+    ],
+  },
+  '节日贺图': {
+    keyword: ['元旦快乐', '中秋快乐', '除夕快乐', '端午佳节'],
+    include: [
+      'bbs_cn.40569021', // 2023端午
+      'bbs_cn.9750973', // 2021中秋
+      'bbs_cn.6807440', // 2021端午
+      'bbs_cn.4321629', // 2021除夕
+      'bbs_cn.1959692', // 2020中秋
+    ],
+  },
   '角色立绘': {
     keyword: [],
     include: [
@@ -223,6 +262,22 @@ export default {
   '角色逸闻': {
     keyword: ['角色逸闻'],
     meta: { video: true },
+  },
+  '角色轶事': {
+    keyword: ['轶事', /天使的「..」/, '关于法尔伽的事实'],
+    include: [
+      'bbs_cn.74365326', // 莉奈娅
+      'bbs_cn.74344005', // 莉奈娅
+      'bbs_cn.74244097', // 莉奈娅
+      'bbs_cn.73022162', // 兹白
+      'bbs_cn.72479679', // 哥伦比娅
+      'bbs_cn.71268782', // 温迪
+      'bbs_cn.70176197', // 奈芙尔
+      'bbs_cn.68548857', // 菈乌玛
+      'bbs_cn.66832544', // 伊涅芙
+      'bbs_cn.66644565', // 伊涅芙
+      'bbs_cn.65622451', // 丝柯克
+    ],
   },
   '角色复刻小记': {
     keyword: ['小记', '侧记', '概率UP', '近闻'],

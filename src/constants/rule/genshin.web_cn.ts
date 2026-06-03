@@ -40,6 +40,30 @@ export default {
     ],
     filter: { video: false },
   },
+  '情人节贺图': {
+    keyword: [],
+    func: (news) => {
+      if (!news.title.trim().startsWith('原神｜') && !news.title.trim().includes('原神 |'))
+        return false
+      const date = new Date(news.startTime)
+      return date.getMonth() === 1 && date.getDate() === 14
+    },
+    exclude: [
+      'web_cn.122500',
+    ],
+  },
+  '白情贺图': {
+    keyword: [],
+    func: (news) => {
+      if (!news.title.trim().startsWith('原神｜') && !news.title.trim().includes('原神 |'))
+        return false
+      const date = new Date(news.startTime)
+      return date.getMonth() === 2 && date.getDate() === 14
+    },
+  },
+  '节日贺图': {
+    keyword: ['元旦快乐', '中秋快乐', '中秋节快乐', '除夕快乐', '端午安康', '端午佳节'],
+  },
   '角色立绘': {
     keyword: [],
     include: [
@@ -198,6 +222,22 @@ export default {
   '角色逸闻': {
     keyword: ['角色逸闻'],
     meta: { video: true },
+  },
+  '角色轶事': {
+    keyword: ['轶事', /天使的「..」/, '关于法尔伽的事实'],
+    include: [
+      'web_cn.163323', // 莉奈娅
+      'web_cn.163406', // 莉奈娅
+      'web_cn.163420', // 莉奈娅
+      'web_cn.162618', // 兹白
+      'web_cn.162217', // 哥伦比娅
+      'web_cn.161370', // 温迪
+      'web_cn.160697', // 奈芙尔
+      'web_cn.159412', // 菈乌玛
+      'web_cn.157789', // 伊涅芙
+      'web_cn.158001', // 伊涅芙
+      'web_cn.157224', // 丝柯克
+    ],
   },
   '角色复刻小记': {
     keyword: ['小记', '侧记', '概率UP', '近闻'],

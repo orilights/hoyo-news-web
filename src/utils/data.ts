@@ -92,6 +92,10 @@ export function getNewsType(news: NewsData, source: string, channel: string): { 
     if (rule.filter?.video === false && video)
       continue
 
+    if (rule.func && rule.func(news)) {
+      return { type, rule }
+    }
+
     for (const keyword of rule.keyword) {
       if (typeof keyword === 'string') {
         if (title.includes(keyword))
