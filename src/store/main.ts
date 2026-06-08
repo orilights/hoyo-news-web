@@ -109,9 +109,9 @@ export const useMainStore = defineStore('main', {
       }
       if (this.queryParams.filterTag)
         this.filterTag = this.queryParams.filterTag as string
-      if (this.queryParams.source)
+      if (this.queryParams.source && Object.keys(NEWS_LIST).includes(this.queryParams.source as string))
         this.currentSource = this.queryParams.source as string
-      if (this.queryParams.channel)
+      if (this.queryParams.channel && Object.keys(NEWS_LIST[this.currentSource].channels).includes(this.queryParams.channel as string))
         this.currentChannel = this.queryParams.channel as string
       else
         this.currentChannel = Object.keys(NEWS_LIST[this.currentSource].channels)[0]
