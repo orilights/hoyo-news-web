@@ -3,7 +3,7 @@ import { storeToRefs } from 'pinia'
 import LoadingIndicatorImage from '@/components/common/LoadingIndicatorImage.vue'
 import { useNewsItem } from '@/composables/newsItem'
 import { useMainStore } from '@/store/main'
-import { formatDuration, formatTime, highlightText } from '@/utils'
+import { formatDuration, formatTime, getWeek, highlightText } from '@/utils'
 
 const props = defineProps<{
   news: NewsData
@@ -65,7 +65,7 @@ const {
         v-html="highlightText(news.title, searchKeywords)"
       />
       <div class="mt-1 text-xs text-gray-500">
-        {{ formatTime(news.startTime, true) }}
+        {{ formatTime(news.startTime, true) }} <span v-if="config.showDateWeek">星期{{ getWeek(news.startTime) }}</span>
       </div>
     </div>
   </a>

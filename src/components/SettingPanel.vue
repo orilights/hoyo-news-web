@@ -147,7 +147,7 @@ function onSourceDragEnd() {
             <span class="flex-1">显示封面</span>
             <Switch v-model="showCover" class="ml-2" />
           </div>
-          <div v-if="!useGridView" class="mb-2 flex items-center">
+          <div class="mb-2 flex items-center">
             <span class="flex-1">发布时间显示星期</span>
             <Switch v-model="showDateWeek" class="ml-2" />
           </div>
