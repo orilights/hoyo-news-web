@@ -35,7 +35,7 @@ export default {
     meta: { video: true },
   },
   '幕后花絮': {
-    keyword: ['幕后'],
+    keyword: ['幕后', 'ZTALK'],
     meta: { video: true },
   },
   '代理人档案': {
@@ -46,6 +46,12 @@ export default {
   },
   '代理人采访手记': {
     keyword: ['采访手记'],
+  },
+  '代理人未归档影像': {
+    keyword: ['代理人未归档影像'],
+  },
+  '丽都有丽事': {
+    keyword: ['丽都有丽事'],
   },
   '角色头像': {
     keyword: ['角色头像'],
@@ -104,8 +110,8 @@ export default {
   '生日贺图': {
     keyword: ['生日快乐'],
   },
-  '时装杂志': {
-    keyword: ['New Eridan'],
+  '时装展示': {
+    keyword: ['New Eridan', '全新时装展示'],
   },
   '过塑手账': {
     keyword: ['过塑手账'],
@@ -164,4 +170,4 @@ export default {
     meta: { video: true },
     filter: { video: true },
   },
-} as SourceClassifyRule
+} satisfies SourceClassifyRule

@@ -83,6 +83,25 @@ export default {
   '角色回顾': {
     keyword: ['角色回顾'],
   },
+  '情人节贺图': {
+    keyword: [],
+    func: (news) => {
+      if (!news.title.trim().includes('星旅留影'))
+        return false
+      const date = new Date(news.startTime)
+      return date.getMonth() === 1 && date.getDate() === 14
+    },
+    exclude: ['bbs_cn.49255840'],
+  },
+  '白情贺图': {
+    keyword: [],
+    func: (news) => {
+      if (!news.title.trim().includes('星旅留影'))
+        return false
+      const date = new Date(news.startTime)
+      return date.getMonth() === 2 && date.getDate() === 14
+    },
+  },
   '星旅留影': {
     keyword: ['星旅留影'],
   },
@@ -111,7 +130,7 @@ export default {
     keyword: ['之卷', '翁法罗斯之章'],
   },
   '强敌侦察笔记': {
-    keyword: [/强敌.*侦察笔记/],
+    keyword: [/强敌.*侦察笔记/, '强敌侦察狸记'],
   },
   '绘画作品展示': {
     keyword: ['绘画征集活动作品展示', '绘画征集活动获奖名单'],
@@ -174,4 +193,4 @@ export default {
     meta: { video: true },
     filter: { video: true },
   },
-} as SourceClassifyRule
+} satisfies SourceClassifyRule

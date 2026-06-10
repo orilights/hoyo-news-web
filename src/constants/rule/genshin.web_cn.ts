@@ -226,6 +226,7 @@ export default {
   '角色轶事': {
     keyword: ['轶事', /天使的「..」/, '关于法尔伽的事实'],
     include: [
+      'web_cn.164637', // 洛恩
       'web_cn.163323', // 莉奈娅
       'web_cn.163406', // 莉奈娅
       'web_cn.163420', // 莉奈娅
@@ -276,4 +277,4 @@ export default {
     meta: { video: true },
     filter: { video: true },
   },
-} as SourceClassifyRule
+} satisfies SourceClassifyRule

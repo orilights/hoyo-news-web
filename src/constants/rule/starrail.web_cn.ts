@@ -79,4 +79,4 @@ export default {
     meta: { video: true },
     filter: { video: true },
   },
-} as SourceClassifyRule
+} satisfies SourceClassifyRule
