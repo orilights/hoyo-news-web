@@ -7,8 +7,6 @@ import {
   GRID_COLUMN_COUNT_DEFAULT,
   GRID_COLUMN_COUNT_MIN,
   GRID_ITEM_GAP,
-  GRID_ITEM_WIDTH_MIN,
-  GRID_ROW_HEIGHT,
 } from '@/constants'
 import { useMainStore } from '@/store/main'
 import { useSettingsStore } from '@/store/settings'
@@ -17,17 +15,16 @@ const mainStore = useMainStore()
 const settings = useSettingsStore()
 
 const { newsDataFiltered } = storeToRefs(mainStore)
-const { newsItemConfig } = storeToRefs(settings)
+const { newsItemConfig, gridCardMinWidth, gridCoverMode } = storeToRefs(settings)
 const parentRef = ref<HTMLElement>()
+const { width: containerWidth } = useElementSize(parentRef)
 
 const columnCount = ref(GRID_COLUMN_COUNT_DEFAULT)
 
 function updateColumnCount() {
-  if (!parentRef.value)
-    return
-  const containerWidth = parentRef.value.offsetWidth
-  const availableWidth = containerWidth - GRID_ITEM_GAP * 2
-  const columns = Math.floor(availableWidth / (GRID_ITEM_WIDTH_MIN + GRID_ITEM_GAP))
+  const availableWidth = containerWidth.value - GRID_ITEM_GAP * 2
+  const itemMinWidth = gridCardMinWidth.value
+  const columns = Math.floor(availableWidth / (itemMinWidth + GRID_ITEM_GAP))
   columnCount.value = Math.max(GRID_COLUMN_COUNT_MIN, columns)
 }
 
@@ -39,19 +36,30 @@ const rows = computed(() => {
   return result
 })
 
-const { width } = useElementSize(parentRef)
-watch(width, updateColumnCount, { immediate: true })
-
 const virtualizer = useWindowVirtualizer({
   get count() {
     return rows.value.length
   },
-  estimateSize: () => GRID_ROW_HEIGHT,
+  estimateSize: () => {
+    const contentHeight = 106
+    if (gridCoverMode.value === 'square') {
+      const cols = Math.max(columnCount.value, 1)
+      const cardWidth = (containerWidth.value - GRID_ITEM_GAP * (cols - 1)) / cols
+      return cardWidth + contentHeight
+    }
+    return 224
+  },
   overscan: 1,
+  gap: GRID_ITEM_GAP,
   get scrollMargin() {
     return parentRef.value?.offsetTop || 0
   },
 })
+
+watch(containerWidth, updateColumnCount, { immediate: true })
+watch(containerWidth, virtualizer.value.measure)
+watch(gridCoverMode, virtualizer.value.measure)
+watch(gridCardMinWidth, updateColumnCount)
 
 onMounted(() => {
   nextTick(() => {
@@ -89,6 +97,7 @@ onMounted(() => {
             v-for="item in rows[virtualRow.index]" :key="item.remoteId"
             :news="item"
             :config="newsItemConfig"
+            @change-filter="mainStore.changeTag"
           />
         </div>
       </div>

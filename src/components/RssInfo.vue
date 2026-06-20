@@ -113,7 +113,7 @@ function copyRssLink() {
 
 <template>
   <Transition name="fade">
-    <div v-show="showRssInfo" class="fixed inset-0 z-50 h-screen w-screen bg-black/30">
+    <div v-show="showRssInfo" class="fixed inset-0 z-50 h-screen w-screen bg-black/30 backdrop-blur-sm">
       <div class="size-full" @click="showRssInfo = false" />
       <div class="fixed left-1/2 top-1/2 z-50 w-[500px] max-w-full -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white p-4 shadow-md">
         <div class="mb-2 font-bold">

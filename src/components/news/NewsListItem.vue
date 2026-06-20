@@ -99,12 +99,12 @@ onUnmounted(() => {
   >
     <a
       :href="newsUrl" :title="news.title"
-      class="group flex rounded-md border-2 border-transparent bg-white p-2 transition-colors hover:border-blue-500 sm:p-3"
+      class="group flex rounded-md border-2 border-transparent bg-white p-2 transition-colors hover:border-blue-500 lg:p-3"
       target="_blank" @click="openNews"
     >
       <div
         v-if="config.showCover && channelConfig.coverWidth"
-        class="relative mr-2 flex shrink-0 items-center justify-center md:mr-4" :style="{
+        class="relative mr-2 flex shrink-0 items-center justify-center lg:mr-4" :style="{
           width: `${coverWidth}px`,
           height: `${coverHeight}px`,
         }"
@@ -120,27 +120,27 @@ onUnmounted(() => {
       </div>
       <div class="flex min-w-0 flex-1 flex-col self-stretch">
         <h2
-          :title="news.title" class="w-full truncate font-bold transition-colors md:text-lg" :class="{
+          :title="news.title" class="w-full truncate font-bold transition-colors lg:text-lg" :class="{
             'text-gray-400': config.showVisited && isNewsVisited,
           }" v-html="highlightText(news.title, searchKeywords)"
         />
-        <div class="my-1 flex flex-wrap gap-x-2 gap-y-0.5 whitespace-nowrap text-xs md:my-2 md:text-sm">
+        <div class="my-1 flex flex-wrap gap-x-2 gap-y-0.5 whitespace-nowrap text-xs lg:my-2 lg:text-sm">
           <div
             title="筛选此标签"
-            class="flex items-center gap-1 rounded-full border border-slate-200 bg-slate-100 px-1 py-0.5 text-xs text-gray-600 transition-colors hover:bg-slate-200 md:px-2 md:py-1 md:text-sm"
+            class="flex items-center gap-1 rounded-full border border-slate-200 bg-slate-100 px-1 py-0.5 text-xs text-gray-600 transition-colors hover:bg-slate-200 lg:px-2 lg:py-1 lg:text-sm"
             @click.stop.prevent="$emit('changeFilter', news.tag)"
           >
-            <IconTag class="size-4 p-0.5 md:size-5" />
+            <IconTag class="size-4 p-0.5 lg:size-5" />
             <span class="max-w-[100px]">
               {{ news.tag }}
             </span>
           </div>
           <div
             v-if="news.video" title="播放视频"
-            class="flex items-center gap-1 rounded-full border border-slate-200 bg-slate-100 px-1 py-0.5 text-xs text-gray-600 transition-colors hover:bg-slate-200 md:px-2 md:py-1 md:text-sm"
+            class="flex items-center gap-1 rounded-full border border-slate-200 bg-slate-100 px-1 py-0.5 text-xs text-gray-600 transition-colors hover:bg-slate-200 lg:px-2 lg:py-1 lg:text-sm"
             @click.stop.prevent="openVideo"
           >
-            <IconVideo class="size-4 p-0.5 md:size-5" />
+            <IconVideo class="size-4 p-0.5 lg:size-5" />
             <span v-if="news.video.duration">
               {{ formatDuration(news.video.duration) }}
             </span>
@@ -149,18 +149,18 @@ onUnmounted(() => {
             </span>
           </div>
         </div>
-        <div class="mt-auto flex flex-wrap gap-x-2 gap-y-0.5 whitespace-nowrap text-xs md:text-sm">
+        <div class="mt-auto flex flex-wrap gap-x-2 gap-y-0.5 whitespace-nowrap text-xs lg:text-sm">
           <div
-            class="flex items-center gap-1 rounded-full border border-slate-200 bg-slate-100 px-1 py-0.5 text-xs text-gray-600 md:px-2 md:py-1 md:text-sm"
+            class="flex items-center gap-1 rounded-full border border-slate-200 bg-slate-100 px-1 py-0.5 text-xs text-gray-600 lg:px-2 lg:py-1 lg:text-sm"
           >
-            <IconTime class="size-4 p-0.5 md:size-5" />
+            <IconTime class="size-4 p-0.5 lg:size-5" />
             <span>
               {{ news.startTime }} <span v-if="config.showDateWeek">星期{{ getWeek(news.startTime) }}</span>
             </span>
           </div>
           <div
             title="更多操作"
-            class="action-button relative flex items-center gap-1 rounded-full border border-slate-200  p-0.5 text-xs text-gray-600 transition-colors hover:bg-slate-200 md:p-1 md:text-sm"
+            class="action-button relative flex items-center gap-1 rounded-full border border-slate-200  p-0.5 text-xs text-gray-600 transition-colors hover:bg-slate-200 lg:p-1 lg:text-sm"
             :class="{
               'bg-slate-200': showAction,
               'bg-slate-100': !showAction,
@@ -168,7 +168,7 @@ onUnmounted(() => {
           >
             <svg
               xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
-              class="size-4 p-0.5 md:size-5"
+              class="size-4 p-0.5 lg:size-5"
             >
               <path
                 d="M3 10a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0ZM8.5 10a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0ZM15.5 8.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z"

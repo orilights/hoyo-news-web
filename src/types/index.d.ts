@@ -31,6 +31,7 @@ declare global {
     showDateWeek: boolean
     showVisited: boolean
     coverSize: CoverSize
+    coverMode: 'fixed' | 'square'
   }
 
   interface SourceInfo {

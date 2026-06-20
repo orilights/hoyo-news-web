@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
 import LoadingIndicatorImage from '@/components/common/LoadingIndicatorImage.vue'
+import IconTag from '@/components/icon/IconTag.vue'
+import IconTime from '@/components/icon/IconTime.vue'
 import { useNewsItem } from '@/composables/newsItem'
 import { useMainStore } from '@/store/main'
 import { formatDuration, formatTime, getWeek, highlightText } from '@/utils'
@@ -9,6 +11,8 @@ const props = defineProps<{
   news: NewsData
   config: Omit<NewsItemConfig, 'coverSize'>
 }>()
+
+defineEmits(['changeFilter'])
 
 const mainStore = useMainStore()
 
@@ -29,12 +33,15 @@ const {
 
 <template>
   <a
-    class="group cursor-pointer"
+    class="group flex cursor-pointer flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all hover:border-blue-400 hover:shadow-md"
     :href="channelConfig.newsDetailLink.replace('{id}', String(news.remoteId))"
     target="_blank"
     @click="openNews"
   >
-    <div class="relative h-[120px] w-full overflow-hidden rounded-xl bg-slate-200">
+    <div
+      class="relative w-full overflow-hidden bg-slate-200"
+      :class="config.coverMode === 'square' ? 'aspect-square' : 'h-[120px]'"
+    >
       <div v-if="news.video?.duration" class="absolute bottom-2 right-2 z-[5] rounded-md bg-black/60 px-1 text-xs text-white opacity-80 transition-opacity group-hover:opacity-100">
         {{ formatDuration(news.video.duration) }}
       </div>
@@ -48,24 +55,37 @@ const {
         <img
           v-show="isCoverLoaded"
           :src="isLoadCover ? coverThumbnailUrl : ''"
-          class="size-full object-cover transition-transform duration-300 group-hover:scale-105"
+          class="size-full transition-transform duration-300 group-hover:scale-105"
+          :class="config.coverMode === 'square' ? 'object-contain' : 'object-cover'"
           alt="banner"
           referrerpolicy="no-referrer"
           @load="onImageLoaded"
         >
       </Transition>
     </div>
-    <div class="mt-1 px-1">
+    <div class="flex flex-1 flex-col p-2">
       <div
-        class="line-clamp-2 h-[32px] text-xs font-bold"
+        class="line-clamp-2 h-[39px] text-xs font-bold leading-relaxed"
         :class="{
           'text-gray-400': config.showVisited && isNewsVisited,
         }"
         :title="news.title"
         v-html="highlightText(news.title, searchKeywords)"
       />
-      <div class="mt-1 text-xs text-gray-500">
-        {{ formatTime(news.startTime, true) }} <span v-if="config.showDateWeek">星期{{ getWeek(news.startTime) }}</span>
+      <div class="mt-1.5 flex flex-wrap items-center gap-1 text-xs text-gray-500">
+        <div
+          v-if="news.tag"
+          class="inline-flex items-center gap-0.5 rounded-full border border-gray-200 bg-gray-50 px-1.5 py-0.5 text-xs text-gray-600"
+          @click.stop.prevent="$emit('changeFilter', news.tag)"
+        >
+          <IconTag class="size-3 shrink-0" />
+          <span class="max-w-[80px] truncate">{{ news.tag }}</span>
+        </div>
+      </div>
+      <div class="mt-auto flex items-center gap-1 pt-1.5 text-xs text-gray-400">
+        <IconTime class="size-3 shrink-0" />
+        <span>{{ formatTime(news.startTime, true) }}</span>
+        <span v-if="config.showDateWeek">星期{{ getWeek(news.startTime) }}</span>
       </div>
     </div>
   </a>

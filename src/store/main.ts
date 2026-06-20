@@ -1,4 +1,4 @@
-import { useUrlSearchParams } from '@vueuse/core'
+import { useMediaQuery, useUrlSearchParams } from '@vueuse/core'
 import { defineStore } from 'pinia'
 import { useToast } from 'vue-toastification'
 import { getNewsApi } from '@/api/news'
@@ -36,6 +36,7 @@ export const useMainStore = defineStore('main', {
     showRssInfo: false,
     showVideoPlayer: false,
     showMobileSidebar: false,
+    isMobile: useMediaQuery('(max-width: 767px)'),
 
     toast: useToast(),
     queryParams: useUrlSearchParams('history'),

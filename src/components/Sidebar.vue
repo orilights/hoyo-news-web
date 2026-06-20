@@ -1,24 +1,21 @@
 <script setup lang="ts">
-import { useMediaQuery } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 import IconClose from '@/components/icon/IconClose.vue'
 import { useMainStore } from '@/store/main'
 import NewsFilter from './NewsFilter.vue'
 
 const mainStore = useMainStore()
-const { showMobileSidebar } = storeToRefs(mainStore)
-
-const isDesktop = useMediaQuery('(min-width: 768px)')
+const { showMobileSidebar, isMobile } = storeToRefs(mainStore)
 </script>
 
 <template>
-  <div v-if="isDesktop" class="w-[400px]">
-    <div class="fixed left-0 top-0 h-screen w-[400px] overflow-y-auto border-r bg-white p-4" @scroll.stop @wheel.stop>
+  <div v-if="!isMobile" class="w-[300px] lg:w-[400px]">
+    <div class="fixed left-0 top-0 h-screen w-[300px] overflow-y-auto border-r bg-white p-4 lg:w-[400px]" @scroll.stop @wheel.stop>
       <NewsFilter />
     </div>
   </div>
 
-  <Transition v-if="!isDesktop" name="mobile-sidebar">
+  <Transition v-if="isMobile" name="mobile-sidebar">
     <div
       v-show=" showMobileSidebar"
       class="fixed inset-0 z-50"

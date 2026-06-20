@@ -9,7 +9,6 @@ export const useSettingsStore = defineStore('settings', {
     showDateWeek: false,
     showVisited: false,
     useGridView: false,
-    fullWidth: false,
     aria2Config: {
       rpcUrl: ARIA2_RPC_URL,
       rpcSecret: '',
@@ -26,6 +25,9 @@ export const useSettingsStore = defineStore('settings', {
 
     useWebPlayer: true,
     autoPlayNext: true,
+
+    gridCardMinWidth: 240,
+    gridCoverMode: 'fixed' as 'fixed' | 'square',
   }),
   getters: {
     newsItemConfig: (state) => {
@@ -33,6 +35,7 @@ export const useSettingsStore = defineStore('settings', {
         showCover: state.showCover,
         showDateWeek: state.showDateWeek,
         showVisited: state.showVisited,
+        coverMode: state.gridCoverMode,
       }
     },
     headerSourceList() {

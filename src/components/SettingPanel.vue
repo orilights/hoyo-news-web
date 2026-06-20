@@ -4,11 +4,12 @@ import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue'
 import { storeToRefs } from 'pinia'
 import { useToast } from 'vue-toastification'
 import Draggable from 'vuedraggable'
+import DropdownSelect from '@/components/common/DropdownSelect.vue'
 import Switch from '@/components/common/Switch.vue'
 import Tabs from '@/components/common/Tabs.vue'
 import IconChevronDown from '@/components/icon/IconChevronDown.vue'
 import IconMove from '@/components/icon/IconMove.vue'
-import { BUILD_COMMIT, BUILD_DATE, NEWS_LIST, SETTING_TABS } from '@/constants'
+import { BUILD_COMMIT, BUILD_DATE, GRID_CARD_WIDTH_OPTIONS, GRID_COVER_MODE_OPTIONS, NEWS_LIST, SETTING_TABS } from '@/constants'
 import { useMainStore } from '@/store/main'
 import { useSettingsStore } from '@/store/settings'
 import { getChannelLabel } from '@/types/enum'
@@ -21,14 +22,15 @@ const visible = defineModel<boolean>('visible')
 const toast = useToast()
 const mainStore = useMainStore()
 const settings = useSettingsStore()
-const { currentChannel, newsDataFiltered, customFilterCount } = storeToRefs(mainStore)
+const { currentChannel, newsDataFiltered, customFilterCount, isMobile } = storeToRefs(mainStore)
 const {
   showCover,
   showDateWeek,
   showVisited,
   useWebPlayer,
   useGridView,
-  fullWidth,
+  gridCardMinWidth,
+  gridCoverMode,
   aria2Config,
   customFilter,
   autoHideHeader,
@@ -46,6 +48,11 @@ const dragOptions = {
   disabled: false,
   ghostClass: 'ghost',
 }
+
+const gridCardMinWidthStr = computed({
+  get: () => String(gridCardMinWidth.value),
+  set: (v) => { gridCardMinWidth.value = Number(v) },
+})
 
 watch(() => customFilter.value.enable, () => {
   mainStore.handleSourceChange()
@@ -139,9 +146,19 @@ function onSourceDragEnd() {
             <span class="flex-1">网格视图</span>
             <Switch v-model="useGridView" class="ml-2" />
           </div>
-          <div class="mb-2 flex items-center">
-            <span class="flex-1">宽屏模式</span>
-            <Switch v-model="fullWidth" class="ml-2" />
+          <div v-if="useGridView" class="mb-2 flex items-center">
+            <span class="flex-1">卡片最小宽度</span>
+            <DropdownSelect
+              v-model="gridCardMinWidthStr"
+              :options="GRID_CARD_WIDTH_OPTIONS"
+            />
+          </div>
+          <div v-if="useGridView" class="mb-2 flex items-center">
+            <span class="flex-1">封面显示模式</span>
+            <DropdownSelect
+              v-model="gridCoverMode"
+              :options="GRID_COVER_MODE_OPTIONS"
+            />
           </div>
           <div v-if="!useGridView" class="mb-2 flex items-center">
             <span class="flex-1">显示封面</span>
@@ -159,7 +176,7 @@ function onSourceDragEnd() {
             <span class="flex-1">使用内置播放器</span>
             <Switch v-model="useWebPlayer" class="ml-2" />
           </div>
-          <div class="mb-2 flex items-center">
+          <div v-if="isMobile" class="mb-2 flex items-center">
             <span class="flex-1">自动隐藏顶栏</span>
             <Switch v-model="autoHideHeader" class="ml-2" />
           </div>

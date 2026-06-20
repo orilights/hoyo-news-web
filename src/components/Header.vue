@@ -3,7 +3,7 @@ import { storeToRefs } from 'pinia'
 import IconMenu from '@/components/icon/IconMenu.vue'
 import IconSetting from '@/components/icon/IconSetting.vue'
 import SettingPanel from '@/components/SettingPanel.vue'
-import { TAG_ALL } from '@/constants/index.ts'
+import { GRID_ITEM_GAP, TAG_ALL } from '@/constants/index.ts'
 import { useMainStore } from '@/store/main'
 import { useSettingsStore } from '@/store/settings'
 import ChannelInfo from './ChannelInfo.vue'
@@ -11,7 +11,7 @@ import DropdownSelect from './common/DropdownSelect.vue'
 
 const mainStore = useMainStore()
 const settings = useSettingsStore()
-const { currentSource, currentChannel, searchEnabled, newsDataKeywordFiltered, filterTag, filterTags, searchStr, showMobileSidebar } = storeToRefs(mainStore)
+const { currentSource, currentChannel, searchEnabled, newsDataKeywordFiltered, filterTag, filterTags, searchStr, showMobileSidebar, isMobile } = storeToRefs(mainStore)
 const { autoHideHeader, headerSourceList, tagMultiSelect } = storeToRefs(settings)
 
 const headerRef = ref<HTMLElement | null>(null)
@@ -34,7 +34,7 @@ const filterDisplayText = computed(() => {
 
 const resizeObserver = new ResizeObserver((entries) => {
   for (const entry of entries) {
-    headerPaddingRef.value!.style.height = `${entry.contentRect.height + 20}px`
+    headerPaddingRef.value!.style.height = `${entry.target.scrollHeight + GRID_ITEM_GAP}px`
   }
 })
 
@@ -48,7 +48,7 @@ function handleChangeDialogSettingVisible() {
 function handleScroll() {
   const scrollTop = window.pageYOffset || document.documentElement.scrollTop
 
-  if (scrollTop <= 800 || autoHideHeader.value === false) {
+  if (scrollTop <= 800 || autoHideHeader.value === false || !isMobile.value) {
     showHeader.value = true
   }
   else {
@@ -75,9 +75,9 @@ onUnmounted(() => {
   <div ref="headerPaddingRef" />
   <header
     ref="headerRef"
-    class="fixed inset-x-0 top-0 z-10 bg-white/80 px-4 pt-2 backdrop-blur transition-all duration-300 md:left-[400px]"
+    class="fixed inset-x-0 top-0 z-10 bg-white/80 px-4 pt-2 backdrop-blur transition-transform duration-300 md:left-[300px] lg:left-[400px]"
     :class="{
-      '-translate-y-full': !showHeader,
+      '-translate-y-full': !showHeader && isMobile,
     }"
   >
     <div class="mb-2 flex items-center gap-2">

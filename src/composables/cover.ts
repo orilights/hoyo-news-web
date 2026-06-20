@@ -4,7 +4,7 @@ import { CoverSize } from '@/types/enum'
 export function useCoverSize() {
   const windowWidth = {
     sm: useMediaQuery('(min-width: 640px)'),
-    md: useMediaQuery('(min-width: 768px)'),
+    md: useMediaQuery('(min-width: 1024px)'),
   }
   const coverSize = computed(() => {
     if (windowWidth.md.value)
