@@ -204,7 +204,7 @@ export default {
     meta: { video: true },
   },
   '动画短片': {
-    keyword: [/(?!.*即将发布).*动画短片.*/],
+    keyword: [/(?!.*(?:即将|将于).*发布).*动画短片.*/],
     meta: { video: true },
   },
   '风物集短片': {
@@ -220,7 +220,7 @@ export default {
     meta: { video: true },
   },
   '前瞻短片': {
-    keyword: ['前瞻短片'],
+    keyword: ['前瞻短片', '生态短片'],
     meta: { video: true },
   },
   '参展视频': {

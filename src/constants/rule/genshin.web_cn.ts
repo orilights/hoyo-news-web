@@ -181,7 +181,7 @@ export default {
     meta: { video: true },
   },
   '前瞻短片': {
-    keyword: ['前瞻短片'],
+    keyword: ['前瞻短片', '生态短片'],
     meta: { video: true },
   },
   '参展视频': {
