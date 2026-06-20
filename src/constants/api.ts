@@ -252,7 +252,7 @@ export const NEWS_LIST: Record<string, SourceInfo> = {
         type: ChannelType.WEBSITE_NEWS,
         apiBase: API_ENDPOINT.CN,
         newsDetailLink: 'https://planet.mihoyo.com/news/detail/{id}',
-        coverWidth: COVER_WIDTH.none,
+        coverWidth: 266.66,
       },
       bbs_cn_1: {
         displayName: '米游社-公告',

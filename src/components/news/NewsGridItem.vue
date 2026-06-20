@@ -37,11 +37,15 @@ const {
     @click="openNews"
   >
     <div
+      v-if="config.showCover && channelConfig.coverWidth"
       class="relative w-full overflow-hidden bg-slate-200"
       :class="config.coverMode === 'square' ? 'aspect-square' : 'h-[120px]'"
     >
-      <div v-if="news.video?.duration" class="absolute bottom-2 right-2 z-[5] rounded-md bg-black/60 px-1 text-xs text-white opacity-80 transition-opacity group-hover:opacity-100">
-        {{ formatDuration(news.video.duration) }}
+      <div v-if="news.video" class="absolute bottom-2 right-2 z-[5] rounded-md bg-black/60 px-1 text-xs text-white opacity-80 transition-opacity group-hover:opacity-100">
+        <template v-if="news.video?.duration">
+          {{ formatDuration(news.video.duration) }}
+        </template>
+        <template v-else>未知时长</template>
       </div>
       <div class="absolute inset-0 flex items-center justify-center">
         <LoadingIndicatorImage
@@ -76,7 +80,7 @@ const {
           class="inline-flex items-center gap-0.5 rounded-full border border-gray-200 bg-gray-50 px-1.5 py-0.5 text-xs text-gray-600"
           @click.stop.prevent="$emit('changeFilter', news.tag)"
         >
-          <LucideTag class="size-3 shrink-0" />
+          <LucideTag class="size-3 shrink-0" fill="currentColor" />
           <span class="max-w-[80px] truncate">{{ news.tag }}</span>
         </div>
       </div>

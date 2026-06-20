@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { LucideEllipsis } from '@lucide/vue'
 import { useElementSize } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 import LoadingIndicatorImage from '@/components/common/LoadingIndicatorImage.vue'
@@ -127,7 +128,7 @@ onUnmounted(() => {
             class="flex items-center gap-1 rounded-full border border-slate-200 bg-slate-100 px-1 py-0.5 text-xs text-gray-600 transition-colors hover:bg-slate-200 lg:px-2 lg:py-1 lg:text-sm"
             @click.stop.prevent="$emit('changeFilter', news.tag)"
           >
-            <LucideTag class="size-4 p-0.5 lg:size-5" />
+            <LucideTag class="size-4 p-0.5 lg:size-5" fill="currentColor" />
             <span class="max-w-[100px]">
               {{ news.tag }}
             </span>
@@ -137,7 +138,7 @@ onUnmounted(() => {
             class="flex items-center gap-1 rounded-full border border-slate-200 bg-slate-100 px-1 py-0.5 text-xs text-gray-600 transition-colors hover:bg-slate-200 lg:px-2 lg:py-1 lg:text-sm"
             @click.stop.prevent="openVideo"
           >
-            <LucideVideo class="size-4 p-0.5 lg:size-5" />
+            <LucideVideo class="size-4 p-0.5 lg:size-5" fill="currentColor" />
             <span v-if="news.video.duration">
               {{ formatDuration(news.video.duration) }}
             </span>
@@ -163,14 +164,7 @@ onUnmounted(() => {
               'bg-slate-100': !showAction,
             }" @click.stop.prevent="toggleAction"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
-              class="size-4 p-0.5 lg:size-5"
-            >
-              <path
-                d="M3 10a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0ZM8.5 10a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0ZM15.5 8.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z"
-              />
-            </svg>
+            <LucideEllipsis class="size-4 p-0.5 lg:size-5" />
             <Transition name="fade">
               <div
                 v-show="showAction" ref="actionMenuRef"

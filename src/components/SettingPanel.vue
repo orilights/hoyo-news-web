@@ -141,16 +141,16 @@ function onSourceDragEnd() {
                 :options="GRID_CARD_WIDTH_OPTIONS"
               />
             </div>
-            <div v-if="useGridView" class="mb-2 flex items-center">
+            <div class="mb-2 flex items-center">
+              <span class="flex-1">显示封面</span>
+              <Switch v-model="showCover" class="ml-2" />
+            </div>
+            <div v-if="useGridView && showCover" class="mb-2 flex items-center">
               <span class="flex-1">封面显示模式</span>
               <DropdownSelect
                 v-model="gridCoverMode"
                 :options="GRID_COVER_MODE_OPTIONS"
               />
-            </div>
-            <div v-if="!useGridView" class="mb-2 flex items-center">
-              <span class="flex-1">显示封面</span>
-              <Switch v-model="showCover" class="ml-2" />
             </div>
             <div class="mb-2 flex items-center">
               <span class="flex-1">发布时间显示星期</span>
