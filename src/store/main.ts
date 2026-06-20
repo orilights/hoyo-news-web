@@ -33,6 +33,7 @@ export const useMainStore = defineStore('main', {
 
     customFilterCount: 0,
 
+    showSetting: false,
     showRssInfo: false,
     showVideoPlayer: false,
     showMobileSidebar: false,
@@ -107,7 +108,7 @@ export const useMainStore = defineStore('main', {
       return tags
     },
     lockBodyScroll(): boolean {
-      return this.showVideoPlayer || this.showRssInfo || this.showMobileSidebar
+      return this.showVideoPlayer || this.showRssInfo || this.showMobileSidebar || this.showSetting
     },
   },
   actions: {

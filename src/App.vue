@@ -11,6 +11,7 @@ import { CONFIG_API } from '@/constants'
 import { useMainStore } from '@/store/main'
 import { useSettingsStore } from '@/store/settings'
 import RssInfo from './components/RssInfo.vue'
+import SettingPanel from './components/SettingPanel.vue'
 import Sidebar from './components/Sidebar.vue'
 import VideoPlayer from './components/VideoPlayer.vue'
 
@@ -76,7 +77,7 @@ function fetchNotice() {
   <div class="flex min-h-screen bg-gray-100 text-sm transition-[font-size] md:text-base">
     <Sidebar />
 
-    <div class="relative flex-1 px-4">
+    <div class="relative flex-1 px-4 pb-4">
       <Header />
 
       <div v-if="newsLoading" class="flex flex-col items-center gap-2 py-16">
@@ -94,6 +95,8 @@ function fetchNotice() {
     <VideoPlayer />
 
     <RssInfo />
+
+    <SettingPanel />
   </div>
 </template>
 

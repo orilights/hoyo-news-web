@@ -116,8 +116,9 @@ function copyRssLink() {
     <div v-show="showRssInfo" class="fixed inset-0 z-50 h-screen w-screen bg-black/30 backdrop-blur-sm">
       <div class="size-full" @click="showRssInfo = false" />
       <div class="fixed left-1/2 top-1/2 z-50 w-[500px] max-w-full -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white p-4 shadow-md">
-        <div class="mb-2 font-bold">
-          生成RSS订阅链接
+        <div class="mb-3 flex items-center justify-between">
+          <span class="text-base font-bold">生成RSS订阅链接</span>
+          <IconClose class="size-5 cursor-pointer text-gray-400 transition-colors hover:text-gray-600" @click="showRssInfo = false" />
         </div>
 
         <div class="overflow-x-auto rounded bg-gray-100 p-2 font-mono text-sm shadow-md">
@@ -212,7 +213,7 @@ function copyRssLink() {
           </div>
         </div>
 
-        <div class="mt-2 flex justify-end gap-2">
+        <div class="mt-4 flex justify-end gap-2">
           <button
             class="rounded-md border bg-blue-500 px-2 py-0.5 text-white transition-colors hover:border-blue-500"
             @click="copyRssLink"

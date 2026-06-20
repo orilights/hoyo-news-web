@@ -2,7 +2,6 @@
 import { storeToRefs } from 'pinia'
 import IconMenu from '@/components/icon/IconMenu.vue'
 import IconSetting from '@/components/icon/IconSetting.vue'
-import SettingPanel from '@/components/SettingPanel.vue'
 import { GRID_ITEM_GAP, TAG_ALL } from '@/constants/index.ts'
 import { useMainStore } from '@/store/main'
 import { useSettingsStore } from '@/store/settings'
@@ -11,12 +10,22 @@ import DropdownSelect from './common/DropdownSelect.vue'
 
 const mainStore = useMainStore()
 const settings = useSettingsStore()
-const { currentSource, currentChannel, searchEnabled, newsDataKeywordFiltered, filterTag, filterTags, searchStr, showMobileSidebar, isMobile } = storeToRefs(mainStore)
+const {
+  currentSource,
+  currentChannel,
+  searchEnabled,
+  newsDataKeywordFiltered,
+  filterTag,
+  filterTags,
+  searchStr,
+  showSetting,
+  showMobileSidebar,
+  isMobile,
+} = storeToRefs(mainStore)
 const { autoHideHeader, headerSourceList, tagMultiSelect } = storeToRefs(settings)
 
 const headerRef = ref<HTMLElement | null>(null)
 const headerPaddingRef = ref<HTMLElement | null>(null)
-const showSettingPanel = ref(false)
 const showHeader = ref(true)
 const lastScrollTop = ref(0)
 
@@ -39,8 +48,8 @@ const resizeObserver = new ResizeObserver((entries) => {
 })
 
 function handleChangeDialogSettingVisible() {
-  showSettingPanel.value = !showSettingPanel.value
-  if (showSettingPanel.value) {
+  showSetting.value = !showSetting.value
+  if (showSetting.value) {
     window.umami?.track('d-setting')
   }
 }
@@ -54,7 +63,7 @@ function handleScroll() {
   else {
     showHeader.value = scrollTop < lastScrollTop.value
     if (!showHeader.value) {
-      showSettingPanel.value = false
+      showSetting.value = false
     }
   }
   lastScrollTop.value = scrollTop
@@ -126,35 +135,31 @@ onUnmounted(() => {
           </div>
         </template>
       </DropdownSelect>
-    </div>
 
-    <ChannelInfo />
-
-    <div>
-      <div v-show="searchEnabled" class="mb-2 text-sm">
-        <span>
-          搜索到 {{ newsDataKeywordFiltered.length }} 个结果
-        </span>
-        <button class="ml-2 text-gray-500 hover:text-blue-500" @click="searchStr = ''">
-          取消搜索
-        </button>
-        <template v-if="isFiltering">
-          <span class="ml-4">
-            当前过滤：{{ filterDisplayText }}
-          </span>
-          <button class="ml-2 text-gray-500 hover:text-blue-500" @click="tagMultiSelect ? (filterTags = []) : mainStore.changeTag(TAG_ALL)">
-            取消过滤
-          </button>
-        </template>
-      </div>
-    </div>
-
-    <div class="absolute right-4 top-4 flex gap-4">
-      <button class="setting" @click="handleChangeDialogSettingVisible">
+      <button class="ml-auto" @click="handleChangeDialogSettingVisible">
         <IconSetting class="size-6" />
       </button>
     </div>
 
-    <SettingPanel v-model:visible="showSettingPanel" />
+    <ChannelInfo />
+
+    <div v-if="searchEnabled || isFiltering" class="mb-2 text-sm">
+      <template v-if="searchEnabled">
+        <span>
+          搜索到 {{ newsDataKeywordFiltered.length }} 个结果
+        </span>
+        <button class="ml-2 mr-4 text-gray-500 hover:text-blue-500" @click="searchStr = ''">
+          取消搜索
+        </button>
+      </template>
+      <template v-if="isFiltering">
+        <span>
+          当前过滤：{{ filterDisplayText }}
+        </span>
+        <button class="ml-2 text-gray-500 hover:text-blue-500" @click="tagMultiSelect ? (filterTags = []) : mainStore.changeTag(TAG_ALL)">
+          取消过滤
+        </button>
+      </template>
+    </div>
   </header>
 </template>
