@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
 import { useToast } from 'vue-toastification'
-import IconArrowDown from '@/components/icon/IconArrowDown.vue'
-import IconArrowUp from '@/components/icon/IconArrowUp.vue'
-import IconJump from '@/components/icon/IconJump.vue'
 import { useMainStore } from '@/store/main'
 import { useSettingsStore } from '@/store/settings'
 import { event, formatTime } from '@/utils'
@@ -88,7 +85,7 @@ function handleScrollByDate() {
 <template>
   <div class="fixed bottom-4 right-4 z-20 flex items-end gap-2">
     <Transition name="popup-dialog">
-      <div v-show="showDialogJump" class="dialog-jump rounded-lg bg-white p-4 shadow-md">
+      <div v-show="showDialogJump" class="dialog-jump rounded-xl bg-white p-4 shadow-md">
         <div class="font-bold">
           跳转到日期
         </div>
@@ -111,22 +108,22 @@ function handleScrollByDate() {
     </Transition>
     <div class="flex flex-col">
       <button
-        class="dialog-jump rounded-t-lg border border-gray-300 bg-white p-2 transition-colors hover:z-20 hover:border-blue-500 hover:text-blue-500"
+        class="dialog-jump rounded-t-xl border border-gray-300 bg-white p-2 transition-colors hover:z-20 hover:border-blue-500 hover:text-blue-500"
         @click="handleChangeDialogJumpVisible"
       >
-        <IconJump class="size-4" />
+        <LucideExternalLink class="size-4" />
       </button>
       <button
         class="-mt-px border border-gray-300 bg-white p-2 transition-colors hover:z-20 hover:border-blue-500 hover:text-blue-500"
         @click="scrollTo('top')"
       >
-        <IconArrowUp class="size-4" />
+        <LucideArrowUp class="size-4" />
       </button>
       <button
-        class="-mt-px rounded-b-lg border border-gray-300 bg-white p-2 transition-colors hover:z-20 hover:border-blue-500 hover:text-blue-500"
+        class="-mt-px rounded-b-xl border border-gray-300 bg-white p-2 transition-colors hover:z-20 hover:border-blue-500 hover:text-blue-500"
         @click="scrollTo('bottom')"
       >
-        <IconArrowDown class="size-4" />
+        <LucideArrowDown class="size-4" />
       </button>
     </div>
   </div>

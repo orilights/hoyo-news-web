@@ -10,8 +10,10 @@ const props = withDefaults(defineProps<{
   modelValue: string
   options: SelectOption[]
   placeholder?: string
+  border?: boolean
 }>(), {
   placeholder: '请选择',
+  border: false,
 })
 
 const emit = defineEmits<{
@@ -51,7 +53,10 @@ defineExpose({ close })
 <template>
   <div class="relative">
     <button
-      class="flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-2.5 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+      class="flex items-center gap-1.5 rounded-xl text-sm font-medium text-gray-700 transition-colors focus:outline-none  dark:text-gray-200 "
+      :class="{
+        'border border-gray-200 bg-white py-1.5 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700': border,
+      }"
       @click="toggle"
     >
       <slot name="trigger" :label="selectedLabel" :value="modelValue">

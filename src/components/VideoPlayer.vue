@@ -8,7 +8,6 @@ import { usePlayerStore } from '@/store/player'
 import { useSettingsStore } from '@/store/settings'
 import LoadingIndicator from './common/LoadingIndicator.vue'
 import Switch from './common/Switch.vue'
-import IconClose from './icon/IconClose.vue'
 
 const ArtPlayer = defineAsyncComponent({
   loader: () => import('./player/ArtPlayer.vue'),
@@ -117,11 +116,11 @@ function handlePlayNext() {
 
 <template>
   <div v-show="videoSrc" class="fixed inset-0 z-50 flex h-screen w-screen items-center justify-center bg-black/30 backdrop-blur-sm">
-    <div class="w-full max-w-[960px] rounded-lg bg-white px-2 py-4 shadow-md md:px-4">
+    <div class="w-full max-w-[960px] rounded-xl bg-white px-2 py-4 shadow-md md:px-4">
       <div class="mb-4 flex items-center justify-between">
         <div>{{ title }}</div>
         <button @click="playerStore.stopVideo()">
-          <IconClose class="size-5 text-gray-500 hover:text-black" />
+          <LucideX class="size-5 text-gray-500 hover:text-black" />
         </button>
       </div>
       <ArtPlayer
@@ -132,7 +131,7 @@ function handlePlayNext() {
         @video-ended="handlePlayNext"
         @destroy="handleGetInstance"
       />
-      <div v-if="playlist" class="mt-2 rounded-lg border border-slate-200 bg-slate-100 p-2">
+      <div v-if="playlist" class="mt-2 rounded-xl border border-slate-200 bg-slate-100 p-2">
         <div class="flex justify-between">
           播放列表
           <div class="flex items-center">

@@ -1,8 +1,5 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import IconRefresh from '@/components/icon/IconRefresh.vue'
-import IconRss from '@/components/icon/IconRss.vue'
-import IconUpdateTime from '@/components/icon/IconUpdateTime.vue'
 import { useMainStore } from '@/store/main'
 import { formatTime } from '@/utils'
 
@@ -25,7 +22,7 @@ const {
     </span>
 
     <span class="flex items-center">
-      <IconUpdateTime class="mr-1 size-4" />
+      <LucideHistory class="mr-1 size-4" />
       <template v-if="newsLoading">
         加载中
       </template>
@@ -34,7 +31,7 @@ const {
           {{ newsUpdateTime ? formatTime(newsUpdateTime) : '无数据' }}
         </span>
         <button v-if="channelConfig.allowForceRefresh !== false" class="ml-2 flex items-center hover:text-blue-500" @click="mainStore.fetchData(true)">
-          <IconRefresh class="size-4" />
+          <LucideRefreshCw class="size-4" />
           <span class="ml-1">
             刷新数据
           </span>
@@ -43,7 +40,7 @@ const {
     </span>
 
     <button v-if="channelConfig.rss !== false" class="hover:text-blue-500" @click="showRssInfo = true">
-      <IconRss class="size-4" />
+      <LucideRss class="size-4" />
     </button>
   </div>
 </template>

@@ -2,9 +2,6 @@
 import { useElementSize } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 import LoadingIndicatorImage from '@/components/common/LoadingIndicatorImage.vue'
-import IconTag from '@/components/icon/IconTag.vue'
-import IconTime from '@/components/icon/IconTime.vue'
-import IconVideo from '@/components/icon/IconVideo.vue'
 import { useNewsItem } from '@/composables/newsItem'
 import { useMainStore } from '@/store/main'
 import { CoverSize } from '@/types/enum'
@@ -130,7 +127,7 @@ onUnmounted(() => {
             class="flex items-center gap-1 rounded-full border border-slate-200 bg-slate-100 px-1 py-0.5 text-xs text-gray-600 transition-colors hover:bg-slate-200 lg:px-2 lg:py-1 lg:text-sm"
             @click.stop.prevent="$emit('changeFilter', news.tag)"
           >
-            <IconTag class="size-4 p-0.5 lg:size-5" />
+            <LucideTag class="size-4 p-0.5 lg:size-5" />
             <span class="max-w-[100px]">
               {{ news.tag }}
             </span>
@@ -140,7 +137,7 @@ onUnmounted(() => {
             class="flex items-center gap-1 rounded-full border border-slate-200 bg-slate-100 px-1 py-0.5 text-xs text-gray-600 transition-colors hover:bg-slate-200 lg:px-2 lg:py-1 lg:text-sm"
             @click.stop.prevent="openVideo"
           >
-            <IconVideo class="size-4 p-0.5 lg:size-5" />
+            <LucideVideo class="size-4 p-0.5 lg:size-5" />
             <span v-if="news.video.duration">
               {{ formatDuration(news.video.duration) }}
             </span>
@@ -153,7 +150,7 @@ onUnmounted(() => {
           <div
             class="flex items-center gap-1 rounded-full border border-slate-200 bg-slate-100 px-1 py-0.5 text-xs text-gray-600 lg:px-2 lg:py-1 lg:text-sm"
           >
-            <IconTime class="size-4 p-0.5 lg:size-5" />
+            <LucideClock class="size-4 p-0.5 lg:size-5" />
             <span>
               {{ news.startTime }} <span v-if="config.showDateWeek">星期{{ getWeek(news.startTime) }}</span>
             </span>

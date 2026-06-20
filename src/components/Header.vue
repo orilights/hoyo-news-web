@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import IconMenu from '@/components/icon/IconMenu.vue'
-import IconSetting from '@/components/icon/IconSetting.vue'
 import { GRID_ITEM_GAP, TAG_ALL } from '@/constants/index.ts'
 import { useMainStore } from '@/store/main'
 import { useSettingsStore } from '@/store/settings'
@@ -89,12 +87,12 @@ onUnmounted(() => {
       '-translate-y-full': !showHeader && isMobile,
     }"
   >
-    <div class="mb-2 flex items-center gap-2">
+    <div class="mb-2 flex items-center gap-4">
       <button
         class="rounded p-1 text-gray-500 transition-colors hover:bg-gray-200 hover:text-gray-700 md:hidden"
         @click="showMobileSidebar = true"
       >
-        <IconMenu class="size-6" />
+        <LucideMenu class="size-4" />
       </button>
 
       <DropdownSelect
@@ -137,7 +135,7 @@ onUnmounted(() => {
       </DropdownSelect>
 
       <button class="ml-auto" @click="handleChangeDialogSettingVisible">
-        <IconSetting class="size-6" />
+        <LucideSlidersHorizontal class="size-4" />
       </button>
     </div>
 

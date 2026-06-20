@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
 import LoadingIndicatorImage from '@/components/common/LoadingIndicatorImage.vue'
-import IconTag from '@/components/icon/IconTag.vue'
-import IconTime from '@/components/icon/IconTime.vue'
 import { useNewsItem } from '@/composables/newsItem'
 import { useMainStore } from '@/store/main'
 import { formatDuration, formatTime, getWeek, highlightText } from '@/utils'
@@ -78,12 +76,12 @@ const {
           class="inline-flex items-center gap-0.5 rounded-full border border-gray-200 bg-gray-50 px-1.5 py-0.5 text-xs text-gray-600"
           @click.stop.prevent="$emit('changeFilter', news.tag)"
         >
-          <IconTag class="size-3 shrink-0" />
+          <LucideTag class="size-3 shrink-0" />
           <span class="max-w-[80px] truncate">{{ news.tag }}</span>
         </div>
       </div>
       <div class="mt-auto flex items-center gap-1 pt-1.5 text-xs text-gray-400">
-        <IconTime class="size-3 shrink-0" />
+        <LucideClock class="size-3 shrink-0" />
         <span>{{ formatTime(news.startTime, true) }}</span>
         <span v-if="config.showDateWeek">星期{{ getWeek(news.startTime) }}</span>
       </div>

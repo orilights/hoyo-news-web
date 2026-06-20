@@ -2,6 +2,7 @@ import path from 'node:path'
 import process from 'node:process'
 import vue from '@vitejs/plugin-vue'
 import AutoImport from 'unplugin-auto-import/vite'
+import Components from 'unplugin-vue-components/vite'
 import { defineConfig } from 'vite'
 import simpleHtmlPlugin from 'vite-plugin-simple-html'
 import buildInfoPlugin from './plugins/buildInfo'
@@ -19,6 +20,15 @@ export default defineConfig({
       imports: ['vue'],
       dts: './src/auto-imports.d.ts',
       vueTemplate: true,
+    }),
+    Components({
+      dts: 'src/components.d.ts',
+      resolvers: [
+        (name: string) => {
+          if (name.startsWith('Lucide'))
+            return { name: name.slice(6), from: '@lucide/vue' }
+        },
+      ],
     }),
     simpleHtmlPlugin({
       inject: {

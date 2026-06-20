@@ -7,16 +7,11 @@ import Draggable from 'vuedraggable'
 import DropdownSelect from '@/components/common/DropdownSelect.vue'
 import Switch from '@/components/common/Switch.vue'
 import Tabs from '@/components/common/Tabs.vue'
-import IconChevronDown from '@/components/icon/IconChevronDown.vue'
-import IconClose from '@/components/icon/IconClose.vue'
-import IconMove from '@/components/icon/IconMove.vue'
 import { BUILD_COMMIT, BUILD_DATE, GRID_CARD_WIDTH_OPTIONS, GRID_COVER_MODE_OPTIONS, NEWS_LIST, SETTING_TABS } from '@/constants'
 import { useMainStore } from '@/store/main'
 import { useSettingsStore } from '@/store/settings'
 import { getChannelLabel } from '@/types/enum'
 import { exportFile, formatTime, getAria2DownloadTask } from '@/utils'
-import IconView from './icon/IconView.vue'
-import IconViewSlash from './icon/IconViewSlash.vue'
 
 const toast = useToast()
 const mainStore = useMainStore()
@@ -127,10 +122,10 @@ function onSourceDragEnd() {
   <Transition name="fade">
     <div v-show="showSetting" class="fixed inset-0 z-50 h-screen w-screen bg-black/30 backdrop-blur-sm">
       <div class="size-full" @click="showSetting = false" />
-      <div class="fixed left-1/2 top-1/2 z-50 w-[500px] max-w-full -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white p-4 text-sm shadow-md">
+      <div class="fixed left-1/2 top-1/2 z-50 w-[500px] max-w-full -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-4 text-sm shadow-md">
         <div class="mb-3 flex items-center justify-between">
           <span class="text-base font-bold">设置</span>
-          <IconClose class="size-5 cursor-pointer text-gray-400 transition-colors hover:text-gray-600" @click="showSetting = false" />
+          <LucideX class="size-5 cursor-pointer text-gray-400 transition-colors hover:text-gray-600" @click="showSetting = false" />
         </div>
         <Tabs v-model:selected-key="currentTab" class="mb-3" :tabs="SETTING_TABS" />
         <div>
@@ -240,18 +235,18 @@ function onSourceDragEnd() {
                       <div class="flex-1" :class="{ 'text-gray-400': element.channels.every((channel: any) => !channel.enable) }">
                         {{ NEWS_LIST[element.key].displayName }}
                       </div>
-                      <IconView
+                      <LucideEye
                         v-if="element.channels.some((channel: any) => channel.enable)"
                         class="size-4 cursor-pointer text-gray-400 transition-colors hover:text-gray-600"
                         @click.stop="changeSourceVisibility(element.key)"
                       />
-                      <IconViewSlash
+                      <LucideEyeOff
                         v-else
                         class="size-4 cursor-pointer text-gray-400 transition-colors hover:text-gray-600"
                         @click.stop="changeSourceVisibility(element.key)"
                       />
-                      <IconMove class="handle-source size-4 cursor-move text-gray-400 transition-colors hover:text-gray-600" />
-                      <IconChevronDown
+                      <LucideGripVertical class="handle-source size-4 cursor-move text-gray-400 transition-colors hover:text-gray-600" />
+                      <LucideChevronDown
                         class="size-4 text-gray-400 transition-transform"
                         :class="{
                           'rotate-180': expandSource === element.key,
@@ -271,12 +266,12 @@ function onSourceDragEnd() {
                             <span class="text-sm transition-colors" :class="{ 'text-gray-400': !channel.enable }">
                               {{ NEWS_LIST[element.key].channels[channel.key].displayName }}
                             </span>
-                            <IconView
+                            <LucideEye
                               v-if="channel.enable"
                               class="size-4 cursor-pointer text-gray-400 transition-colors hover:text-gray-600"
                               @click.stop="channel.enable = false"
                             />
-                            <IconViewSlash
+                            <LucideEyeOff
                               v-else
                               class="size-4 cursor-pointer text-gray-400 transition-colors hover:text-gray-600"
                               @click.stop="channel.enable = true"
@@ -311,7 +306,7 @@ function onSourceDragEnd() {
             </div>
           </template>
           <template v-if="currentTab === 'about'">
-            <div class="mb-2 flex items-center rounded-lg border p-2 text-sm">
+            <div class="mb-2 flex items-center rounded-xl border p-2 text-sm">
               <img src="/favicon.png" class="mr-2 size-12">
               一个用于检索米哈游旗下游戏官网新闻的小工具
             </div>

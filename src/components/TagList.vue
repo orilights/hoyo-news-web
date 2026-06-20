@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import IconVideo from '@/components/icon/IconVideo.vue'
-
 defineProps<{
   tags: TagInfo[]
   filterTag: string
@@ -20,13 +18,14 @@ defineEmits(['changeTag'])
       }"
       @click="$emit('changeTag', tag.name)"
     >
-      <IconVideo
+      <LucideVideo
         v-if="tag.video"
         class="absolute right-[-4px] top-[-4px] size-3"
         :class="{
           'text-blue-500': multiSelect ? !selectedTags?.includes(tag.name) : filterTag !== tag.name,
           'text-blue-300': multiSelect ? selectedTags?.includes(tag.name) : filterTag === tag.name,
         }"
+        fill="currentColor"
       />
       {{ tag.name }} {{ tag.count }}
     </li>

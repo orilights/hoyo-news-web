@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import IconClose from '@/components/icon/IconClose.vue'
 import { useMainStore } from '@/store/main'
 import NewsFilter from './NewsFilter.vue'
 
@@ -17,7 +16,7 @@ const { showMobileSidebar, isMobile } = storeToRefs(mainStore)
 
   <Transition v-if="isMobile" name="mobile-sidebar">
     <div
-      v-show=" showMobileSidebar"
+      v-show="showMobileSidebar"
       class="fixed inset-0 z-50"
       @scroll.stop
       @wheel.stop
@@ -28,7 +27,7 @@ const { showMobileSidebar, isMobile } = storeToRefs(mainStore)
             class="rounded p-1 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
             @click="showMobileSidebar = false"
           >
-            <IconClose class="size-6" />
+            <LucideX class="size-4" />
           </button>
         </div>
 
@@ -43,11 +42,12 @@ const { showMobileSidebar, isMobile } = storeToRefs(mainStore)
 <style scoped>
 .mobile-sidebar-enter-active ,
 .mobile-sidebar-leave-active  {
-  transition: transform 0.3s ease;
+  transition: transform  0.3s ease, opacity 0.3s ease;
 }
 
 .mobile-sidebar-enter-from ,
 .mobile-sidebar-leave-to  {
   transform: translateX(-100%);
+  opacity: 0;
 }
 </style>
