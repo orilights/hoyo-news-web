@@ -4,7 +4,7 @@ export const SHADOW_ITEM: NewsItemData = {
   remoteId: 'ShadowShadowShadowShadowShadowShadow',
   title: 'ShadowShadowShadowShadowShadowShadow',
   startTime: '2024-01-01 12:00:00',
-  tag: 'ShadowShadowShadowShadowShadowShadow',
+  tags: ['ShadowShadowShadowShadowShadowShadow'],
   coverUrl: '',
   video: null,
   top: -9999999,
@@ -45,6 +45,7 @@ export const GRID_COVER_MODE_OPTIONS = [
 export const TAG_ALL = '全部'
 export const TAG_VIDEO = '视频'
 export const TAG_OTHER = '未分类'
+export const TAG_UNCLASSIFIED_VIDEO = '未分类视频'
 
 export const VISIT_PERSIST_MAX = 2000
 export const VISIT_PERSIST_KEY = `${APP_ABBR}-newsVisited`

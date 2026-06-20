@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
 import { useMainStore } from '@/store/main'
-import NewsFilter from './NewsFilter.vue'
 
 const mainStore = useMainStore()
 const { showMobileSidebar, isMobile } = storeToRefs(mainStore)
@@ -10,7 +9,7 @@ const { showMobileSidebar, isMobile } = storeToRefs(mainStore)
 <template>
   <div v-if="!isMobile" class="w-[300px] lg:w-[400px]">
     <div class="fixed left-0 top-0 h-screen w-[300px] overflow-y-auto border-r bg-white p-4 lg:w-[400px]" @scroll.stop @wheel.stop>
-      <NewsFilter />
+      <SidebarContent />
     </div>
   </div>
 
@@ -32,7 +31,7 @@ const { showMobileSidebar, isMobile } = storeToRefs(mainStore)
         </div>
 
         <div class="flex-1 overflow-y-auto p-2">
-          <NewsFilter />
+          <SidebarContent />
         </div>
       </div>
     </div>

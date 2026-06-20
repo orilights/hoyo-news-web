@@ -1,24 +1,34 @@
 import type { ChannelType } from '@/types/enum'
 import { getMiyousheVideoApi } from '@/api/news'
-import { NEWS_CLASSIFY_RULE, NEWS_LIST, TAG_OTHER } from '@/constants'
+import { NEWS_CLASSIFY_RULE, NEWS_LIST, TAG_OTHER, TAG_UNCLASSIFIED_VIDEO } from '@/constants'
 import { VideoType } from '@/types/enum'
 import { sanitizeFilename } from '.'
 
 export function getClassifyRules(source: string, channel: string): SourceClassifyRule | undefined {
   const sourceRule = NEWS_CLASSIFY_RULE[source] || {}
 
-  let classifyRules: SourceClassifyRule | undefined
+  let classifyGroups: SourceClassifyRuleGroups | undefined
 
   for (const ruleKey in sourceRule) {
     if (channel.startsWith(ruleKey)) {
-      classifyRules = sourceRule[ruleKey]
+      classifyGroups = sourceRule[ruleKey]
       break
     }
   }
-  if (!classifyRules) {
-    classifyRules = sourceRule._default
+  if (!classifyGroups) {
+    classifyGroups = sourceRule._default
   }
-  return classifyRules
+  if (!classifyGroups)
+    return undefined
+
+  // 展平嵌套分组，将 group 名注入每条规则
+  const flat: SourceClassifyRule = {}
+  for (const [groupName, rules] of Object.entries(classifyGroups)) {
+    for (const [ruleName, rule] of Object.entries(rules)) {
+      flat[ruleName] = { ...rule, group: groupName }
+    }
+  }
+  return flat
 }
 
 export function getTags(newsList: NewsData[], source: string, channel: string): TagInfo[] {
@@ -30,18 +40,46 @@ export function getTags(newsList: NewsData[], source: string, channel: string): 
     if (news.video) {
       videoCount += 1
     }
-    const type = news.tag
-    if (tempTags[type] === undefined) {
-      tempTags[type] = {
-        name: type,
-        count: 1,
-        video: classifyRules?.[type]?.meta?.video || false,
+    for (const type of news.tags) {
+      if (tempTags[type] === undefined) {
+        tempTags[type] = {
+          name: type,
+          count: 1,
+          video: classifyRules?.[type]?.meta?.video || false,
+        }
+      }
+      else {
+        tempTags[type].count += 1
       }
     }
-    else {
-      tempTags[type].count += 1
-    }
   })
+
+  // 按 classifyRules 定义顺序输出标签，非规则定义的标签追加到最后
+  const orderedTags: TagInfo[] = []
+  if (classifyRules) {
+    for (const [tagName, rule] of Object.entries(classifyRules)) {
+      const tag = tempTags[tagName]
+      if (tag) {
+        tag.group = rule.group
+        orderedTags.push(tag)
+        delete tempTags[tagName]
+      }
+    }
+  }
+  // 统计未分类视频数量（标签中包含「未分类视频」的新闻）
+  const unclassifiedVideoCount = newsList.filter(
+    news => news.tags.includes(TAG_UNCLASSIFIED_VIDEO),
+  ).length
+
+  // 将未分类视频计入「未分类」标签，避免 tempTags 中出现重复的特殊标签
+  if (tempTags[TAG_UNCLASSIFIED_VIDEO]) {
+    delete tempTags[TAG_UNCLASSIFIED_VIDEO]
+  }
+
+  // 未在规则中定义但有新闻的标签（如「未分类」）追加在最后
+  for (const tag of Object.values(tempTags)) {
+    orderedTags.push(tag)
+  }
 
   return [
     {
@@ -54,60 +92,95 @@ export function getTags(newsList: NewsData[], source: string, channel: string): 
       count: videoCount,
       video: true,
     },
-    ...Object.values(tempTags).sort((a, b) => b.count - a.count),
+    {
+      name: TAG_UNCLASSIFIED_VIDEO,
+      count: unclassifiedVideoCount,
+      video: true,
+    },
+    ...orderedTags,
   ]
 }
 
-export function getNewsType(news: NewsData, source: string, channel: string): { type: string, rule?: ClassifyRule } {
+function doesRuleMatch(news: NewsData, channel: string, rule: ClassifyRule): boolean {
   const { title, remoteId, video } = news
 
+  // exclude 黑名单
+  if (rule.exclude?.some((excludeKey) => {
+    const [excludeChannel, excludeId] = excludeKey.split('.')
+    return channel.startsWith(excludeChannel) && excludeId === remoteId
+  })) {
+    return false
+  }
+
+  // include 白名单：最高优先级，匹配后跳过其他检查
+  if (rule.include?.some((includeKey) => {
+    const [includeChannel, includeId] = includeKey.split('.')
+    return channel.startsWith(includeChannel) && includeId === remoteId
+  })) {
+    return true
+  }
+
+  // filter 前置过滤
+  if (rule.filter?.video === true && !video)
+    return false
+  if (rule.filter?.video === false && video)
+    return false
+
+  // func 自定义函数
+  if (rule.func && rule.func(news))
+    return true
+
+  // keyword 关键词匹配
+  for (const keyword of rule.keyword) {
+    if (typeof keyword === 'string') {
+      if (title.includes(keyword))
+        return true
+    }
+    else if (keyword instanceof RegExp) {
+      if (keyword.test(title))
+        return true
+    }
+  }
+
+  return false
+}
+
+/**
+ * 分类引擎：全规则并行匹配，通过 excludeTags 实现互斥，不依赖规则排列顺序。
+ * 每条新闻可匹配多个标签。
+ */
+export function getNewsTypes(news: NewsData, source: string, channel: string): string[] {
   const classifyRules = getClassifyRules(source, channel)
 
   if (!classifyRules)
-    return { type: TAG_OTHER }
+    return [TAG_OTHER]
 
+  // Pass 1: 收集所有候选标签
+  const candidates: string[] = []
   for (const [type, rule] of Object.entries(classifyRules)) {
-    if (rule.include?.some((includeKey) => {
-      const [includeChannel, includeId] = includeKey.split('.')
-      if (channel.startsWith(includeChannel) && includeId === remoteId)
-        return true
-      return false
-    })) {
-      return { type, rule }
+    if (doesRuleMatch(news, channel, rule)) {
+      candidates.push(type)
     }
   }
-  for (const [type, rule] of Object.entries(classifyRules)) {
-    if (rule.exclude?.some((excludeKey) => {
-      const [excludeChannel, excludeId] = excludeKey.split('.')
-      if (channel.startsWith(excludeChannel) && excludeId === remoteId)
-        return true
+
+  // Pass 2: 通过 excludeTags 过滤（通用规则被更具体的规则排除）
+  const candidateSet = new Set(candidates)
+  const result = candidates.filter((tag) => {
+    const rule = classifyRules[tag]
+    if (rule?.excludeTags?.some(excludedTag => candidateSet.has(excludedTag))) {
       return false
-    })) {
-      continue
     }
+    return true
+  })
 
-    if (rule.filter?.video && !video)
-      continue
+  const finalResult = result.length > 0 ? result : [TAG_OTHER]
 
-    if (rule.filter?.video === false && video)
-      continue
-
-    if (rule.func && rule.func(news)) {
-      return { type, rule }
-    }
-
-    for (const keyword of rule.keyword) {
-      if (typeof keyword === 'string') {
-        if (title.includes(keyword))
-          return { type, rule }
-      }
-      else if (keyword instanceof RegExp) {
-        if (keyword.test(title))
-          return { type, rule }
-      }
-    }
+  // 视频新闻若无标签，追加「未分类视频」
+  if (news.video && result.length === 0) {
+    finalResult.push(TAG_UNCLASSIFIED_VIDEO)
   }
-  return { type: TAG_OTHER }
+
+  return finalResult
 }
 
 export function getAria2DownloadTask(news: NewsData[]): string {

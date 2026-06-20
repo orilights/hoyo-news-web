@@ -10,7 +10,7 @@ import {
   VISIT_PERSIST_KEY,
   VISIT_PERSIST_MAX,
 } from '@/constants'
-import { formatTime, getNewsType, getTags, limitSetSize } from '@/utils'
+import { formatTime, getNewsTypes, getTags, limitSetSize } from '@/utils'
 import { useSettingsStore } from './settings'
 
 export const useMainStore = defineStore('main', {
@@ -58,7 +58,7 @@ export const useMainStore = defineStore('main', {
       if (this.searchEnabled) {
         data = data.filter(news =>
           this.searchKeywords.every((v) => {
-            const newsKey = `${news.title.toLowerCase()}${news.tag}${news.remoteId}`
+            const newsKey = `${news.title.toLowerCase()}${news.tags.join(' ')}${news.remoteId}`
             return newsKey.includes(v)
           }),
         )
@@ -71,7 +71,7 @@ export const useMainStore = defineStore('main', {
       const settings = useSettingsStore()
       if (settings.tagMultiSelect) {
         if (this.filterTags.length > 0) {
-          data = data.filter(news => this.filterTags.includes(news.tag))
+          data = data.filter(news => news.tags.some(t => this.filterTags.includes(t)))
         }
       }
       else if (this.filterTag !== TAG_ALL) {
@@ -79,7 +79,7 @@ export const useMainStore = defineStore('main', {
           data = data.filter(news => news.video)
         }
         else if (this.allTags.some(tag => tag.name === this.filterTag)) {
-          data = data.filter(news => news.tag === this.filterTag)
+          data = data.filter(news => news.tags.includes(this.filterTag))
         }
       }
 
@@ -165,7 +165,11 @@ export const useMainStore = defineStore('main', {
             this.newsData = res.list.map((news: any) => ({
               ...news,
               remoteId: Number(news.remoteId),
-              tag: news.tags || getNewsType(news, params.source, params.channel).type,
+              tags: Array.isArray(news.tags)
+                ? news.tags
+                : (news.tags
+                    ? [news.tags]
+                    : getNewsTypes(news, params.source, params.channel)),
               startTime: formatTime(news.startTime),
             }))
             if (settings.customFilter.enable) {

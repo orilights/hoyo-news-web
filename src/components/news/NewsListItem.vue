@@ -124,13 +124,26 @@ onUnmounted(() => {
         />
         <div class="my-1 flex flex-wrap gap-x-2 gap-y-0.5 whitespace-nowrap text-xs lg:my-2 lg:text-sm">
           <div
+            v-for="tag in news.tags"
+            v-show="tag !== '未分类' && tag !== '未分类视频'"
+            :key="tag"
             title="筛选此标签"
             class="flex items-center gap-1 rounded-full border border-slate-200 bg-slate-100 px-1 py-0.5 text-xs text-gray-600 transition-colors hover:bg-slate-200 lg:px-2 lg:py-1 lg:text-sm"
-            @click.stop.prevent="$emit('changeFilter', news.tag)"
+            @click.stop.prevent="$emit('changeFilter', tag)"
           >
             <LucideTag class="size-4 p-0.5 lg:size-5" fill="currentColor" />
             <span class="max-w-[100px]">
-              {{ news.tag }}
+              {{ tag }}
+            </span>
+          </div>
+          <div
+            v-if="news.tags.filter(t => t !== '未分类' && t !== '未分类视频').length === 0"
+            title="筛选此标签"
+            class="flex items-center gap-1 rounded-full border border-slate-200 bg-slate-100 px-1 py-0.5 text-xs text-gray-600 transition-colors hover:bg-slate-200 lg:px-2 lg:py-1 lg:text-sm"
+          >
+            <LucideTag class="size-4 p-0.5 lg:size-5" fill="currentColor" />
+            <span class="max-w-[100px]">
+              未分类
             </span>
           </div>
           <div

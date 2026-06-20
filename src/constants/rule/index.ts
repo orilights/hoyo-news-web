@@ -5,7 +5,7 @@ import starrailWebCn from './starrail.web_cn'
 import zzzBbsCn from './zzz.bbs_cn'
 import zzzWebCn from './zzz.web_cn'
 
-export const NEWS_CLASSIFY_RULE: Record<string, Record<string, SourceClassifyRule>> = {
+export const NEWS_CLASSIFY_RULE: Record<string, Record<string, SourceClassifyRuleGroups>> = {
   genshin: {
     _default: genshinWebCn,
     web_cn: genshinWebCn,

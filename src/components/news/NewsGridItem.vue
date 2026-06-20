@@ -76,12 +76,21 @@ const {
       />
       <div class="mt-1.5 flex flex-wrap items-center gap-1 text-xs text-gray-500">
         <div
-          v-if="news.tag"
+          v-for="tag in news.tags"
+          v-show="tag !== '未分类' && tag !== '未分类视频'"
+          :key="tag"
           class="inline-flex items-center gap-0.5 rounded-full border border-gray-200 bg-gray-50 px-1.5 py-0.5 text-xs text-gray-600"
-          @click.stop.prevent="$emit('changeFilter', news.tag)"
+          @click.stop.prevent="$emit('changeFilter', tag)"
         >
           <LucideTag class="size-3 shrink-0" fill="currentColor" />
-          <span class="max-w-[80px] truncate">{{ news.tag }}</span>
+          <span class="max-w-[80px] truncate">{{ tag }}</span>
+        </div>
+        <div
+          v-if="news.tags.filter(t => t !== '未分类' && t !== '未分类视频').length === 0"
+          class="inline-flex items-center gap-0.5 rounded-full border border-gray-200 bg-gray-50 px-1.5 py-0.5 text-xs text-gray-600"
+        >
+          <LucideTag class="size-3 shrink-0" fill="currentColor" />
+          <span class="max-w-[80px] truncate">未分类</span>
         </div>
       </div>
       <div class="mt-auto flex items-center gap-1 pt-1.5 text-xs text-gray-400">

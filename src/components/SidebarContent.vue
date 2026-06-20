@@ -13,7 +13,6 @@ const {
   filterTag,
   filterTags,
   searchStr,
-  sortBy,
   dateFilterStart,
   dateFilterEnd,
 } = storeToRefs(mainStore)
@@ -40,22 +39,7 @@ const { tagMultiSelect } = storeToRefs(settingsStore)
     @change-tag="mainStore.changeTag"
   />
 
-  <div class="my-2 flex flex-wrap items-center gap-x-2 gap-y-1">
-    <span>
-      排序：
-      <select
-        v-model="sortBy"
-        class="rounded-md border border-black/20 bg-transparent px-1 transition-colors hover:border-blue-500"
-      >
-        <option value="desc">
-          降序
-        </option>
-        <option value="asc">
-          升序
-        </option>
-      </select>
-    </span>
-
+  <div class="my-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
     <span>
       开始日期：
       <input

@@ -17,7 +17,7 @@ declare global {
     remoteId: string
     title: string
     startTime: string
-    tag: string
+    tags: string[]
     coverUrl: string
     video: VideoData | null
   }
@@ -64,6 +64,8 @@ declare global {
     keyword: (string | RegExp)[]
     include?: string[]
     exclude?: string[]
+    excludeTags?: string[]
+    group?: string
     meta?: {
       video?: boolean
     }
@@ -77,6 +79,10 @@ declare global {
     [classifyName: string]: ClassifyRule
   }
 
+  interface SourceClassifyRuleGroups {
+    [groupName: string]: SourceClassifyRule
+  }
+
   interface Aria2Config {
     rpcUrl: string
     rpcSecret: string
@@ -87,6 +93,7 @@ declare global {
     name: string
     count: number
     video: boolean
+    group?: string
   }
 
   interface SourceCustomData {
