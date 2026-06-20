@@ -6,7 +6,6 @@ import NewsGridItem from '@/components/news/NewsGridItem.vue'
 import {
   GRID_COLUMN_COUNT_DEFAULT,
   GRID_COLUMN_COUNT_MIN,
-  GRID_ITEM_GAP,
   NEWS_LIST,
 } from '@/constants'
 import { useMainStore } from '@/store/main'
@@ -15,17 +14,19 @@ import { useSettingsStore } from '@/store/settings'
 const mainStore = useMainStore()
 const settings = useSettingsStore()
 
-const { newsDataFiltered, currentSource, currentChannel } = storeToRefs(mainStore)
+const { newsDataFiltered, currentSource, currentChannel, isMobile } = storeToRefs(mainStore)
 const { newsItemConfig, gridCardMinWidth, gridCoverMode, showCover } = storeToRefs(settings)
 const parentRef = ref<HTMLElement>()
 const { width: containerWidth } = useElementSize(parentRef)
 
 const columnCount = ref(GRID_COLUMN_COUNT_DEFAULT)
 
+const itemGap = computed(() => isMobile.value ? 8 : 16)
+
 function updateColumnCount() {
-  const availableWidth = containerWidth.value - GRID_ITEM_GAP * 2
+  const availableWidth = containerWidth.value - itemGap.value * 2
   const itemMinWidth = gridCardMinWidth.value
-  const columns = Math.floor(availableWidth / (itemMinWidth + GRID_ITEM_GAP))
+  const columns = Math.floor(availableWidth / (itemMinWidth + itemGap.value))
   columnCount.value = Math.max(GRID_COLUMN_COUNT_MIN, columns)
 }
 
@@ -50,23 +51,23 @@ const virtualizer = useWindowVirtualizer({
     }
     if (gridCoverMode.value === 'square') {
       const cols = Math.max(columnCount.value, 1)
-      const cardWidth = (containerWidth.value - GRID_ITEM_GAP * (cols - 1)) / cols
+      const cardWidth = (containerWidth.value - itemGap.value * (cols - 1)) / cols
       return cardWidth + contentHeight
     }
-    return 224
+    return contentHeight + 120
   },
   overscan: 3,
-  gap: GRID_ITEM_GAP,
+  get gap() {
+    return itemGap.value
+  },
   get scrollMargin() {
     return parentRef.value?.offsetTop || 0
   },
 })
 
 watch(containerWidth, updateColumnCount, { immediate: true })
-watch(containerWidth, virtualizer.value.measure)
-watch(gridCoverMode, virtualizer.value.measure)
 watch(gridCardMinWidth, updateColumnCount)
-watch([currentChannel, showCover], virtualizer.value.measure)
+watch([containerWidth, gridCoverMode, currentChannel, showCover, isMobile], virtualizer.value.measure)
 
 onMounted(() => {
   nextTick(() => {
@@ -96,7 +97,7 @@ onMounted(() => {
         }"
       >
         <div
-          class="grid gap-4" :style="{
+          class="grid gap-2 md:gap-4" :style="{
             gridTemplateColumns: `repeat(${columnCount}, minmax(0, 1fr))`,
           }"
         >

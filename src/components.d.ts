@@ -22,6 +22,7 @@ declare module 'vue' {
     LoadingIndicatorImage: typeof import('./components/common/LoadingIndicatorImage.vue')['default']
     LucideArrowDown: typeof import('@lucide/vue')['ArrowDown']
     LucideArrowUp: typeof import('@lucide/vue')['ArrowUp']
+    LucideCalendarClock: typeof import('@lucide/vue')['CalendarClock']
     LucideChevronDown: typeof import('@lucide/vue')['ChevronDown']
     LucideClock: typeof import('@lucide/vue')['Clock']
     LucideExternalLink: typeof import('@lucide/vue')['ExternalLink']

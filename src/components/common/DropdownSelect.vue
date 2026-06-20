@@ -53,16 +53,16 @@ defineExpose({ close })
 <template>
   <div class="relative">
     <button
-      class="flex items-center gap-1.5 rounded-xl text-sm font-medium text-gray-700 transition-colors focus:outline-none  dark:text-gray-200 "
+      class="flex items-center gap-1.5 rounded-xl text-sm font-medium transition-colors focus:outline-none"
       :class="{
-        'border border-gray-200 bg-white py-1.5 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700': border,
+        'border border-gray-200 bg-white py-1.5 hover:bg-gray-50': border,
       }"
       @click="toggle"
     >
       <slot name="trigger" :label="selectedLabel" :value="modelValue">
         {{ selectedLabel }}
       </slot>
-      <LucideChevronDown class="size-3.5 shrink-0 text-gray-400 transition-transform" :class="show ? 'rotate-180' : ''" />
+      <LucideChevronDown class="size-3.5 shrink-0 text-gray-500 transition-transform" :class="show ? 'rotate-180' : ''" />
     </button>
 
     <div v-if="show" class="fixed inset-0 z-30" @click="close" />
@@ -72,15 +72,15 @@ defineExpose({ close })
         v-show="show"
         ref="listRef"
         defer
-        class="absolute left-0 top-full z-50 mt-1 max-h-72 min-w-max rounded-xl border border-gray-200 bg-white shadow-lg dark:border-gray-600 dark:bg-gray-800"
+        class="absolute left-0 top-full z-50 mt-1 max-h-72 min-w-max rounded-xl border border-gray-200 bg-white shadow-lg"
         element="ul"
       >
         <li v-for="opt in options" :key="String(opt.value)">
           <button
             class="flex w-full items-center gap-2 px-3 py-2 text-sm transition-colors"
             :class="modelValue === opt.value
-              ? 'text-blue-600 dark:text-blue-400'
-              : 'text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700'"
+              ? 'text-blue-600'
+              : 'text-gray-700 hover:bg-gray-50'"
             :data-selected="modelValue === opt.value ? '' : undefined"
             @click="select(opt.value)"
           >

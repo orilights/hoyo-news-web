@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { GRID_ITEM_GAP, TAG_ALL } from '@/constants/index.ts'
+import { TAG_ALL } from '@/constants/index.ts'
 import { useMainStore } from '@/store/main'
 import { useSettingsStore } from '@/store/settings'
 import ChannelInfo from './ChannelInfo.vue'
@@ -41,7 +41,7 @@ const filterDisplayText = computed(() => {
 
 const resizeObserver = new ResizeObserver((entries) => {
   for (const entry of entries) {
-    headerPaddingRef.value!.style.height = `${entry.target.scrollHeight + GRID_ITEM_GAP}px`
+    headerPaddingRef.value!.style.height = `${entry.target.scrollHeight + 16}px`
   }
 })
 
@@ -82,7 +82,7 @@ onUnmounted(() => {
   <div ref="headerPaddingRef" />
   <header
     ref="headerRef"
-    class="fixed inset-x-0 top-0 z-10 bg-white/80 px-4 pt-2 backdrop-blur transition-transform duration-300 md:left-[300px] lg:left-[400px]"
+    class="fixed inset-x-0 top-0 z-10 bg-white/80 px-2 pt-2 backdrop-blur transition-transform duration-300 md:left-[300px] md:px-4 lg:left-[400px]"
     :class="{
       '-translate-y-full': !showHeader && isMobile,
     }"

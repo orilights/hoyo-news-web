@@ -83,7 +83,7 @@ function handleScrollByDate() {
 </script>
 
 <template>
-  <div class="fixed bottom-4 right-4 z-20 flex items-end gap-2">
+  <div class="fixed bottom-2 right-2 z-20 flex items-end gap-2 md:bottom-4 md:right-4">
     <Transition name="popup-dialog">
       <div v-show="showDialogJump" class="dialog-jump rounded-xl bg-white p-4 shadow-md">
         <div class="font-bold">
@@ -111,7 +111,7 @@ function handleScrollByDate() {
         class="dialog-jump rounded-t-xl border border-gray-300 bg-white p-2 transition-colors hover:z-20 hover:border-blue-500 hover:text-blue-500"
         @click="handleChangeDialogJumpVisible"
       >
-        <LucideExternalLink class="size-4" />
+        <LucideCalendarClock class="size-4" />
       </button>
       <button
         class="-mt-px border border-gray-300 bg-white p-2 transition-colors hover:z-20 hover:border-blue-500 hover:text-blue-500"

@@ -86,7 +86,7 @@ const {
       </div>
       <div class="mt-auto flex items-center gap-1 pt-1.5 text-xs text-gray-400">
         <LucideClock class="size-3 shrink-0" />
-        <span>{{ formatTime(news.startTime, true) }}</span>
+        <span>{{ formatTime(news.startTime) }}</span>
         <span v-if="config.showDateWeek">星期{{ getWeek(news.startTime) }}</span>
       </div>
     </div>

@@ -23,12 +23,7 @@ export const COVER_WIDTH = {
 export const GRID_COLUMN_COUNT_DEFAULT = 4
 // 网格视图 - 最小列数
 export const GRID_COLUMN_COUNT_MIN = 2
-// 网格视图 - 行高（预估值，开启 measureElement 后会自动纠正）
-export const GRID_ROW_HEIGHT = 240
-// 网格视图 - 项目间距
-export const GRID_ITEM_GAP = 16
-// 网格视图 - 项目最小宽度
-export const GRID_ITEM_WIDTH_MIN = 240
+
 // 网格视图 - 卡片最小宽度设置范围
 export const GRID_CARD_WIDTH_MIN = 200
 export const GRID_CARD_WIDTH_MAX = 400
