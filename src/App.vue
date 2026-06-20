@@ -2,16 +2,16 @@
 import { useOverlayScrollbars } from 'overlayscrollbars-vue'
 import { storeToRefs } from 'pinia'
 import { useToast } from 'vue-toastification'
-import ChannelInfo from '@/components/ChannelInfo.vue'
 import LoadingIndicator from '@/components/common/LoadingIndicator.vue'
 import FloatTool from '@/components/FloatTool.vue'
 import Header from '@/components/Header.vue'
 import NewsGridView from '@/components/news/NewsGridView.vue'
 import NewsListView from '@/components/news/NewsListView.vue'
-import NewsFilter from '@/components/NewsFilter.vue'
 import { CONFIG_API } from '@/constants'
 import { useMainStore } from '@/store/main'
 import { useSettingsStore } from '@/store/settings'
+import RssInfo from './components/RssInfo.vue'
+import Sidebar from './components/Sidebar.vue'
 import VideoPlayer from './components/VideoPlayer.vue'
 
 const mainStore = useMainStore()
@@ -19,7 +19,6 @@ const settings = useSettingsStore()
 const { newsLoading, lockBodyScroll } = storeToRefs(mainStore)
 const {
   useGridView,
-  fullWidth,
 } = storeToRefs(settings)
 
 const toast = useToast()
@@ -74,18 +73,11 @@ function fetchNotice() {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-100 text-sm transition-[font-size] md:text-base">
-    <div
-      class="relative mx-2 pb-2 md:mx-4 xl:px-0" :class="{
-        'lg:mx-auto lg:w-[960px]': !fullWidth,
-        'lg:mx-10': fullWidth,
-      }"
-    >
+  <div class="flex min-h-screen bg-gray-100 text-sm transition-[font-size] md:text-base">
+    <Sidebar />
+
+    <div class="relative flex-1 px-4">
       <Header />
-
-      <ChannelInfo />
-
-      <NewsFilter />
 
       <div v-if="newsLoading" class="flex flex-col items-center gap-2 py-16">
         <LoadingIndicator class="size-[60px]" />
@@ -95,11 +87,13 @@ function fetchNotice() {
       <NewsListView v-if="!useGridView" />
 
       <NewsGridView v-if="useGridView" />
-
-      <FloatTool />
-
-      <VideoPlayer />
     </div>
+
+    <FloatTool />
+
+    <VideoPlayer />
+
+    <RssInfo />
   </div>
 </template>
 

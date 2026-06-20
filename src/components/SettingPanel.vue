@@ -130,7 +130,7 @@ function onSourceDragEnd() {
   <Transition name="popup-setting">
     <div
       v-show="visible"
-      class="setting absolute right-0 top-8 w-full rounded-lg bg-white p-2 pt-1 text-sm shadow-md sm:w-[320px]"
+      class="setting absolute inset-x-4 top-12 rounded-lg bg-white p-2 pt-1 text-sm shadow-md sm:left-auto sm:right-4 sm:w-[320px]"
     >
       <Tabs v-model:selected-key="currentTab" class="mb-2" :tabs="SETTING_TABS" />
       <div class="px-2">

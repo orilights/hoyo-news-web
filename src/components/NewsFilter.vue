@@ -1,51 +1,46 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
+import Switch from '@/components/common/Switch.vue'
 import TagList from '@/components/TagList.vue'
-import { TAG_ALL } from '@/constants'
 import { useMainStore } from '@/store/main'
+import { useSettingsStore } from '@/store/settings'
 
 const mainStore = useMainStore()
+const settingsStore = useSettingsStore()
 
 const {
   availableTags,
-  newsDataKeywordFiltered,
   filterTag,
+  filterTags,
   searchStr,
-  searchEnabled,
   sortBy,
   dateFilterStart,
   dateFilterEnd,
 } = storeToRefs(mainStore)
+
+const { tagMultiSelect } = storeToRefs(settingsStore)
 </script>
 
 <template>
   <input
     v-model="searchStr" type="text" placeholder="请输入关键词（可使用空格分隔多个关键词）"
-    class="mb-2 w-full rounded-full border px-4 py-2 outline-blue-500 transition-colors hover:border-blue-500"
+    class="mb-2 w-full rounded-full border px-4 py-2 text-base outline-blue-500 transition-colors hover:border-blue-500"
   >
-  <div v-show="searchEnabled" class="mb-2">
-    <span>
-      搜索到 {{ newsDataKeywordFiltered.length }} 个结果
-    </span>
-    <button class="ml-2 text-gray-500 hover:text-blue-500" @click="searchStr = ''">
-      取消搜索
-    </button>
-    <template v-if="filterTag !== TAG_ALL">
-      <span class="ml-4">
-        当前过滤：{{ filterTag }}
-      </span>
-      <button class="ml-2 text-gray-500 hover:text-blue-500" @click="mainStore.changeTag(TAG_ALL)">
-        取消过滤
-      </button>
-    </template>
+
+  <div class="mb-1 flex items-center gap-2">
+    <Switch :model-value="tagMultiSelect" @update:model-value="val => tagMultiSelect = val" />
+    <span class="text-sm text-gray-600">标签多选</span>
   </div>
 
-  <details class="mb-2" open>
-    <summary>分类</summary>
-    <TagList :tags="availableTags" :filter-tag="filterTag" @change-tag="mainStore.changeTag" />
-  </details>
+  <TagList
+    :tags="availableTags"
+    :filter-tag="filterTag"
+    :multi-select="tagMultiSelect"
+    :selected-tags="filterTags"
+    @change-tag="mainStore.changeTag"
+  />
 
-  <div class="mb-2 flex flex-wrap items-center gap-x-2 gap-y-1">
+  <div class="my-2 flex flex-wrap items-center gap-x-2 gap-y-1">
     <span>
       排序：
       <select

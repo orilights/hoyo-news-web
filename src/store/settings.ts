@@ -22,8 +22,8 @@ export const useSettingsStore = defineStore('settings', {
     sourceCustom: [] as SourceCustomData[],
     channelCustom: [] as ChannelCustomData[],
     rssFilter: { } as RssFilterCache,
+    tagMultiSelect: true,
 
-    // Player settings
     useWebPlayer: true,
     autoPlayNext: true,
   }),

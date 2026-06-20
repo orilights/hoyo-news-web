@@ -18,6 +18,7 @@ export const useMainStore = defineStore('main', {
     currentSource: Object.keys(NEWS_LIST)[0],
     currentChannel: Object.keys(NEWS_LIST[Object.keys(NEWS_LIST)[0]].channels)[0],
     filterTag: TAG_ALL,
+    filterTags: [] as string[],
     searchStr: '',
     sortBy: 'desc' as 'asc' | 'desc',
     dateFilterStart: '',
@@ -34,6 +35,7 @@ export const useMainStore = defineStore('main', {
 
     showRssInfo: false,
     showVideoPlayer: false,
+    showMobileSidebar: false,
 
     toast: useToast(),
     queryParams: useUrlSearchParams('history'),
@@ -64,7 +66,13 @@ export const useMainStore = defineStore('main', {
     newsDataFiltered(): NewsData[] {
       let data: NewsData[] = this.newsDataKeywordFiltered.slice()
 
-      if (this.filterTag !== TAG_ALL) {
+      const settings = useSettingsStore()
+      if (settings.tagMultiSelect) {
+        if (this.filterTags.length > 0) {
+          data = data.filter(news => this.filterTags.includes(news.tag))
+        }
+      }
+      else if (this.filterTag !== TAG_ALL) {
         if (this.filterTag === TAG_VIDEO) {
           data = data.filter(news => news.video)
         }
@@ -90,10 +98,15 @@ export const useMainStore = defineStore('main', {
       return data
     },
     availableTags(): TagInfo[] {
-      return getTags(this.newsDataKeywordFiltered, this.currentSource, this.currentChannel)
+      const tags = getTags(this.newsDataKeywordFiltered, this.currentSource, this.currentChannel)
+      const settings = useSettingsStore()
+      if (settings.tagMultiSelect) {
+        return tags.filter(tag => tag.name !== TAG_ALL && tag.name !== TAG_VIDEO)
+      }
+      return tags
     },
     lockBodyScroll(): boolean {
-      return this.showVideoPlayer || this.showRssInfo
+      return this.showVideoPlayer || this.showRssInfo || this.showMobileSidebar
     },
   },
   actions: {
@@ -177,6 +190,7 @@ export const useMainStore = defineStore('main', {
       this.queryParams.channel = this.currentChannel
       this.searchStr = ''
       this.filterTag = TAG_ALL
+      this.filterTags = []
       delete this.queryParams.filterTag
       this.fetchData()
     },
@@ -194,15 +208,25 @@ export const useMainStore = defineStore('main', {
     },
 
     changeTag(tag: string) {
-      if (this.filterTag === tag)
-        this.filterTag = TAG_ALL
-      else
-        this.filterTag = tag
+      const settings = useSettingsStore()
+      if (settings.tagMultiSelect) {
+        const idx = this.filterTags.indexOf(tag)
+        if (idx === -1)
+          this.filterTags.push(tag)
+        else
+          this.filterTags.splice(idx, 1)
+      }
+      else {
+        if (this.filterTag === tag)
+          this.filterTag = TAG_ALL
+        else
+          this.filterTag = tag
 
-      if (this.filterTag === TAG_ALL)
-        delete this.queryParams.filterTag
-      else
-        this.queryParams.filterTag = this.filterTag
+        if (this.filterTag === TAG_ALL)
+          delete this.queryParams.filterTag
+        else
+          this.queryParams.filterTag = this.filterTag
+      }
     },
   },
 })
