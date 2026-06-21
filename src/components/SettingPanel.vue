@@ -307,7 +307,14 @@ function onSourceDragEnd() {
         <template v-if="currentTab === 'about'">
           <div class="mb-2 flex items-center rounded-xl border p-2 text-sm">
             <img src="/favicon.png" class="mr-2 size-12">
-            一个用于检索米哈游旗下游戏官网新闻的小工具
+            <div>
+              <div class="font-bold">
+                HoyoNews
+              </div>
+              <div>
+                一个用于检索米哈游旗下游戏官方发布 新闻/视频 的小工具
+              </div>
+            </div>
           </div>
           <div class="mb-2 flex items-center gap-2">
             <span class="flex-1">开发者</span>

@@ -1,32 +1,44 @@
-# 米游新闻检索
+<div align="center">
+  <h1>HoyoNews</h1>
+  <div>
+    在线访问
+    <a href="https://news-eo.amarea.cn/">
+      EdgeOne
+    </a>
+    |
+    <a href="https://news.hk4e.com/">
+      Vercel
+    </a>
+  </div>
+  <p></p>
+</div>
+
+<img src="docs/preview.png" alt="preview" />
+
+## 项目说明
 
 一个用于检索米哈游旗下游戏官方发布 新闻/视频 的小工具
-
-<details>
-<summary>界面截图</summary>
-<img src="docs/preview.png" alt="preview" />
-</details>
-
-推荐访问地址：[news-eo.amarea.cn](https://news-eo.amarea.cn/) (EdgeOne)  
-备用访问地址：[news.hk4e.com](https://news.hk4e.com/) (Vercel)
 
 当前支持新闻源：
 - 官网
 - 米游社
+- 崩坏3 圣芙蕾雅档案馆
 
 <details>
 <summary>完整支持列表</summary>
 
-官网：`原神` `崩坏：星穹铁道` `崩坏3` `绝区零` `未定事件簿` `米哈游/Hoyoverse`  
-米游社：`崩坏：因缘精灵` `绝区零` `崩坏：星穹铁道` `原神` `未定事件簿` `崩坏3` `崩坏学园2` `大别野`  
+官网：`原神` `崩坏：星穹铁道` `崩坏3` `绝区零` `星布谷地` `未定事件簿` `米哈游/Hoyoverse`  
+米游社：`原神` `崩坏：星穹铁道` `崩坏3` `绝区零` `崩坏：因缘精灵` `星布谷地` `未定事件簿` `崩坏学园2` `大别野`  
+崩坏3 圣芙蕾雅档案馆：`崩坏3`  
 
 </details>
 
 ## 功能特性
 
+- 支持查看新闻内容与播放视频
 - 支持根据预置分类和标题关键词检索新闻
-- 支持多关键词搜索标题，关键词之间需使用空格分隔
-- 支持 RSS 订阅（当前仅官网源包含正文）
+- 支持在列表视图与网格视图间切换
+- 支持获取新闻源的 RSS 订阅链接
 - 支持将视频批量导出为 aria2 下载任务（仅官网视频）
 - 支持显示视频时长、在 PotPlayer 中打开视频、将视频发送至 aria2 下载
 
