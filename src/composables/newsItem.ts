@@ -18,7 +18,7 @@ export function useNewsItem(options: NewsItemOptions) {
   const playerStore = usePlayerStore()
   const settings = useSettingsStore()
   const { currentSource, currentChannel } = storeToRefs(mainStore)
-  const { aria2Config, useWebPlayer, showVisited } = storeToRefs(settings)
+  const { aria2Config, useNewsBrowser, useWebPlayer, showVisited } = storeToRefs(settings)
 
   let timer: ReturnType<typeof setTimeout> | null = null
   const isLoadCover = ref(false)
@@ -47,6 +47,13 @@ export function useNewsItem(options: NewsItemOptions) {
     window.umami?.track('a-visit-news', { key: newsKey })
     if (showVisited.value) {
       mainStore.setNewsVisited(newsKey)
+    }
+
+    if (useNewsBrowser.value) {
+      event.preventDefault()
+      window.umami?.track('a-browser-news', { key: newsKey })
+      mainStore.openNewsBrowser(news)
+      return
     }
 
     if (useWebPlayer.value && news.video) {

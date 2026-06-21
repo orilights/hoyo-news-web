@@ -37,6 +37,8 @@ export const useMainStore = defineStore('main', {
     showRssInfo: false,
     showVideoPlayer: false,
     showMobileSidebar: false,
+    showNewsBrowser: false,
+    browsingNews: null as NewsData | null,
     isMobile: useMediaQuery('(max-width: 767px)'),
 
     toast: useToast(),
@@ -108,7 +110,7 @@ export const useMainStore = defineStore('main', {
       return tags
     },
     lockBodyScroll(): boolean {
-      return this.showVideoPlayer || this.showRssInfo || this.showMobileSidebar || this.showSetting
+      return this.showVideoPlayer || this.showRssInfo || this.showMobileSidebar || this.showSetting || this.showNewsBrowser
     },
   },
   actions: {
@@ -233,6 +235,15 @@ export const useMainStore = defineStore('main', {
         else
           this.queryParams.filterTag = this.filterTag
       }
+    },
+
+    openNewsBrowser(news: NewsData) {
+      this.browsingNews = news
+      this.showNewsBrowser = true
+    },
+    closeNewsBrowser() {
+      this.showNewsBrowser = false
+      this.browsingNews = null
     },
   },
 })

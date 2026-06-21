@@ -16,3 +16,7 @@ export function getNewsApi(
 export function getMiyousheVideoApi(apiBase: string, newsId: string) {
   return request.get(`${apiBase}/news/video/miyoushe/${newsId}`)
 }
+
+export function getNewsDetailApi(apiBase: string, newsKey: string) {
+  return request.get(`${apiBase}/news/detail/${newsKey}`)
+}

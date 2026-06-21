@@ -10,6 +10,7 @@ import NewsListView from '@/components/news/NewsListView.vue'
 import { CONFIG_API } from '@/constants'
 import { useMainStore } from '@/store/main'
 import { useSettingsStore } from '@/store/settings'
+import NewsBrowser from './components/NewsBrowser.vue'
 import RssInfo from './components/RssInfo.vue'
 import SettingPanel from './components/SettingPanel.vue'
 import Sidebar from './components/Sidebar.vue'
@@ -93,6 +94,8 @@ function fetchNotice() {
     <FloatTool />
 
     <VideoPlayer />
+
+    <NewsBrowser />
 
     <RssInfo />
 

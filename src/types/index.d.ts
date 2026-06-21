@@ -14,6 +14,7 @@ declare global {
     duration: number | null
   }
   interface NewsData {
+    key: string
     remoteId: string
     title: string
     startTime: string
@@ -94,6 +95,23 @@ declare global {
     count: number
     video: boolean
     group?: string
+  }
+
+  interface NewsDetailSource {
+    key: string
+    name: string
+  }
+  interface NewsDetailData {
+    key: string
+    remoteId: string
+    title: string
+    content: string
+    coverUrl: string
+    startTime: string
+    tags: string
+    state: string
+    source: NewsDetailSource
+    video: VideoData | null
   }
 
   interface SourceCustomData {

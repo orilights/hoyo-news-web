@@ -112,126 +112,115 @@ function copyRssLink() {
 </script>
 
 <template>
-  <Transition name="fade">
-    <div v-show="showRssInfo" class="fixed inset-0 z-50 h-screen w-screen bg-black/30 backdrop-blur-sm">
-      <div class="size-full" @click="showRssInfo = false" />
-      <div class="fixed left-1/2 top-1/2 z-50 w-[500px] max-w-full -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-4 shadow-md">
-        <div class="mb-3 flex items-center justify-between">
-          <span class="text-base font-bold">生成RSS订阅链接</span>
-          <LucideX class="size-5 cursor-pointer text-gray-400 transition-colors hover:text-gray-600" @click="showRssInfo = false" />
-        </div>
+  <DialogContainer :show="showRssInfo" title="生成RSS订阅链接" @close="showRssInfo = false">
+    <div class="overflow-x-auto rounded bg-gray-100 p-2 font-mono text-sm shadow-md">
+      {{ generateRssLink(false) }}
+    </div>
 
-        <div class="overflow-x-auto rounded bg-gray-100 p-2 font-mono text-sm shadow-md">
-          {{ generateRssLink(false) }}
+    <div class="mt-2">
+      <div class="flex gap-2">
+        <div class="shrink-0">
+          标题关键词白名单：
         </div>
-
-        <div class="mt-2">
-          <div class="flex gap-2">
-            <div class="shrink-0">
-              标题关键词白名单：
-            </div>
-            <input v-model="filterInput.whitelist" placeholder="请输入" type="text" class="flex-1 border px-2">
-            <button
-              class="shrink-0 rounded-md border px-2 py-0.5 transition-colors hover:border-blue-500"
-              @click="addFilterItem('whitelist', titleWhitelist)"
-            >
-              添加
-            </button>
-          </div>
-          <div class="flex flex-wrap gap-1">
-            <template v-for="(item, index) in titleWhitelist" :key="`whitelist-${index}`">
-              <span class="rounded bg-green-100 px-2 py-0.5" @click="removeFilterItem(titleWhitelist, index)">
-                {{ item }}
-              </span>
-            </template>
-          </div>
-        </div>
-
-        <div class="mt-2">
-          <div class="flex gap-2">
-            <div class="shrink-0">
-              标题关键词黑名单：
-            </div>
-            <input v-model="filterInput.blacklist" placeholder="请输入" type="text" class="flex-1 border px-2">
-            <button
-              class="shrink-0 rounded-md border px-2 py-0.5 transition-colors hover:border-blue-500"
-              @click="addFilterItem('blacklist', titleBlacklist)"
-            >
-              添加
-            </button>
-          </div>
-          <div class="flex flex-wrap gap-1">
-            <template v-for="(item, index) in titleBlacklist" :key="`blacklist-${index}`">
-              <span class="rounded bg-red-100 px-2 py-0.5" @click="removeFilterItem(titleBlacklist, index)">
-                {{ item }}
-              </span>
-            </template>
-          </div>
-        </div>
-
-        <div class="mt-2">
-          <div class="flex gap-2">
-            <div class="shrink-0">
-              内容关键词白名单：
-            </div>
-            <input v-model="filterInput.contentWhitelist" placeholder="请输入" type="text" class="flex-1 border px-2">
-            <button
-              class="shrink-0 rounded-md border px-2 py-0.5 transition-colors hover:border-blue-500"
-              @click="addFilterItem('contentWhitelist', contentWhitelist)"
-            >
-              添加
-            </button>
-          </div>
-          <div class="flex flex-wrap gap-1">
-            <template v-for="(item, index) in contentWhitelist" :key="`content-whitelist-${index}`">
-              <span class="rounded bg-green-100 px-2 py-0.5" @click="removeFilterItem(contentWhitelist, index)">
-                {{ item }}
-              </span>
-            </template>
-          </div>
-        </div>
-
-        <div class="mt-2">
-          <div class="flex gap-2">
-            <div class="shrink-0">
-              内容关键词黑名单：
-            </div>
-            <input v-model="filterInput.contentBlacklist" placeholder="请输入" type="text" class="flex-1 border px-2">
-            <button
-              class="shrink-0 rounded-md border px-2 py-0.5 transition-colors hover:border-blue-500"
-              @click="addFilterItem('contentBlacklist', contentBlacklist)"
-            >
-              添加
-            </button>
-          </div>
-          <div class="flex flex-wrap gap-1">
-            <template v-for="(item, index) in contentBlacklist" :key="`content-blacklist-${index}`">
-              <span class="rounded bg-red-100 px-2 py-0.5" @click="removeFilterItem(contentBlacklist, index)">
-                {{ item }}
-              </span>
-            </template>
-          </div>
-        </div>
-
-        <div class="mt-4 flex justify-end gap-2">
-          <button
-            class="rounded-md border bg-blue-500 px-2 py-0.5 text-white transition-colors hover:border-blue-500"
-            @click="copyRssLink"
-          >
-            复制
-          </button>
-          <button
-            class="rounded-md border px-2 py-0.5 transition-colors hover:border-blue-500"
-            @click="showRssInfo = false"
-          >
-            关闭
-          </button>
-        </div>
+        <input v-model="filterInput.whitelist" placeholder="请输入" type="text" class="flex-1 border px-2">
+        <button
+          class="shrink-0 rounded-md border px-2 py-0.5 transition-colors hover:border-blue-500"
+          @click="addFilterItem('whitelist', titleWhitelist)"
+        >
+          添加
+        </button>
+      </div>
+      <div class="flex flex-wrap gap-1">
+        <template v-for="(item, index) in titleWhitelist" :key="`whitelist-${index}`">
+          <span class="rounded bg-green-100 px-2 py-0.5" @click="removeFilterItem(titleWhitelist, index)">
+            {{ item }}
+          </span>
+        </template>
       </div>
     </div>
-  </Transition>
+
+    <div class="mt-2">
+      <div class="flex gap-2">
+        <div class="shrink-0">
+          标题关键词黑名单：
+        </div>
+        <input v-model="filterInput.blacklist" placeholder="请输入" type="text" class="flex-1 border px-2">
+        <button
+          class="shrink-0 rounded-md border px-2 py-0.5 transition-colors hover:border-blue-500"
+          @click="addFilterItem('blacklist', titleBlacklist)"
+        >
+          添加
+        </button>
+      </div>
+      <div class="flex flex-wrap gap-1">
+        <template v-for="(item, index) in titleBlacklist" :key="`blacklist-${index}`">
+          <span class="rounded bg-red-100 px-2 py-0.5" @click="removeFilterItem(titleBlacklist, index)">
+            {{ item }}
+          </span>
+        </template>
+      </div>
+    </div>
+
+    <div class="mt-2">
+      <div class="flex gap-2">
+        <div class="shrink-0">
+          内容关键词白名单：
+        </div>
+        <input v-model="filterInput.contentWhitelist" placeholder="请输入" type="text" class="flex-1 border px-2">
+        <button
+          class="shrink-0 rounded-md border px-2 py-0.5 transition-colors hover:border-blue-500"
+          @click="addFilterItem('contentWhitelist', contentWhitelist)"
+        >
+          添加
+        </button>
+      </div>
+      <div class="flex flex-wrap gap-1">
+        <template v-for="(item, index) in contentWhitelist" :key="`content-whitelist-${index}`">
+          <span class="rounded bg-green-100 px-2 py-0.5" @click="removeFilterItem(contentWhitelist, index)">
+            {{ item }}
+          </span>
+        </template>
+      </div>
+    </div>
+
+    <div class="mt-2">
+      <div class="flex gap-2">
+        <div class="shrink-0">
+          内容关键词黑名单：
+        </div>
+        <input v-model="filterInput.contentBlacklist" placeholder="请输入" type="text" class="flex-1 border px-2">
+        <button
+          class="shrink-0 rounded-md border px-2 py-0.5 transition-colors hover:border-blue-500"
+          @click="addFilterItem('contentBlacklist', contentBlacklist)"
+        >
+          添加
+        </button>
+      </div>
+      <div class="flex flex-wrap gap-1">
+        <template v-for="(item, index) in contentBlacklist" :key="`content-blacklist-${index}`">
+          <span class="rounded bg-red-100 px-2 py-0.5" @click="removeFilterItem(contentBlacklist, index)">
+            {{ item }}
+          </span>
+        </template>
+      </div>
+    </div>
+
+    <div class="mt-4 flex justify-end gap-2">
+      <button
+        class="rounded-md border bg-blue-500 px-2 py-0.5 text-white transition-colors hover:border-blue-500"
+        @click="copyRssLink"
+      >
+        复制
+      </button>
+      <button
+        class="rounded-md border px-2 py-0.5 transition-colors hover:border-blue-500"
+        @click="showRssInfo = false"
+      >
+        关闭
+      </button>
+    </div>
+  </DialogContainer>
 </template>
 
 <style scoped>
-
 </style>
