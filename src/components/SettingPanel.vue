@@ -23,6 +23,7 @@ const {
   showVisited,
   useWebPlayer,
   useNewsBrowser,
+  sourceSelectStyle,
   useGridView,
   gridCardMinWidth,
   gridCoverMode,
@@ -162,6 +163,13 @@ function onSourceDragEnd() {
           <div class="mb-2 flex items-center">
             <span class="flex-1">使用内置播放器</span>
             <Switch v-model="useWebPlayer" class="ml-2" />
+          </div>
+          <div class="mb-2 flex items-center">
+            <span class="flex-1">新闻源选择样式</span>
+            <DropdownSelect
+              v-model="sourceSelectStyle"
+              :options="[{ value: 'dropdown', label: '下拉' }, { value: 'tab', label: 'Tab' }]"
+            />
           </div>
           <div v-if="isMobile" class="mb-2 flex items-center">
             <span class="flex-1">自动隐藏顶栏</span>

@@ -23,6 +23,8 @@ export const useSettingsStore = defineStore('settings', {
     rssFilter: { } as RssFilterCache,
     tagMultiSelect: false,
 
+    sourceSelectStyle: 'dropdown' as 'dropdown' | 'tab',
+
     useNewsBrowser: true,
     useWebPlayer: true,
     autoPlayNext: true,
