@@ -1,11 +1,10 @@
 import { storeToRefs } from 'pinia'
 import { useToast } from 'vue-toastification'
-import { DEFAULT_BANNER, LOAD_DELAY, NEWS_LIST } from '@/constants'
+import { LOAD_DELAY, NEWS_LIST } from '@/constants'
 import { useMainStore } from '@/store/main'
 import { usePlayerStore } from '@/store/player'
 import { useSettingsStore } from '@/store/settings'
-import { ChannelType } from '@/types/enum'
-import { copyToClipboard, getVideoUrl, sanitizeFilename } from '@/utils'
+import { copyToClipboard, getCoverThumbnailUrl, getVideoUrl, sanitizeFilename } from '@/utils'
 
 interface NewsItemOptions {
   news: NewsData
@@ -29,18 +28,7 @@ export function useNewsItem(options: NewsItemOptions) {
   const channelConfig = computed(() => NEWS_LIST[currentSource.value].channels[currentChannel.value])
 
   const newsUrl = computed(() => channelConfig.value.newsDetailLink.replace('{id}', String(news.remoteId)))
-  const coverThumbnailUrl = computed(() => {
-    if (!news.coverUrl) {
-      return DEFAULT_BANNER
-    }
-    if (channelConfig.value.type === ChannelType.MIYOUSHE_NEWS || channelConfig.value.type === ChannelType.MIYOUSHE_NEWS_SUB) {
-      return `${news.coverUrl}?x-oss-process=image/resize,s_300/quality,q_80/auto-orient,0/interlace,1/format,jpg`
-    }
-    if (channelConfig.value.type === ChannelType.MIYOUSHE_BH3_WIKI) {
-      return `${news.coverUrl}?x-oss-process=image/quality,q_75/resize,h_300`
-    }
-    return news.coverUrl
-  })
+  const coverThumbnailUrl = computed(() => getCoverThumbnailUrl(news.coverUrl, channelConfig.value.type))
   const isNewsVisited = computed(() => mainStore.isNewsVisited(newsKey))
 
   function openNews(event: PointerEvent) {

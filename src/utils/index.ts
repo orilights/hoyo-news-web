@@ -1,6 +1,22 @@
+import { DEFAULT_BANNER } from '@/constants'
+import { ChannelType } from '@/types/enum'
+
 export * from './data'
 export * from './event'
 export * from './time'
+
+export function getCoverThumbnailUrl(coverUrl: string, channelType?: ChannelType): string {
+  if (!coverUrl) {
+    return DEFAULT_BANNER
+  }
+  if (channelType === ChannelType.MIYOUSHE_NEWS || channelType === ChannelType.MIYOUSHE_NEWS_SUB) {
+    return `${coverUrl}?x-oss-process=image/resize,s_300/quality,q_80/auto-orient,0/interlace,1/format,jpg`
+  }
+  if (channelType === ChannelType.MIYOUSHE_BH3_WIKI) {
+    return `${coverUrl}?x-oss-process=image/quality,q_75/resize,h_300`
+  }
+  return coverUrl
+}
 
 export function exportFile(
   {

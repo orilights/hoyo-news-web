@@ -3,9 +3,11 @@ import type Artplayer from 'artplayer'
 import type { OverlayScrollbarsComponentRef } from 'overlayscrollbars-vue'
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue'
 import { storeToRefs } from 'pinia'
-import { DEFAULT_BANNER } from '@/constants'
+import { NEWS_LIST } from '@/constants'
+import { useMainStore } from '@/store/main'
 import { usePlayerStore } from '@/store/player'
 import { useSettingsStore } from '@/store/settings'
+import { getCoverThumbnailUrl } from '@/utils'
 import LoadingIndicator from './common/LoadingIndicator.vue'
 import Switch from './common/Switch.vue'
 
@@ -16,9 +18,12 @@ const ArtPlayer = defineAsyncComponent({
 
 const playerStore = usePlayerStore()
 const settings = useSettingsStore()
+const mainStore = useMainStore()
 
 const { title, videoId, videoSrc, playlist } = storeToRefs(playerStore)
 const { autoPlayNext } = storeToRefs(settings)
+
+const channelType = computed(() => NEWS_LIST[mainStore.currentSource]?.channels[mainStore.currentChannel]?.type)
 
 const artInstance = ref<Artplayer | null>(null)
 const playlistScrollContainer = ref<OverlayScrollbarsComponentRef | null>(null)
@@ -157,7 +162,7 @@ function handlePlayNext() {
               @click="playerStore.playVideo(item)"
             >
               <div v-if="index === playingIndex" class="pointer-events-none absolute inset-0 rounded-md border-2 border-blue-500" />
-              <img class="h-[75px] w-full object-cover object-center md:h-[100px]" loading="lazy" :src="item.coverUrl || DEFAULT_BANNER">
+              <img class="h-[75px] w-full object-cover object-center md:h-[100px]" loading="lazy" :src="getCoverThumbnailUrl(item.coverUrl, channelType)">
               <div class="overflow-hidden text-ellipsis p-0.5 text-xs md:p-2 md:text-sm">
                 {{ item.title }}
               </div>
