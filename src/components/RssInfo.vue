@@ -35,12 +35,18 @@ const contentBlacklist = ref<string[]>([])
 
 const cacheKey = computed(() => `${currentSource.value}_${currentChannel.value}`)
 
-onMounted(() => {
-  titleWhitelist.value = rssFilter.value[cacheKey.value]?.whitelist || []
-  titleBlacklist.value = rssFilter.value[cacheKey.value]?.blacklist || []
-  contentWhitelist.value = rssFilter.value[cacheKey.value]?.contentWhitelist || []
-  contentBlacklist.value = rssFilter.value[cacheKey.value]?.contentBlacklist || []
-})
+watch(cacheKey, (val) => {
+  titleWhitelist.value = rssFilter.value[val]?.whitelist || []
+  titleBlacklist.value = rssFilter.value[val]?.blacklist || []
+  contentWhitelist.value = rssFilter.value[val]?.contentWhitelist || []
+  contentBlacklist.value = rssFilter.value[val]?.contentBlacklist || []
+  filterInput.value = {
+    whitelist: '',
+    blacklist: '',
+    contentWhitelist: '',
+    contentBlacklist: '',
+  }
+}, { immediate: true })
 
 function saveFilter() {
   settings.rssFilter[cacheKey.value] = {
