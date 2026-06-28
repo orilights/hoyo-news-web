@@ -1,7 +1,7 @@
 import { useMediaQuery, useUrlSearchParams } from '@vueuse/core'
 import { defineStore } from 'pinia'
 import { useToast } from 'vue-toastification'
-import { getNewsApi } from '@/api/news'
+import { getClassifyRulesApi, getNewsApi } from '@/api/news'
 import {
   DEFAULT_KEYWORD_BLACKLIST,
   NEWS_LIST,
@@ -31,6 +31,8 @@ export const useMainStore = defineStore('main', {
     imageLoaded: new Set<string>(),
     newsVisited: new Set<string>(),
 
+    classifyRules: null as Record<string, Record<string, SourceClassifyRuleGroups>> | null,
+
     customFilterCount: 0,
 
     showSetting: false,
@@ -53,7 +55,7 @@ export const useMainStore = defineStore('main', {
       return state.searchStr.toLowerCase().trim().split(' ')
     },
     allTags: (state) => {
-      return getTags(state.newsData, state.currentSource, state.currentChannel)
+      return getTags(state.newsData, state.currentSource, state.currentChannel, state.classifyRules)
     },
     newsDataKeywordFiltered(): NewsData[] {
       let data: NewsData[] = this.newsData.slice()
@@ -102,7 +104,7 @@ export const useMainStore = defineStore('main', {
       return data
     },
     availableTags(): TagInfo[] {
-      const tags = getTags(this.newsDataKeywordFiltered, this.currentSource, this.currentChannel)
+      const tags = getTags(this.newsDataKeywordFiltered, this.currentSource, this.currentChannel, this.classifyRules)
       const settings = useSettingsStore()
       if (settings.tagMultiSelect) {
         return tags.filter(tag => tag.name !== TAG_ALL && tag.name !== TAG_VIDEO)
@@ -158,8 +160,12 @@ export const useMainStore = defineStore('main', {
         channel: this.currentChannel,
       }
       const apiBase = this.channelConfig.apiBase
-      getNewsApi(apiBase, params.source, params.channel, { forceRefresh: force_refresh })
-        .then((res: any) => {
+
+      Promise.all([
+        getNewsApi(apiBase, params.source, params.channel, { forceRefresh: force_refresh }),
+        this.fetchClassifyRules(apiBase, params.source, params.channel),
+      ])
+        .then(([res]: [any, any]) => {
           if (params.source !== this.currentSource || params.channel !== this.currentChannel) {
             return
           }
@@ -171,7 +177,7 @@ export const useMainStore = defineStore('main', {
                 ? news.tags
                 : (news.tags
                     ? [news.tags]
-                    : getNewsTypes(news, params.source, params.channel)),
+                    : getNewsTypes(news, params.source, params.channel, this.classifyRules)),
               startTime: formatTime(news.startTime),
             }))
             if (settings.customFilter.enable) {
@@ -191,6 +197,24 @@ export const useMainStore = defineStore('main', {
         .finally(() => {
           this.newsLoading = false
         })
+    },
+
+    async fetchClassifyRules(apiBase: string, source: string, channel: string) {
+      // 已缓存则跳过
+      if (this.classifyRules?.[source]?.[channel])
+        return
+      try {
+        const sourceKey = `${source}.${channel}`
+        const res: any = await getClassifyRulesApi(apiBase, sourceKey)
+        if (!this.classifyRules)
+          this.classifyRules = {}
+        if (!this.classifyRules[source])
+          this.classifyRules[source] = {}
+        this.classifyRules[source][channel] = res
+      }
+      catch (e) {
+        console.warn(`获取分类规则失败 (${source}.${channel})`, e)
+      }
     },
 
     handleSourceChange() {

@@ -73,7 +73,14 @@ declare global {
     filter?: {
       video?: boolean
     }
-    func?: (news: NewsData) => boolean
+    dateRule?: { month: number, day: number }
+    titlePrefix?: string
+    titleContains?: string
+  }
+
+  interface SerializableKeywordRegex {
+    $regex: string
+    $flags?: string
   }
 
   interface SourceClassifyRule {

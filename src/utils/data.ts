@@ -1,14 +1,44 @@
 import type { ChannelType } from '@/types/enum'
 import { getMiyousheVideoApi } from '@/api/news'
-import { NEWS_CLASSIFY_RULE, NEWS_LIST, TAG_OTHER, TAG_UNCLASSIFIED_VIDEO } from '@/constants'
+import { NEWS_LIST, TAG_OTHER, TAG_UNCLASSIFIED_VIDEO } from '@/constants'
 import { VideoType } from '@/types/enum'
 import { sanitizeFilename } from '.'
 
-export function getClassifyRules(source: string, channel: string): SourceClassifyRule | undefined {
-  const sourceRule = NEWS_CLASSIFY_RULE[source] || {}
+function deserializeKeywords(keywords: (string | SerializableKeywordRegex)[]): (string | RegExp)[] {
+  return keywords.map((kw) => {
+    if (typeof kw === 'string')
+      return kw
+    return new RegExp(kw.$regex, kw.$flags || '')
+  })
+}
 
+function deserializeRule(rule: Record<string, unknown>): ClassifyRule {
+  return {
+    ...rule,
+    keyword: deserializeKeywords((rule.keyword || []) as (string | SerializableKeywordRegex)[]),
+  } as unknown as ClassifyRule
+}
+
+export function deserializeRules(json: SourceClassifyRuleGroups): SourceClassifyRule {
+  const flat: SourceClassifyRule = {}
+  for (const [groupName, rules] of Object.entries(json)) {
+    for (const [ruleName, rule] of Object.entries(rules)) {
+      flat[ruleName] = deserializeRule({ ...rule, group: groupName } as unknown as Record<string, unknown>)
+    }
+  }
+  return flat
+}
+
+export function getClassifyRules(
+  source: string,
+  channel: string,
+  rulesRecord?: Record<string, Record<string, SourceClassifyRuleGroups>> | null,
+): SourceClassifyRule | undefined {
+  if (!rulesRecord)
+    return undefined
+
+  const sourceRule = rulesRecord[source] || {}
   let classifyGroups: SourceClassifyRuleGroups | undefined
-
   for (const ruleKey in sourceRule) {
     if (channel.startsWith(ruleKey)) {
       classifyGroups = sourceRule[ruleKey]
@@ -21,19 +51,17 @@ export function getClassifyRules(source: string, channel: string): SourceClassif
   if (!classifyGroups)
     return undefined
 
-  // 展平嵌套分组，将 group 名注入每条规则
-  const flat: SourceClassifyRule = {}
-  for (const [groupName, rules] of Object.entries(classifyGroups)) {
-    for (const [ruleName, rule] of Object.entries(rules)) {
-      flat[ruleName] = { ...rule, group: groupName }
-    }
-  }
-  return flat
+  return deserializeRules(classifyGroups)
 }
 
-export function getTags(newsList: NewsData[], source: string, channel: string): TagInfo[] {
+export function getTags(
+  newsList: NewsData[],
+  source: string,
+  channel: string,
+  rulesRecord?: Record<string, Record<string, SourceClassifyRuleGroups>> | null,
+): TagInfo[] {
   const tempTags: Record<string, TagInfo> = {}
-  const classifyRules = getClassifyRules(source, channel)
+  const classifyRules = getClassifyRules(source, channel, rulesRecord)
   let videoCount = 0
 
   newsList.forEach((news) => {
@@ -126,9 +154,30 @@ function doesRuleMatch(news: NewsData, channel: string, rule: ClassifyRule): boo
   if (rule.filter?.video === false && video)
     return false
 
-  // func 自定义函数
-  if (rule.func && rule.func(news))
-    return true
+  if (rule.dateRule) {
+    const date = new Date(news.startTime)
+    if (date.getMonth() === rule.dateRule.month && date.getDate() === rule.dateRule.day) {
+      let titleOk = true
+      if (rule.titlePrefix || rule.titleContains) {
+        titleOk = false
+        if (rule.titlePrefix && title.trim().startsWith(rule.titlePrefix))
+          titleOk = true
+        if (rule.titleContains && title.trim().includes(rule.titleContains))
+          titleOk = true
+      }
+      if (titleOk)
+        return true
+    }
+  }
+  else if (rule.titlePrefix || rule.titleContains) {
+    let titleOk = false
+    if (rule.titlePrefix && title.trim().startsWith(rule.titlePrefix))
+      titleOk = true
+    if (rule.titleContains && title.trim().includes(rule.titleContains))
+      titleOk = true
+    if (titleOk)
+      return true
+  }
 
   // keyword 关键词匹配
   for (const keyword of rule.keyword) {
@@ -149,8 +198,13 @@ function doesRuleMatch(news: NewsData, channel: string, rule: ClassifyRule): boo
  * 分类引擎：全规则并行匹配，通过 excludeTags 实现互斥，不依赖规则排列顺序。
  * 每条新闻可匹配多个标签。
  */
-export function getNewsTypes(news: NewsData, source: string, channel: string): string[] {
-  const classifyRules = getClassifyRules(source, channel)
+export function getNewsTypes(
+  news: NewsData,
+  source: string,
+  channel: string,
+  rulesRecord?: Record<string, Record<string, SourceClassifyRuleGroups>> | null,
+): string[] {
+  const classifyRules = getClassifyRules(source, channel, rulesRecord)
 
   if (!classifyRules)
     return [TAG_OTHER]

@@ -20,3 +20,7 @@ export function getMiyousheVideoApi(apiBase: string, newsId: string) {
 export function getNewsDetailApi(apiBase: string, newsKey: string) {
   return request.get(`${apiBase}/news/detail/${newsKey}`)
 }
+
+export function getClassifyRulesApi(apiBase: string, sourceKey: string) {
+  return request.get(`${apiBase}/news/${sourceKey}/rules`)
+}
