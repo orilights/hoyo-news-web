@@ -167,6 +167,13 @@ export const NEWS_LIST: Record<string, SourceInfo> = {
         newsDetailLink: 'https://zzz.mihoyo.com/news/{id}',
         coverWidth: 266.54,
       },
+      web_cn_video: {
+        displayName: '官网 影像资料',
+        type: ChannelType.WEBSITE_NEWS,
+        apiBase: API_ENDPOINT.CN,
+        newsDetailLink: 'https://zzz.mihoyo.com/video?id={id}',
+        coverWidth: 401.91,
+      },
       bbs_cn_all: {
         displayName: '米游社',
         type: ChannelType.MIYOUSHE_NEWS,
