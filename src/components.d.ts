@@ -49,6 +49,8 @@ declare module 'vue' {
     NewsListItem: typeof import('./components/news/NewsListItem.vue')['default']
     NewsListView: typeof import('./components/news/NewsListView.vue')['default']
     RssInfo: typeof import('./components/RssInfo.vue')['default']
+    SearchResultItem: typeof import('./components/news/SearchResultItem.vue')['default']
+    SearchResultList: typeof import('./components/news/SearchResultList.vue')['default']
     SettingPanel: typeof import('./components/SettingPanel.vue')['default']
     Sidebar: typeof import('./components/Sidebar.vue')['default']
     SidebarContent: typeof import('./components/SidebarContent.vue')['default']

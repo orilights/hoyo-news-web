@@ -1,7 +1,7 @@
 import { useMediaQuery, useUrlSearchParams } from '@vueuse/core'
 import { defineStore } from 'pinia'
 import { useToast } from 'vue-toastification'
-import { getClassifyRulesApi, getNewsApi } from '@/api/news'
+import { getClassifyRulesApi, getNewsApi, searchNewsApi } from '@/api/news'
 import {
   DEFAULT_KEYWORD_BLACKLIST,
   NEWS_LIST,
@@ -45,6 +45,13 @@ export const useMainStore = defineStore('main', {
 
     toast: useToast(),
     queryParams: useUrlSearchParams('history'),
+
+    fulltextSearchEnabled: false,
+    searchResults: [] as SearchResult[],
+    searchLoading: false,
+    searchQuery: '',
+    searchMs: 0,
+    searchError: '',
   }),
   getters: {
     channelConfig: (state) => {
@@ -113,6 +120,12 @@ export const useMainStore = defineStore('main', {
     },
     lockBodyScroll(): boolean {
       return this.showVideoPlayer || this.showRssInfo || this.showMobileSidebar || this.showSetting || this.showNewsBrowser
+    },
+    isFulltextSearching: (state) => {
+      return state.fulltextSearchEnabled && state.searchStr.trim() !== ''
+    },
+    searchSourceKey: (state) => {
+      return `${state.currentSource}.${state.currentChannel}`
     },
   },
   actions: {
@@ -223,6 +236,10 @@ export const useMainStore = defineStore('main', {
       this.searchStr = ''
       this.filterTag = TAG_ALL
       this.filterTags = []
+      this.fulltextSearchEnabled = false
+      this.searchResults = []
+      this.searchQuery = ''
+      this.searchError = ''
       delete this.queryParams.filterTag
       this.fetchData()
     },
@@ -268,6 +285,82 @@ export const useMainStore = defineStore('main', {
     closeNewsBrowser() {
       this.showNewsBrowser = false
       this.browsingNews = null
+    },
+
+    toggleFulltextSearch() {
+      this.fulltextSearchEnabled = !this.fulltextSearchEnabled
+      if (this.fulltextSearchEnabled && this.searchStr.trim()) {
+        this.searchNews()
+      }
+      else if (!this.fulltextSearchEnabled) {
+        this.searchResults = []
+        this.searchQuery = ''
+        this.searchError = ''
+      }
+    },
+
+    searchNews() {
+      const query = this.searchStr.trim()
+      if (!query) {
+        this.searchResults = []
+        this.searchQuery = ''
+        this.searchError = ''
+        return
+      }
+
+      this.searchLoading = true
+      this.searchError = ''
+      const apiBase = this.channelConfig.apiBase
+      const sourceKey = this.searchSourceKey
+
+      searchNewsApi(apiBase, sourceKey, query)
+        .then((res: any) => {
+          if (sourceKey !== this.searchSourceKey || query !== this.searchStr.trim()) {
+            return
+          }
+          this.searchResults = (res as SearchApiResponse).list
+          this.searchQuery = (res as SearchApiResponse).query
+          this.searchMs = (res as SearchApiResponse).ms
+        })
+        .catch((err) => {
+          this.searchError = err?.message ?? '搜索失败'
+          this.searchResults = []
+        })
+        .finally(() => {
+          this.searchLoading = false
+        })
+    },
+
+    openSearchResult(result: SearchResult) {
+      const settings = useSettingsStore()
+      const [source, ...channelParts] = result.sourceKey.split('.')
+      const channel = channelParts.join('.')
+
+      if (settings.useNewsBrowser) {
+        const sourceInfo = NEWS_LIST[source]
+        const channelInfo = sourceInfo?.channels[channel]
+        if (channelInfo) {
+          const newsData: NewsData = {
+            key: `${result.sourceKey}-${result.remoteId}`,
+            remoteId: result.remoteId,
+            title: result.title,
+            startTime: formatTime(result.startTime),
+            tags: [],
+            coverUrl: '',
+            video: null,
+          }
+          this.openNewsBrowser(newsData)
+          return
+        }
+      }
+
+      // Fallback: open source link in new tab
+      const sourceInfo = NEWS_LIST[source]
+      const channelInfo = sourceInfo?.channels[channel]
+      if (channelInfo) {
+        const url = channelInfo.newsDetailLink.replace('{id}', String(result.remoteId))
+        window.open(url, '_blank', 'noopener,noreferrer')
+      }
     },
   },
 })

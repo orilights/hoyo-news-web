@@ -12,10 +12,13 @@ const {
   currentSource,
   currentChannel,
   searchEnabled,
+  isFulltextSearching,
   newsDataKeywordFiltered,
   filterTag,
   filterTags,
   searchStr,
+  searchResults,
+  searchMs,
   showSetting,
   showMobileSidebar,
   isMobile,
@@ -171,9 +174,18 @@ onUnmounted(() => {
       @update:selected-key="(val) => val && mainStore.changeChannel(val)"
     />
 
-    <ChannelInfo class="mt-2" />
+    <ChannelInfo v-if="!isFulltextSearching" class="mt-2" />
 
-    <div v-if="searchEnabled || isFiltering" class="mb-2 text-sm">
+    <div v-if="isFulltextSearching" class="my-2 text-sm">
+      <span>
+        搜索到 {{ searchResults.length }} 个结果，耗时：{{ searchMs }}ms
+      </span>
+      <button class="ml-2 mr-4 text-gray-500 hover:text-blue-500" @click="searchStr = ''">
+        取消搜索
+      </button>
+    </div>
+
+    <div v-else-if="searchEnabled || isFiltering" class="mb-2 text-sm">
       <template v-if="searchEnabled">
         <span>
           搜索到 {{ newsDataKeywordFiltered.length }} 个结果

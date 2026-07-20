@@ -24,3 +24,7 @@ export function getNewsDetailApi(apiBase: string, newsKey: string) {
 export function getClassifyRulesApi(apiBase: string, sourceKey: string) {
   return request.get(`${apiBase}/news/${sourceKey}/rules`)
 }
+
+export function searchNewsApi(apiBase: string, sourceKey: string, query: string) {
+  return request.post(`${apiBase}/news/${sourceKey}/search`, { query })
+}

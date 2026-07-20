@@ -10,6 +10,7 @@ import NewsListView from '@/components/news/NewsListView.vue'
 import { CONFIG_API } from '@/constants'
 import { useMainStore } from '@/store/main'
 import { useSettingsStore } from '@/store/settings'
+import SearchResultList from './components/news/SearchResultList.vue'
 import NewsBrowser from './components/NewsBrowser.vue'
 import RssInfo from './components/RssInfo.vue'
 import SettingPanel from './components/SettingPanel.vue'
@@ -18,7 +19,7 @@ import VideoPlayer from './components/VideoPlayer.vue'
 
 const mainStore = useMainStore()
 const settings = useSettingsStore()
-const { newsLoading, lockBodyScroll } = storeToRefs(mainStore)
+const { newsLoading, lockBodyScroll, isFulltextSearching } = storeToRefs(mainStore)
 const {
   useGridView,
 } = storeToRefs(settings)
@@ -86,9 +87,11 @@ function fetchNotice() {
         <span class="text-lg">数据加载中</span>
       </div>
 
-      <NewsListView v-if="!useGridView" />
+      <SearchResultList v-if="isFulltextSearching" />
 
-      <NewsGridView v-if="useGridView" />
+      <NewsListView v-if="!isFulltextSearching && !useGridView" />
+
+      <NewsGridView v-if="!isFulltextSearching && useGridView" />
     </div>
 
     <FloatTool />

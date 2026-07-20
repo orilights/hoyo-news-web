@@ -143,4 +143,21 @@ declare global {
     }
   }
 
+  interface SearchResult {
+    remoteId: string
+    sourceKey: string
+    title: string
+    startTime: number
+    matches: {
+      title: string
+      content: string
+    }
+  }
+
+  interface SearchApiResponse {
+    query: string
+    ms: number
+    list: SearchResult[]
+  }
+
 }
