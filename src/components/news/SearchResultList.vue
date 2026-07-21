@@ -6,7 +6,7 @@ import { NEWS_LIST } from '@/constants'
 import { useMainStore } from '@/store/main'
 
 const mainStore = useMainStore()
-const { searchResults, searchLoading, searchQuery, searchError } = storeToRefs(mainStore)
+const { fulltextSearchResults: searchResults, fulltextSearchLoading: searchLoading, fulltextSearchQuery: searchQuery, fulltextSearchError: searchError } = storeToRefs(mainStore)
 
 function getLinkTemplate(sourceKey: string): string {
   const [source, ...channelParts] = sourceKey.split('.')

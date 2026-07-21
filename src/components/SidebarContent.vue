@@ -19,13 +19,11 @@ const {
   dateFilterEnd,
   fulltextSearchEnabled,
   channelConfig,
+  isMobile,
+  isFulltextSearchAvailable,
 } = storeToRefs(mainStore)
 
 const { tagMultiSelect } = storeToRefs(settingsStore)
-
-const isFulltextSearchDisabled = computed(() =>
-  channelConfig.value.type === ChannelType.WEBSITE_NEWS_OS,
-)
 
 watch(channelConfig, (val) => {
   if (val.type === ChannelType.WEBSITE_NEWS_OS && fulltextSearchEnabled.value) {
@@ -37,7 +35,7 @@ watchDebounced(
   searchStr,
   () => {
     if (fulltextSearchEnabled.value && searchStr.value.trim()) {
-      mainStore.searchNews()
+      mainStore.handleFulltextSearch()
     }
   },
   { debounce: 300, maxWait: 500 },
@@ -46,14 +44,14 @@ watchDebounced(
 
 <template>
   <input
+    v-if="!isMobile"
     v-model="searchStr" type="text" placeholder="请输入关键词（可使用空格分隔多个关键词）"
     class="mb-2 w-full rounded-full border px-4 py-2 text-base outline-blue-500 transition-colors hover:border-blue-500"
   >
 
-  <div class="mb-1 flex items-center gap-2">
-    <Switch :model-value="fulltextSearchEnabled" :disabled="isFulltextSearchDisabled" @update:model-value="mainStore.toggleFulltextSearch()" />
+  <div v-if="!isMobile && isFulltextSearchAvailable" class="mb-1 flex items-center gap-2">
+    <Switch :model-value="fulltextSearchEnabled" @update:model-value="mainStore.toggleFulltextSearch()" />
     <span class="text-sm text-gray-600">全文搜索（测试）</span>
-    <span v-if="isFulltextSearchDisabled" class="text-xs text-gray-400">（当前源不支持）</span>
   </div>
 
   <template v-if="!fulltextSearchEnabled">

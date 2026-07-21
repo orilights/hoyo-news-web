@@ -4,8 +4,10 @@ import { storeToRefs } from 'pinia'
 import { TAG_ALL } from '@/constants/index.ts'
 import { useMainStore } from '@/store/main'
 import { useSettingsStore } from '@/store/settings'
+import { ChannelType } from '@/types/enum'
 import ChannelInfo from './ChannelInfo.vue'
-import DropdownSelect from './common/DropdownSelect.vue'
+import Switch from './common/Switch.vue'
+import SourceSelector from './SourceSelector.vue'
 
 const mainStore = useMainStore()
 const settings = useSettingsStore()
@@ -18,20 +20,26 @@ const {
   filterTag,
   filterTags,
   searchStr,
-  searchResults,
-  searchMs,
+  fulltextSearchResults,
+  fulltextSearchMs,
   showSetting,
   showMobileSidebar,
+  showMobileSearch,
   isMobile,
+  fulltextSearchEnabled,
+  channelConfig,
+  isFulltextSearchAvailable,
 } = storeToRefs(mainStore)
 const { autoHideHeader, headerSourceList, tagMultiSelect, sourceSelectStyle } = storeToRefs(settings)
 
 const headerRef = ref<HTMLElement | null>(null)
 const headerPaddingRef = ref<HTMLElement | null>(null)
+const mobileSearchInputRef = ref<HTMLInputElement | null>(null)
 const showHeader = ref(true)
 const lastScrollTop = ref(0)
 
-const tabs = computed(() => headerSourceList.value.find(item => item.key === currentSource.value)?.channels ?? [])
+const channels = computed(() => headerSourceList.value.find(item => item.key === currentSource.value)?.channels ?? [])
+
 const isFiltering = computed(() => {
   if (tagMultiSelect.value)
     return filterTags.value.length > 0
@@ -50,6 +58,20 @@ watch(headerHeight, (h) => {
   }
 })
 
+watch(showMobileSearch, (val) => {
+  if (val) {
+    nextTick(() => {
+      mobileSearchInputRef.value?.focus()
+    })
+  }
+})
+
+watch(channelConfig, (val) => {
+  if (val.type === ChannelType.WEBSITE_NEWS_OS && fulltextSearchEnabled.value) {
+    mainStore.toggleFulltextSearch()
+  }
+})
+
 function handleChangeDialogSettingVisible() {
   showSetting.value = !showSetting.value
   if (showSetting.value) {
@@ -60,7 +82,7 @@ function handleChangeDialogSettingVisible() {
 function handleScroll() {
   const scrollTop = window.pageYOffset || document.documentElement.scrollTop
 
-  if (scrollTop <= 800 || autoHideHeader.value === false || !isMobile.value) {
+  if (scrollTop <= 800 || autoHideHeader.value === false || !isMobile.value || showMobileSearch.value) {
     showHeader.value = true
   }
   else {
@@ -70,6 +92,11 @@ function handleScroll() {
     }
   }
   lastScrollTop.value = scrollTop
+}
+
+function handleCloseSearch() {
+  showMobileSearch.value = false
+  searchStr.value = ''
 }
 
 onMounted(() => {
@@ -98,99 +125,58 @@ onUnmounted(() => {
         <LucideMenu class="size-4" />
       </button>
 
-      <template v-if="sourceSelectStyle === 'dropdown'">
-        <DropdownSelect
-          :model-value="currentSource"
-          :options="headerSourceList.map(s => ({ value: s.key, label: s.displayName }))"
-          @update:model-value="(val) => mainStore.changeSource(val)"
-        >
-          <template #trigger="{ label, value }">
-            <img
-              class="size-6 rounded-full md:size-6"
-              :src="`./images/icon/${value}-48px.png`"
-            >
-            <span>{{ label }}</span>
-          </template>
-          <template #option="{ option }">
-            <img
-              class="size-6 rounded-full md:size-6"
-              :alt="option.label"
-              :src="`./images/icon/${option.value}-48px.png`"
-            >
-            {{ option.label }}
-          </template>
-        </DropdownSelect>
-
-        <DropdownSelect
-          :model-value="currentChannel"
-          :options="tabs.map(c => ({ value: c.key, label: c.label }))"
-          @update:model-value="(val) => mainStore.changeChannel(val)"
-        >
-          <template #trigger="{ label }">
-            <div class="h-6 leading-6">
-              {{ label }}
-            </div>
-          </template>
-          <template #option="{ option }">
-            <div class="h-6 leading-6">
-              {{ option.label }}
-            </div>
-          </template>
-        </DropdownSelect>
-      </template>
-      <template v-else>
-        <div class="flex flex-wrap gap-1">
-          <button
-            v-for="source in headerSourceList" :key="source.key"
-            class="flex shrink-0 items-center overflow-hidden rounded-full border p-1 transition-colors hover:border-blue-500"
-            :class="{
-              'border-blue-500 text-blue-500': currentSource === source.key,
-            }"
-            :disabled="currentSource === source.key"
-            @click="mainStore.changeSource(source.key)"
-          >
-            <img
-              class="size-6 rounded-full md:size-6"
-              :alt="source.displayName"
-              :src="`./images/icon/${source.key}-48px.png`"
-            >
-            <AnimationText :show="currentSource === source.key">
-              <span class="mx-1 sm:mx-2">{{ source.displayName }}</span>
-            </AnimationText>
-          </button>
-        </div>
-      </template>
-
-      <button class="ml-auto" @click="handleChangeDialogSettingVisible">
-        <LucideSlidersHorizontal class="size-4" />
+      <button
+        v-show="!showMobileSearch"
+        class="rounded p-1 text-gray-500 transition-colors hover:bg-gray-200 hover:text-gray-700 md:hidden"
+        @click="showMobileSearch = true"
+      >
+        <LucideSearch class="size-4" />
       </button>
+
+      <template v-if="showMobileSearch && isMobile">
+        <input
+          ref="mobileSearchInputRef"
+          v-model="searchStr"
+          type="text"
+          placeholder="请输入关键词搜索"
+          class="flex-1 rounded-full border px-4 py-2 text-base outline-blue-500 transition-colors hover:border-blue-500"
+        >
+        <button
+          class="rounded p-1 text-gray-500 transition-colors hover:bg-gray-200 hover:text-gray-700"
+          @click="handleCloseSearch"
+        >
+          <LucideX class="size-4" />
+        </button>
+      </template>
+
+      <template v-else>
+        <SourceSelector />
+
+        <button class="ml-auto" @click="handleChangeDialogSettingVisible">
+          <LucideSlidersHorizontal class="size-4" />
+        </button>
+      </template>
     </div>
 
     <Tabs
-      v-if="sourceSelectStyle === 'tab'"
-      v-model:selected-key="currentChannel"
+      v-if="sourceSelectStyle === 'tab' && !(showMobileSearch && isMobile)"
+      :selected-key="currentChannel"
       class="overflow-x-auto whitespace-nowrap"
-      :tabs="tabs"
+      :tabs="channels"
       @update:selected-key="(val) => val && mainStore.changeChannel(val)"
     />
 
-    <ChannelInfo v-if="!isFulltextSearching" class="mt-2" />
+    <ChannelInfo v-if="!isFulltextSearching && !(showMobileSearch && isMobile)" class="py-1" />
 
-    <div v-if="isFulltextSearching" class="my-2 text-sm">
-      <span>
-        搜索到 {{ searchResults.length }} 个结果，耗时：{{ searchMs }}ms
-      </span>
-      <button class="ml-2 mr-4 text-gray-500 hover:text-blue-500" @click="searchStr = ''">
-        取消搜索
-      </button>
-    </div>
-
-    <div v-else-if="searchEnabled || isFiltering" class="mb-2 text-sm">
+    <div v-if="showMobileSearch || searchEnabled || isFiltering" class="flex flex-wrap gap-2 py-2 text-sm">
       <template v-if="searchEnabled">
-        <span>
+        <span v-if="isFulltextSearching">
+          搜索到 {{ fulltextSearchResults.length }} 个结果，耗时：{{ fulltextSearchMs }}ms
+        </span>
+        <span v-else>
           搜索到 {{ newsDataKeywordFiltered.length }} 个结果
         </span>
-        <button class="ml-2 mr-4 text-gray-500 hover:text-blue-500" @click="searchStr = ''">
+        <button class="text-gray-500 hover:text-blue-500" @click="searchStr = ''">
           取消搜索
         </button>
       </template>
@@ -198,10 +184,15 @@ onUnmounted(() => {
         <span>
           当前过滤：{{ filterDisplayText }}
         </span>
-        <button class="ml-2 text-gray-500 hover:text-blue-500" @click="tagMultiSelect ? (filterTags = []) : mainStore.changeTag(TAG_ALL)">
+        <button class="text-gray-500 hover:text-blue-500" @click="tagMultiSelect ? (filterTags = []) : mainStore.changeTag(TAG_ALL)">
           取消过滤
         </button>
       </template>
+
+      <div v-if="showMobileSearch && isMobile && isFulltextSearchAvailable" class="flex items-center gap-2">
+        <Switch :model-value="fulltextSearchEnabled" @update:model-value="mainStore.toggleFulltextSearch()" />
+        <span class="text-gray-600">全文搜索（测试）</span>
+      </div>
     </div>
   </header>
 </template>

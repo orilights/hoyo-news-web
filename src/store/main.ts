@@ -10,6 +10,7 @@ import {
   VISIT_PERSIST_KEY,
   VISIT_PERSIST_MAX,
 } from '@/constants'
+import { ChannelType } from '@/types/enum'
 import { formatTime, getNewsTypes, getTags, limitSetSize } from '@/utils'
 import { useSettingsStore } from './settings'
 
@@ -39,6 +40,7 @@ export const useMainStore = defineStore('main', {
     showRssInfo: false,
     showVideoPlayer: false,
     showMobileSidebar: false,
+    showMobileSearch: false,
     showNewsBrowser: false,
     browsingNews: null as NewsData | null,
     isMobile: useMediaQuery('(max-width: 767px)'),
@@ -47,11 +49,11 @@ export const useMainStore = defineStore('main', {
     queryParams: useUrlSearchParams('history'),
 
     fulltextSearchEnabled: false,
-    searchResults: [] as SearchResult[],
-    searchLoading: false,
-    searchQuery: '',
-    searchMs: 0,
-    searchError: '',
+    fulltextSearchResults: [] as SearchResult[],
+    fulltextSearchMs: 0,
+    fulltextSearchLoading: false,
+    fulltextSearchQuery: '',
+    fulltextSearchError: '',
   }),
   getters: {
     channelConfig: (state) => {
@@ -126,6 +128,9 @@ export const useMainStore = defineStore('main', {
     },
     searchSourceKey: (state) => {
       return `${state.currentSource}.${state.currentChannel}`
+    },
+    isFulltextSearchAvailable: (state) => {
+      return NEWS_LIST[state.currentSource].channels[state.currentChannel].type !== ChannelType.WEBSITE_NEWS_OS
     },
   },
   actions: {
@@ -237,9 +242,10 @@ export const useMainStore = defineStore('main', {
       this.filterTag = TAG_ALL
       this.filterTags = []
       this.fulltextSearchEnabled = false
-      this.searchResults = []
-      this.searchQuery = ''
-      this.searchError = ''
+      this.fulltextSearchResults = []
+      this.fulltextSearchQuery = ''
+      this.fulltextSearchError = ''
+      this.showMobileSearch = false
       delete this.queryParams.filterTag
       this.fetchData()
     },
@@ -290,26 +296,26 @@ export const useMainStore = defineStore('main', {
     toggleFulltextSearch() {
       this.fulltextSearchEnabled = !this.fulltextSearchEnabled
       if (this.fulltextSearchEnabled && this.searchStr.trim()) {
-        this.searchNews()
+        this.handleFulltextSearch()
       }
       else if (!this.fulltextSearchEnabled) {
-        this.searchResults = []
-        this.searchQuery = ''
-        this.searchError = ''
+        this.fulltextSearchResults = []
+        this.fulltextSearchQuery = ''
+        this.fulltextSearchError = ''
       }
     },
 
-    searchNews() {
+    handleFulltextSearch() {
       const query = this.searchStr.trim()
       if (!query) {
-        this.searchResults = []
-        this.searchQuery = ''
-        this.searchError = ''
+        this.fulltextSearchResults = []
+        this.fulltextSearchQuery = ''
+        this.fulltextSearchError = ''
         return
       }
 
-      this.searchLoading = true
-      this.searchError = ''
+      this.fulltextSearchLoading = true
+      this.fulltextSearchError = ''
       const apiBase = this.channelConfig.apiBase
       const sourceKey = this.searchSourceKey
 
@@ -318,16 +324,16 @@ export const useMainStore = defineStore('main', {
           if (sourceKey !== this.searchSourceKey || query !== this.searchStr.trim()) {
             return
           }
-          this.searchResults = (res as SearchApiResponse).list
-          this.searchQuery = (res as SearchApiResponse).query
-          this.searchMs = (res as SearchApiResponse).ms
+          this.fulltextSearchResults = (res as SearchApiResponse).list
+          this.fulltextSearchQuery = (res as SearchApiResponse).query
+          this.fulltextSearchMs = (res as SearchApiResponse).ms
         })
         .catch((err) => {
-          this.searchError = err?.message ?? '搜索失败'
-          this.searchResults = []
+          this.fulltextSearchError = err?.message ?? '搜索失败'
+          this.fulltextSearchResults = []
         })
         .finally(() => {
-          this.searchLoading = false
+          this.fulltextSearchLoading = false
         })
     },
 
@@ -354,7 +360,6 @@ export const useMainStore = defineStore('main', {
         }
       }
 
-      // Fallback: open source link in new tab
       const sourceInfo = NEWS_LIST[source]
       const channelInfo = sourceInfo?.channels[channel]
       if (channelInfo) {
