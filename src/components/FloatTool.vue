@@ -2,14 +2,11 @@
 import { storeToRefs } from 'pinia'
 import { useToast } from 'vue-toastification'
 import { useMainStore } from '@/store/main'
-import { useSettingsStore } from '@/store/settings'
 import { event, formatTime } from '@/utils'
 
 const toast = useToast()
 const mainStore = useMainStore()
-const settings = useSettingsStore()
-const { useGridView } = storeToRefs(settings)
-const { sortBy, newsDataFiltered } = storeToRefs(mainStore)
+const { sortBy, newsDataFiltered, isFulltextSearching } = storeToRefs(mainStore)
 
 const showDialogJump = ref(false)
 const jumpDate = ref('')
@@ -67,10 +64,6 @@ function changeDate(go: number) {
 }
 
 function handleChangeDialogJumpVisible() {
-  if (useGridView.value) {
-    toast.warning('网格视图暂不支持跳转功能')
-    return
-  }
   showDialogJump.value = !showDialogJump.value
   if (showDialogJump.value) {
     window.umami?.track('d-jump')
@@ -108,6 +101,7 @@ function handleScrollByDate() {
     </Transition>
     <div class="flex flex-col">
       <button
+        v-if="!isFulltextSearching"
         class="dialog-jump rounded-t-xl border border-gray-300 bg-white p-2 transition-colors hover:z-20 hover:border-blue-500 hover:text-blue-500"
         @click="handleChangeDialogJumpVisible"
       >

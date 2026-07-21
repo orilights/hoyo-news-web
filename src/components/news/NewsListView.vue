@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useElementBounding, useElementSize, useThrottle } from '@vueuse/core'
+import { refThrottled, useElementBounding, useElementSize } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 import { useToast } from 'vue-toastification'
 import NewsListItem from '@/components/news/NewsListItem.vue'
@@ -23,7 +23,7 @@ const config = computed(() => ({
 }))
 const containerRef = ref<HTMLElement>()
 const shadowItemRef = ref<HTMLElement>()
-const containerTop = useThrottle(useElementBounding(containerRef).top, 30, true)
+const containerTop = refThrottled(useElementBounding(containerRef).top, 30, true)
 const newsItemHeight = useElementSize(shadowItemRef).height
 
 const newsList = computed(() => {
