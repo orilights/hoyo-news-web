@@ -2,6 +2,7 @@
 import { useOverlayScrollbars } from 'overlayscrollbars-vue'
 import { storeToRefs } from 'pinia'
 import { useToast } from 'vue-toastification'
+import ContextMenu from '@/components/common/ContextMenu.vue'
 import LoadingIndicator from '@/components/common/LoadingIndicator.vue'
 import FloatTool from '@/components/FloatTool.vue'
 import Header from '@/components/Header.vue'
@@ -103,6 +104,8 @@ function fetchNotice() {
     <RssInfo />
 
     <SettingPanel />
+
+    <ContextMenu />
   </div>
 </template>
 

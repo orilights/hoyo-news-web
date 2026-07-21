@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { LucideEllipsis } from '@lucide/vue'
-import { useElementSize } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 import LoadingIndicatorImage from '@/components/common/LoadingIndicatorImage.vue'
 import { useNewsItem } from '@/composables/newsItem'
@@ -28,22 +27,11 @@ const {
   isCoverLoaded,
   openNews,
   openVideo,
-  copyLink,
-  copyCoverLink,
-  copyVideoLink,
-  sendToPotPlayer,
-  sendToAria2,
+  openActionMenu: handleActionMenu,
   onImageLoaded,
 } = useNewsItem({
   news: props.news,
 })
-
-const actionMenuRef = ref<HTMLElement | null>(null)
-const actionMenuWidth = useElementSize(actionMenuRef).width
-const distanceToRight = ref(0)
-const popupFromLeft = computed(() => distanceToRight.value < actionMenuWidth.value)
-
-const showAction = ref(false)
 
 const coverWidth = computed(() => {
   if (props.config.coverSize === CoverSize.Large) {
@@ -55,38 +43,6 @@ const coverWidth = computed(() => {
   return 75
 })
 const coverHeight = computed(() => props.config.coverSize === CoverSize.Large ? 150 : 75)
-
-function checkPopupDirection(target: HTMLElement | null) {
-  if (!target)
-    return
-  target = target.closest('.action-button')
-  const rect = (target as HTMLElement).getBoundingClientRect()
-  distanceToRight.value = window.innerWidth - rect.right
-}
-
-function toggleAction(event: MouseEvent) {
-  checkPopupDirection(event.target as HTMLElement)
-  showAction.value = !showAction.value
-
-  if (showAction.value) {
-    nextTick(() => {
-      document.addEventListener('click', closeAction)
-    })
-  }
-  else {
-    document.removeEventListener('click', closeAction)
-  }
-}
-
-function closeAction() {
-  showAction.value = false
-  document.removeEventListener('click', closeAction)
-}
-
-onUnmounted(() => {
-  // 确保组件销毁时移除事件监听器
-  document.removeEventListener('click', closeAction)
-})
 </script>
 
 <template>
@@ -171,54 +127,10 @@ onUnmounted(() => {
           </div>
           <div
             title="更多操作"
-            class="action-button relative flex items-center gap-1 rounded-full border border-slate-200  p-0.5 text-xs text-gray-600 transition-colors hover:bg-slate-200 lg:p-1 lg:text-sm"
-            :class="{
-              'bg-slate-200': showAction,
-              'bg-slate-100': !showAction,
-            }" @click.stop.prevent="toggleAction"
+            class="action-button flex items-center gap-1 rounded-full border border-slate-200 bg-slate-100 p-0.5 text-xs text-gray-600 transition-colors hover:bg-slate-200 lg:p-1 lg:text-sm"
+            @click.stop.prevent="handleActionMenu"
           >
             <LucideEllipsis class="size-4 p-0.5 lg:size-5" />
-            <Transition name="fade">
-              <div
-                v-show="showAction" ref="actionMenuRef"
-                class="absolute bottom-0 z-30 w-fit overflow-hidden rounded-md border bg-white text-black" :style="{
-                  left: popupFromLeft ? `-${actionMenuWidth + 8}px` : undefined,
-                  right: popupFromLeft ? undefined : `-${actionMenuWidth + 8}px`,
-                }" @click.stop.prevent
-              >
-                <button
-                  class="block w-full px-2 py-0.5 text-left transition-colors hover:bg-black/10"
-                  title="复制新闻链接至剪贴板" @click="showAction = false; copyLink()"
-                >
-                  复制链接
-                </button>
-                <button
-                  v-if="news.coverUrl"
-                  class="block w-full px-2 py-0.5 text-left transition-colors hover:bg-black/10" title="复制封面链接至剪贴板"
-                  @click="showAction = false; copyCoverLink()"
-                >
-                  复制封面链接
-                </button>
-                <button
-                  v-if="news.video" class="block w-full px-2 py-0.5 text-left transition-colors hover:bg-black/10"
-                  title="复制视频链接至剪贴板" @click="showAction = false; copyVideoLink()"
-                >
-                  复制视频链接
-                </button>
-                <button
-                  v-if="news.video" class="block w-full px-2 py-0.5 text-left transition-colors hover:bg-black/10"
-                  title="在 PotPlayer 中打开视频" @click="showAction = false; sendToPotPlayer()"
-                >
-                  在 PotPlayer 中打开视频
-                </button>
-                <button
-                  v-if="news.video" class="block w-full px-2 py-0.5 text-left transition-colors hover:bg-black/10"
-                  title="将视频发送至 aria2 下载" @click="showAction = false; sendToAria2()"
-                >
-                  将视频发送至 aria2 下载
-                </button>
-              </div>
-            </Transition>
           </div>
         </div>
       </div>

@@ -54,7 +54,7 @@ const filterDisplayText = computed(() => {
 const { height: headerHeight } = useElementSize(headerRef)
 watch(headerHeight, (h) => {
   if (headerPaddingRef.value && h) {
-    headerPaddingRef.value.style.height = `${h + 16}px`
+    headerPaddingRef.value.style.height = `${h + 24}px`
   }
 })
 
@@ -112,7 +112,7 @@ onUnmounted(() => {
   <div ref="headerPaddingRef" />
   <header
     ref="headerRef"
-    class="fixed inset-x-0 top-0 z-10 bg-white/80 px-2 pt-2 backdrop-blur transition-transform duration-300 md:left-[300px] md:px-4 lg:left-[400px]"
+    class="fixed inset-x-0 top-0 z-10 bg-white/80 px-2 pb-1 pt-2 backdrop-blur transition-transform duration-300 md:left-[300px] md:px-4 lg:left-[400px]"
     :class="{
       '-translate-y-full': !showHeader && isMobile,
     }"
@@ -168,7 +168,7 @@ onUnmounted(() => {
 
     <ChannelInfo v-if="!isFulltextSearching && !(showMobileSearch && isMobile)" class="py-1" />
 
-    <div v-if="showMobileSearch || searchEnabled || isFiltering" class="flex flex-wrap gap-2 py-2 text-sm">
+    <div v-if="showMobileSearch || searchEnabled || isFiltering" class="flex flex-wrap gap-2 py-1 text-sm">
       <template v-if="searchEnabled">
         <span v-if="isFulltextSearching">
           搜索到 {{ fulltextSearchResults.length }} 个结果，耗时：{{ fulltextSearchMs }}ms

@@ -23,18 +23,61 @@ const {
   isLoadCover,
   isCoverLoaded,
   openNews,
+  openActionMenu: handleActionMenu,
   onImageLoaded,
 } = useNewsItem({
   news: props.news,
 })
+
+// 移动端长按检测
+const longPressTimer = ref<ReturnType<typeof setTimeout> | null>(null)
+const longPressPos = ref<{ x: number, y: number }>({ x: 0, y: 0 })
+const didLongPress = ref(false)
+const LONG_PRESS_DURATION = 500
+
+function onTouchStart(e: TouchEvent) {
+  didLongPress.value = false
+  const touch = e.touches[0]
+  longPressPos.value = { x: touch.clientX, y: touch.clientY }
+  longPressTimer.value = setTimeout(() => {
+    didLongPress.value = true
+    handleActionMenu(longPressPos.value)
+  }, LONG_PRESS_DURATION)
+}
+
+function onTouchMove() {
+  if (longPressTimer.value) {
+    clearTimeout(longPressTimer.value)
+    longPressTimer.value = null
+  }
+}
+
+function onTouchEnd() {
+  if (longPressTimer.value) {
+    clearTimeout(longPressTimer.value)
+    longPressTimer.value = null
+  }
+}
+
+function onGridClick(event: PointerEvent) {
+  if (didLongPress.value)
+    return
+  openNews(event)
+}
 </script>
 
 <template>
   <a
     class="group flex cursor-pointer flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all hover:border-blue-400 hover:shadow-md"
+    style="-webkit-touch-callout: none"
     :href="channelConfig.newsDetailLink.replace('{id}', String(news.remoteId))"
     target="_blank"
-    @click="openNews"
+    @click="onGridClick"
+    @contextmenu.prevent="handleActionMenu"
+    @touchstart.passive="onTouchStart"
+    @touchmove.passive="onTouchMove"
+    @touchend="onTouchEnd"
+    @touchcancel="onTouchEnd"
   >
     <div
       v-if="config.showCover && channelConfig.coverWidth"

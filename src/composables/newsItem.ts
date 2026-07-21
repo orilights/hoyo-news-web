@@ -1,5 +1,7 @@
+import type { ContextMenuItem } from '@/composables/contextMenu'
 import { storeToRefs } from 'pinia'
 import { useToast } from 'vue-toastification'
+import { showContextMenu } from '@/composables/contextMenu'
 import { LOAD_DELAY, NEWS_LIST } from '@/constants'
 import { useMainStore } from '@/store/main'
 import { usePlayerStore } from '@/store/player'
@@ -162,6 +164,84 @@ export function useNewsItem(options: NewsItemOptions) {
       })
   }
 
+  function copyNewsId() {
+    window.umami?.track('a-copy-news-id', { key: newsKey })
+    copyToClipboard(news.remoteId)
+      .then(() => {
+        useToast().success('已复制新闻ID')
+      })
+      .catch((err) => {
+        useToast().error(err?.message || '复制失败')
+      })
+  }
+
+  function copyNewsKey() {
+    window.umami?.track('a-copy-news-key', { key: newsKey })
+    copyToClipboard(news.key)
+      .then(() => {
+        useToast().success('已复制新闻Key')
+      })
+      .catch((err) => {
+        useToast().error(err?.message || '复制失败')
+      })
+  }
+
+  function openActionMenu(event: MouseEvent | { x: number, y: number }) {
+    const items: ContextMenuItem[] = [
+      { label: '在新窗口打开', onClick: () => openInNewWindow() },
+      { label: '在内置浏览器中打开', onClick: () => openInBrowser() },
+      { label: '复制链接', onClick: () => copyLink() },
+    ]
+    if (news.coverUrl) {
+      items.push({ label: '复制封面链接', onClick: () => copyCoverLink() })
+    }
+    if (news.video) {
+      items.push(
+        { label: '复制视频链接', onClick: () => copyVideoLink() },
+        { label: '使用内置播放器打开', onClick: () => openInWebPlayer() },
+        { label: '在 PotPlayer 中打开视频', onClick: () => sendToPotPlayer() },
+        { label: '将视频发送至 aria2 下载', onClick: () => sendToAria2() },
+      )
+    }
+    items.push({
+      label: '更多',
+      children: [
+        { label: '复制新闻ID', onClick: () => copyNewsId() },
+        { label: '复制新闻Key', onClick: () => copyNewsKey() },
+        { label: '复制标题', onClick: () => copyTitle() },
+
+      ],
+    })
+    showContextMenu(event, items)
+  }
+
+  function copyTitle() {
+    window.umami?.track('a-copy-news-title', { key: newsKey })
+    copyToClipboard(news.title)
+      .then(() => {
+        useToast().success('已复制标题')
+      })
+      .catch((err) => {
+        useToast().error(err?.message || '复制失败')
+      })
+  }
+
+  function openInNewWindow() {
+    window.umami?.track('a-open-new-window', { key: newsKey })
+    window.open(newsUrl.value, '_blank')
+  }
+
+  function openInBrowser() {
+    window.umami?.track('a-open-in-browser', { key: newsKey })
+    mainStore.openNewsBrowser(news)
+  }
+
+  function openInWebPlayer() {
+    window.umami?.track('a-open-in-webplayer', { key: newsKey })
+    playerStore.setCurrentListAsPlaylist()
+    playerStore.playVideo(news)
+  }
+
   function onImageLoaded() {
     isCoverLoaded.value = true
     mainStore.imageLoaded.add(newsKey)
@@ -192,11 +272,7 @@ export function useNewsItem(options: NewsItemOptions) {
     isCoverLoaded,
     openNews,
     openVideo,
-    copyLink,
-    copyCoverLink,
-    copyVideoLink,
-    sendToPotPlayer,
-    sendToAria2,
+    openActionMenu,
     onImageLoaded,
   }
 }

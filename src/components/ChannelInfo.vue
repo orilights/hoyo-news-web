@@ -29,7 +29,7 @@ function toggleViewMode() {
 </script>
 
 <template>
-  <div class="mb-2 flex flex-wrap items-center gap-2 text-sm">
+  <div class="flex flex-wrap items-center gap-2 text-sm">
     <span v-if="newsData.length">
       {{ newsDataFiltered.length }} / {{ newsData.length }}
     </span>

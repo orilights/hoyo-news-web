@@ -14,6 +14,7 @@ declare module 'vue' {
     AnimationText: typeof import('./components/common/AnimationText.vue')['default']
     ArtPlayer: typeof import('./components/player/ArtPlayer.vue')['default']
     ChannelInfo: typeof import('./components/ChannelInfo.vue')['default']
+    ContextMenu: typeof import('./components/common/ContextMenu.vue')['default']
     DialogContainer: typeof import('./components/common/DialogContainer.vue')['default']
     DropdownSelect: typeof import('./components/common/DropdownSelect.vue')['default']
     FloatTool: typeof import('./components/FloatTool.vue')['default']
