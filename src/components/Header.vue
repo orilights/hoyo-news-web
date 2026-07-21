@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useElementSize } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 import { TAG_ALL } from '@/constants/index.ts'
 import { useMainStore } from '@/store/main'
@@ -42,9 +43,10 @@ const filterDisplayText = computed(() => {
   return filterTag.value
 })
 
-const resizeObserver = new ResizeObserver((entries) => {
-  for (const entry of entries) {
-    headerPaddingRef.value!.style.height = `${entry.target.scrollHeight + 16}px`
+const { height: headerHeight } = useElementSize(headerRef)
+watch(headerHeight, (h) => {
+  if (headerPaddingRef.value && h) {
+    headerPaddingRef.value.style.height = `${h + 16}px`
   }
 })
 
@@ -72,12 +74,10 @@ function handleScroll() {
 
 onMounted(() => {
   window.addEventListener('scroll', handleScroll, { passive: true })
-  resizeObserver.observe(headerRef.value!)
 })
 
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
-  resizeObserver.disconnect()
 })
 </script>
 
