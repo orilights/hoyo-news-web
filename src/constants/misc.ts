@@ -53,6 +53,12 @@ export const VISIT_PERSIST_KEY = `${APP_ABBR}-newsVisited`
 
 export const ARIA2_RPC_URL = 'http://localhost:6800/jsonrpc'
 
+export const NEWS_OPEN_MODE_OPTIONS = [
+  { value: 'browser', label: '在内置浏览器中打开' },
+  { value: 'player', label: '优先在内置播放器中打开' },
+  { value: 'tab', label: '在新标签页打开' },
+]
+
 export const SETTING_TABS = [
   { key: 'general', label: '常规' },
   { key: 'source', label: '内容源' },

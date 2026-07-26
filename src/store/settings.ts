@@ -25,8 +25,7 @@ export const useSettingsStore = defineStore('settings', {
 
     sourceSelectStyle: 'dropdown' as 'dropdown' | 'tab',
 
-    useNewsBrowser: true,
-    useWebPlayer: true,
+    newsOpenMode: 'player' as 'browser' | 'player' | 'tab',
     autoPlayNext: true,
 
     gridCardMinWidth: 240,

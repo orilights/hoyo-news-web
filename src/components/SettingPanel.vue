@@ -7,7 +7,7 @@ import Draggable from 'vuedraggable'
 import DropdownSelect from '@/components/common/DropdownSelect.vue'
 import Switch from '@/components/common/Switch.vue'
 import Tabs from '@/components/common/Tabs.vue'
-import { BUILD_COMMIT, BUILD_DATE, GRID_CARD_WIDTH_OPTIONS, GRID_COVER_MODE_OPTIONS, NEWS_LIST, SETTING_TABS } from '@/constants'
+import { BUILD_COMMIT, BUILD_DATE, GRID_CARD_WIDTH_OPTIONS, GRID_COVER_MODE_OPTIONS, NEWS_LIST, NEWS_OPEN_MODE_OPTIONS, SETTING_TABS } from '@/constants'
 import { useMainStore } from '@/store/main'
 import { useSettingsStore } from '@/store/settings'
 import { getChannelLabel } from '@/types/enum'
@@ -21,8 +21,7 @@ const {
   showCover,
   showDateWeek,
   showVisited,
-  useWebPlayer,
-  useNewsBrowser,
+  newsOpenMode,
   sourceSelectStyle,
   useGridView,
   gridCardMinWidth,
@@ -157,12 +156,11 @@ function onSourceDragEnd() {
             <Switch v-model="showVisited" class="ml-2" />
           </div>
           <div class="mb-2 flex items-center">
-            <span class="flex-1">使用内置浏览器</span>
-            <Switch v-model="useNewsBrowser" class="ml-2" />
-          </div>
-          <div class="mb-2 flex items-center">
-            <span class="flex-1">使用内置播放器</span>
-            <Switch v-model="useWebPlayer" class="ml-2" />
+            <span class="flex-1">新闻打开方式</span>
+            <DropdownSelect
+              v-model="newsOpenMode"
+              :options="NEWS_OPEN_MODE_OPTIONS"
+            />
           </div>
           <div class="mb-2 flex items-center">
             <span class="flex-1">新闻源选择样式</span>

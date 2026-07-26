@@ -19,7 +19,7 @@ export function useNewsItem(options: NewsItemOptions) {
   const playerStore = usePlayerStore()
   const settings = useSettingsStore()
   const { currentSource, currentChannel } = storeToRefs(mainStore)
-  const { aria2Config, useNewsBrowser, useWebPlayer, showVisited } = storeToRefs(settings)
+  const { aria2Config, newsOpenMode, showVisited } = storeToRefs(settings)
 
   let timer: ReturnType<typeof setTimeout> | null = null
   const isLoadCover = ref(false)
@@ -34,42 +34,37 @@ export function useNewsItem(options: NewsItemOptions) {
   const isNewsVisited = computed(() => mainStore.isNewsVisited(newsKey))
 
   function openNews(event: PointerEvent) {
-    window.umami?.track('a-visit-news', { key: newsKey })
     if (showVisited.value) {
       mainStore.setNewsVisited(newsKey)
     }
 
-    if (useNewsBrowser.value) {
+    if (newsOpenMode.value === 'browser') {
       event.preventDefault()
       window.umami?.track('a-browser-news', { key: newsKey })
       mainStore.openNewsBrowser(news)
       return
     }
 
-    if (useWebPlayer.value && news.video) {
+    if (newsOpenMode.value === 'player') {
+      if (news.video) {
+        event.preventDefault()
+        playerStore.setCurrentListAsPlaylist()
+        playerStore.playVideo(news)
+        return
+      }
       event.preventDefault()
-      window.umami?.track('a-open-video', { key: newsKey })
-      playerStore.setCurrentListAsPlaylist()
-      playerStore.playVideo(news)
+      window.umami?.track('a-browser-news', { key: newsKey })
+      mainStore.openNewsBrowser(news)
+    }
+
+    if (newsOpenMode.value === 'tab') {
+      window.umami?.track('a-visit-news', { key: newsKey })
     }
   }
 
   function openVideo() {
-    window.umami?.track('a-open-video', { key: newsKey })
-
-    if (useWebPlayer.value) {
-      playerStore.setCurrentListAsPlaylist()
-      playerStore.playVideo(news)
-    }
-    else {
-      getVideoUrl(news, currentSource.value, currentChannel.value)
-        .then((videoUrl) => {
-          window.open(videoUrl, '_blank')
-        })
-        .catch((err) => {
-          useToast().error(err.message)
-        })
-    }
+    playerStore.setCurrentListAsPlaylist()
+    playerStore.playVideo(news)
   }
 
   function copyLink() {
@@ -165,7 +160,6 @@ export function useNewsItem(options: NewsItemOptions) {
   }
 
   function copyNewsId() {
-    window.umami?.track('a-copy-news-id', { key: newsKey })
     copyToClipboard(news.remoteId)
       .then(() => {
         useToast().success('已复制新闻ID')
@@ -176,7 +170,6 @@ export function useNewsItem(options: NewsItemOptions) {
   }
 
   function copyNewsKey() {
-    window.umami?.track('a-copy-news-key', { key: newsKey })
     copyToClipboard(news.key)
       .then(() => {
         useToast().success('已复制新闻Key')
@@ -188,7 +181,7 @@ export function useNewsItem(options: NewsItemOptions) {
 
   function openActionMenu(event: MouseEvent | { x: number, y: number }) {
     const items: ContextMenuItem[] = [
-      { label: '在新窗口打开', onClick: () => openInNewWindow() },
+      { label: '在新标签页打开', onClick: () => openInNewTab() },
       { label: '在内置浏览器中打开', onClick: () => openInBrowser() },
       { label: '复制链接', onClick: () => copyLink() },
     ]
@@ -198,7 +191,7 @@ export function useNewsItem(options: NewsItemOptions) {
     if (news.video) {
       items.push(
         { label: '复制视频链接', onClick: () => copyVideoLink() },
-        { label: '使用内置播放器打开', onClick: () => openInWebPlayer() },
+        { label: '使用内置播放器打开', onClick: () => openVideo() },
         { label: '在 PotPlayer 中打开视频', onClick: () => sendToPotPlayer() },
         { label: '将视频发送至 aria2 下载', onClick: () => sendToAria2() },
       )
@@ -216,7 +209,6 @@ export function useNewsItem(options: NewsItemOptions) {
   }
 
   function copyTitle() {
-    window.umami?.track('a-copy-news-title', { key: newsKey })
     copyToClipboard(news.title)
       .then(() => {
         useToast().success('已复制标题')
@@ -226,20 +218,14 @@ export function useNewsItem(options: NewsItemOptions) {
       })
   }
 
-  function openInNewWindow() {
-    window.umami?.track('a-open-new-window', { key: newsKey })
+  function openInNewTab() {
+    window.umami?.track('a-visit-news', { key: newsKey })
     window.open(newsUrl.value, '_blank')
   }
 
   function openInBrowser() {
-    window.umami?.track('a-open-in-browser', { key: newsKey })
+    window.umami?.track('a-browser-news', { key: newsKey })
     mainStore.openNewsBrowser(news)
-  }
-
-  function openInWebPlayer() {
-    window.umami?.track('a-open-in-webplayer', { key: newsKey })
-    playerStore.setCurrentListAsPlaylist()
-    playerStore.playVideo(news)
   }
 
   function onImageLoaded() {

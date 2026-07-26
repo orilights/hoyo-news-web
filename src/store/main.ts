@@ -342,7 +342,7 @@ export const useMainStore = defineStore('main', {
       const [source, ...channelParts] = result.sourceKey.split('.')
       const channel = channelParts.join('.')
 
-      if (settings.useNewsBrowser) {
+      if (settings.newsOpenMode !== 'tab') {
         const sourceInfo = NEWS_LIST[source]
         const channelInfo = sourceInfo?.channels[channel]
         if (channelInfo) {
