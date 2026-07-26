@@ -4,6 +4,7 @@ import { storeToRefs } from 'pinia'
 import { useToast } from 'vue-toastification'
 import { getNewsDetailApi } from '@/api/news'
 import { useMainStore } from '@/store/main'
+import { usePlayerStore } from '@/store/player'
 import { VideoType } from '@/types/enum'
 import { getMiyousheVideo } from '@/utils/data'
 import LoadingIndicator from './common/LoadingIndicator.vue'
@@ -12,6 +13,7 @@ const MHY_VOD_REGEX = /<div[^>]*class="[^"]*mhy-vod[^"]*"[^>]*><\/div>/
 const HTML_TAG_REGEX = /<[^>]+>/
 
 const mainStore = useMainStore()
+const playerStore = usePlayerStore()
 const { showNewsBrowser, browsingNews, channelConfig, newsDataFiltered } = storeToRefs(mainStore)
 
 const isLoading = ref(false)
@@ -133,10 +135,29 @@ onUnmounted(() => {
 })
 
 const newsTitle = computed(() => browsingNews.value?.title ?? '')
+
+const hasVideo = computed(() => browsingNews.value?.video != null)
+
+function switchToVideo() {
+  const news = browsingNews.value
+  if (!news)
+    return
+  mainStore.closeNewsBrowser()
+  playerStore.setCurrentListAsPlaylist()
+  playerStore.playVideo(news)
+}
 </script>
 
 <template>
   <DialogContainer :show="showNewsBrowser" :title="newsTitle" :width="700" full-height @close="mainStore.closeNewsBrowser()">
+    <template v-if="hasVideo" #actions>
+      <button
+        class="text-nowrap px-2 py-0.5 text-blue-500 transition-colors hover:text-blue-600"
+        @click="switchToVideo"
+      >
+        切换至视频播放器
+      </button>
+    </template>
     <div class="flex size-full flex-col">
       <div v-if="browsingNews?.startTime" class="mb-2 flex shrink-0 items-center gap-1 text-xs text-gray-500">
         <LucideClock class="size-3.5" />

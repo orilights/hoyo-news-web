@@ -28,6 +28,20 @@ const channelType = computed(() => NEWS_LIST[mainStore.currentSource]?.channels[
 const artInstance = ref<Artplayer | null>(null)
 const playlistScrollContainer = ref<OverlayScrollbarsComponentRef | null>(null)
 
+const currentNews = computed(() => {
+  if (!videoId.value || playlist.value.length === 0)
+    return null
+  return playlist.value.find(item => item.remoteId === videoId.value) ?? null
+})
+
+function switchToBrowser() {
+  const news = currentNews.value
+  if (!news)
+    return
+  playerStore.stopVideo()
+  mainStore.openNewsBrowser(news)
+}
+
 const playingIndex = computed(() => {
   if (!videoId.value || playlist.value.length === 0) {
     return -1
@@ -124,9 +138,18 @@ function handlePlayNext() {
     <div class="w-full max-w-[960px] rounded-xl bg-white px-2 py-4 shadow-md md:px-4">
       <div class="mb-4 flex items-center justify-between">
         <div>{{ title }}</div>
-        <button @click="playerStore.stopVideo()">
-          <LucideX class="size-5 text-gray-500 hover:text-black" />
-        </button>
+        <div class="flex items-center gap-2">
+          <button
+            v-if="currentNews"
+            class="px-2 py-0.5 text-blue-500 transition-colors hover:text-blue-600"
+            @click="switchToBrowser"
+          >
+            查看全文
+          </button>
+          <button @click="playerStore.stopVideo()">
+            <LucideX class="size-5 text-gray-500 hover:text-black" />
+          </button>
+        </div>
       </div>
       <ArtPlayer
         v-if="videoSrc"

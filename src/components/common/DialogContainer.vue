@@ -32,7 +32,10 @@ defineEmits<{
       >
         <div class="mb-3 flex shrink-0 items-center justify-between">
           <span class="text-base font-bold">{{ title }}</span>
-          <LucideX class="size-5 shrink-0 cursor-pointer text-gray-400 transition-colors hover:text-gray-600" @click="$emit('close')" />
+          <div class="flex items-center gap-2">
+            <slot name="actions" />
+            <LucideX class="size-5 shrink-0 cursor-pointer text-gray-400 transition-colors hover:text-gray-600" @click="$emit('close')" />
+          </div>
         </div>
         <div class="min-h-0 flex-1">
           <slot />
