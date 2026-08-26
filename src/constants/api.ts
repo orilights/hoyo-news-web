@@ -284,6 +284,25 @@ export const NEWS_LIST: Record<string, SourceInfo> = {
       },
     },
   },
+  nodusfall: {
+    displayName: '源初之结',
+    channels: {
+      web_cn: {
+        displayName: '官网',
+        type: ChannelType.WEBSITE_NEWS,
+        apiBase: API_ENDPOINT.CN,
+        newsDetailLink: 'https://nodusfall.mihoyo.com/news/{id}',
+        coverWidth: 300.75,
+      },
+      web_os: {
+        displayName: '国际服 官网',
+        type: ChannelType.WEBSITE_NEWS_OS,
+        apiBase: API_ENDPOINT.OS,
+        newsDetailLink: 'https://nodusfall.hoyoverse.com/zh-cn/news/{id}',
+        coverWidth: 300.75,
+      },
+    },
+  },
   wd: {
     displayName: '未定事件簿',
     channels: {
