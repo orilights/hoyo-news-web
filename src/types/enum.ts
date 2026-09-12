@@ -9,6 +9,8 @@ export enum VideoType {
   LINK = 'link',
   /** 米游社文章ID */
   MIYOUSHE_POST = 'miyoushe',
+  /** 哔哩哔哩视频BV */
+  BILIBILI_BV = 'bilibili',
 }
 
 export enum ChannelType {
@@ -22,6 +24,8 @@ export enum ChannelType {
   MIYOUSHE_NEWS_SUB = 'miyoushe_news_sub',
   /** 米游社-崩坏3WIKI */
   MIYOUSHE_BH3_WIKI = 'miyoushe_bh3_wiki',
+  /** 哔哩哔哩 */
+  BILIBILI = 'bilibili',
 }
 
 export function getChannelLabel(type: ChannelType) {
@@ -36,5 +40,7 @@ export function getChannelLabel(type: ChannelType) {
       return '米游社-子分类'
     case ChannelType.MIYOUSHE_BH3_WIKI:
       return '米游社-崩坏3WIKI'
+    case ChannelType.BILIBILI:
+      return '哔哩哔哩'
   }
 }

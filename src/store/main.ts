@@ -190,7 +190,7 @@ export const useMainStore = defineStore('main', {
           if (res) {
             this.newsData = res.list.map((news: any) => ({
               ...news,
-              remoteId: Number(news.remoteId),
+              remoteId: String(news.remoteId),
               tags: Array.isArray(news.tags)
                 ? news.tags
                 : (news.tags

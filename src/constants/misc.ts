@@ -11,6 +11,8 @@ export const SHADOW_ITEM: NewsItemData = {
   top: -9999999,
 }
 export const DEFAULT_BANNER = 'https://icdn.amarea.cn/upload/2023/06/6491c83b6fa65.jpg'
+// 哔哩哔哩视频页链接模板（{id} 为 BV 号）
+export const BILIBILI_VIDEO_URL = 'https://www.bilibili.com/video/{id}'
 export const LOAD_DELAY = 300
 export const ITEM_GAP = 8
 export const COVER_WIDTH = {

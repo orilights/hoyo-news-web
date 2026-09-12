@@ -15,6 +15,9 @@ export function getCoverThumbnailUrl(coverUrl: string, channelType?: ChannelType
   if (channelType === ChannelType.MIYOUSHE_BH3_WIKI) {
     return `${coverUrl}?x-oss-process=image/quality,q_75/resize,h_300`
   }
+  if (channelType === ChannelType.BILIBILI) {
+    return `${coverUrl}@600w_300h_1e_1c.webp`
+  }
   return coverUrl
 }
 

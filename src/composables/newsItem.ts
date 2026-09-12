@@ -6,7 +6,7 @@ import { LOAD_DELAY, NEWS_LIST } from '@/constants'
 import { useMainStore } from '@/store/main'
 import { usePlayerStore } from '@/store/player'
 import { useSettingsStore } from '@/store/settings'
-import { copyToClipboard, getCoverThumbnailUrl, getVideoUrl, sanitizeFilename } from '@/utils'
+import { copyToClipboard, getCoverThumbnailUrl, getVideoUrl, isBilibiliVideo, sanitizeFilename } from '@/utils'
 
 interface NewsItemOptions {
   news: NewsData
@@ -32,6 +32,8 @@ export function useNewsItem(options: NewsItemOptions) {
   const newsUrl = computed(() => channelConfig.value.newsDetailLink.replace('{id}', String(news.remoteId)))
   const coverThumbnailUrl = computed(() => getCoverThumbnailUrl(news.coverUrl, channelConfig.value.type))
   const isNewsVisited = computed(() => mainStore.isNewsVisited(newsKey))
+  // 哔哩哔哩视频无法在内置播放器中播放，仅支持跳转外部视频页
+  const isBilibili = computed(() => isBilibiliVideo(news, channelConfig.value.type))
 
   function openNews(event: PointerEvent) {
     if (showVisited.value) {
@@ -189,12 +191,17 @@ export function useNewsItem(options: NewsItemOptions) {
       items.push({ label: '复制封面链接', onClick: () => copyCoverLink() })
     }
     if (news.video) {
-      items.push(
-        { label: '复制视频链接', onClick: () => copyVideoLink() },
-        { label: '使用内置播放器打开', onClick: () => openVideo() },
-        { label: '在 PotPlayer 中打开视频', onClick: () => sendToPotPlayer() },
-        { label: '将视频发送至 aria2 下载', onClick: () => sendToAria2() },
-      )
+      items.push({ label: '复制视频链接', onClick: () => copyVideoLink() })
+      if (isBilibili.value) {
+        items.push({ label: '在哔哩哔哩中打开', onClick: () => openVideo() })
+      }
+      else {
+        items.push(
+          { label: '使用内置播放器打开', onClick: () => openVideo() },
+          { label: '在 PotPlayer 中打开视频', onClick: () => sendToPotPlayer() },
+          { label: '将视频发送至 aria2 下载', onClick: () => sendToAria2() },
+        )
+      }
     }
     items.push({
       label: '更多',

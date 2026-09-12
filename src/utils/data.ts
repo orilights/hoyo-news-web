@@ -1,7 +1,6 @@
-import type { ChannelType } from '@/types/enum'
 import { getMiyousheVideoApi } from '@/api/news'
-import { NEWS_LIST, TAG_OTHER, TAG_UNCLASSIFIED_VIDEO } from '@/constants'
-import { VideoType } from '@/types/enum'
+import { BILIBILI_VIDEO_URL, NEWS_LIST, TAG_OTHER, TAG_UNCLASSIFIED_VIDEO } from '@/constants'
+import { ChannelType, VideoType } from '@/types/enum'
 import { sanitizeFilename } from '.'
 
 function deserializeKeywords(keywords: (string | SerializableKeywordRegex)[]): (string | RegExp)[] {
@@ -267,9 +266,23 @@ export function getChannels(source: string, includeChannelTypes: ChannelType[] =
   return channels
 }
 
+/** 判断新闻视频是否属于哔哩哔哩（哔哩哔哩频道或 BV 类型视频，均无法在内置播放器中播放） */
+export function isBilibiliVideo(news: NewsData, channelType?: ChannelType): boolean {
+  return news.video?.type === VideoType.BILIBILI_BV || channelType === ChannelType.BILIBILI
+}
+
+/** 将 BV 号转换为哔哩哔哩视频页链接 */
+export function getBilibiliVideoUrl(videoUrl: string): string {
+  return BILIBILI_VIDEO_URL.replace('{id}', videoUrl)
+}
+
 export function getVideoUrl(data: NewsData, source: string, channel: string): Promise<string> {
   if (data.video?.type === VideoType.MIYOUSHE_POST) {
     return getMiyousheVideo(source, channel, data.video!.url)
+  }
+  // 哔哩哔哩视频返回网页链接（BV 号无法直接播放）
+  if (data.video?.type === VideoType.BILIBILI_BV) {
+    return Promise.resolve(getBilibiliVideoUrl(data.video.url))
   }
   return Promise.resolve(data.video!.url)
 }

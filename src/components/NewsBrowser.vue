@@ -6,6 +6,7 @@ import { getNewsDetailApi } from '@/api/news'
 import { useMainStore } from '@/store/main'
 import { usePlayerStore } from '@/store/player'
 import { VideoType } from '@/types/enum'
+import { isBilibiliVideo } from '@/utils'
 import { getMiyousheVideo } from '@/utils/data'
 import LoadingIndicator from './common/LoadingIndicator.vue'
 
@@ -67,6 +68,10 @@ function renderToShadowDom(html: string) {
   shadowRoot.appendChild(style)
   const container = document.createElement('div')
   container.innerHTML = html
+  // 正文图片不携带 Referer，规避站点防盗链拦截（须在插入文档前设置）
+  container.querySelectorAll('img').forEach((img) => {
+    img.referrerPolicy = 'no-referrer'
+  })
   shadowRoot.appendChild(container)
 }
 
@@ -136,7 +141,10 @@ onUnmounted(() => {
 
 const newsTitle = computed(() => browsingNews.value?.title ?? '')
 
-const hasVideo = computed(() => browsingNews.value?.video != null)
+// 哔哩哔哩视频无法在内置播放器中播放，不提供切换入口
+const canSwitchToPlayer = computed(() =>
+  browsingNews.value != null && !isBilibiliVideo(browsingNews.value, channelConfig.value.type),
+)
 
 function switchToVideo() {
   const news = browsingNews.value
@@ -150,7 +158,7 @@ function switchToVideo() {
 
 <template>
   <DialogContainer :show="showNewsBrowser" :title="newsTitle" :width="700" full-height @close="mainStore.closeNewsBrowser()">
-    <template v-if="hasVideo" #actions>
+    <template v-if="canSwitchToPlayer" #actions>
       <button
         class="text-nowrap px-2 py-0.5 text-blue-500 transition-colors hover:text-blue-600"
         @click="switchToVideo"

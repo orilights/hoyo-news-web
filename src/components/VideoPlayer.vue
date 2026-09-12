@@ -185,7 +185,11 @@ function handlePlayNext() {
               @click="playerStore.playVideo(item)"
             >
               <div v-if="index === playingIndex" class="pointer-events-none absolute inset-0 rounded-md border-2 border-blue-500" />
-              <img class="h-[75px] w-full object-cover object-center md:h-[100px]" loading="lazy" :src="getCoverThumbnailUrl(item.coverUrl, channelType)">
+              <img
+                class="h-[75px] w-full object-cover object-center md:h-[100px]"
+                loading="lazy" :src="getCoverThumbnailUrl(item.coverUrl, channelType)"
+                referrerpolicy="no-referrer"
+              >
               <div class="overflow-hidden text-ellipsis p-0.5 text-xs md:p-2 md:text-sm">
                 {{ item.title }}
               </div>

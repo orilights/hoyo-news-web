@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { ChannelType } from '@/types/enum'
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue'
 import { storeToRefs } from 'pinia'
 import { useToast } from 'vue-toastification'
@@ -10,7 +9,7 @@ import Tabs from '@/components/common/Tabs.vue'
 import { BUILD_COMMIT, BUILD_DATE, GRID_CARD_WIDTH_OPTIONS, GRID_COVER_MODE_OPTIONS, NEWS_LIST, NEWS_OPEN_MODE_OPTIONS, SETTING_TABS } from '@/constants'
 import { useMainStore } from '@/store/main'
 import { useSettingsStore } from '@/store/settings'
-import { getChannelLabel } from '@/types/enum'
+import { ChannelType, getChannelLabel } from '@/types/enum'
 import { exportFile, formatTime, getAria2DownloadTask } from '@/utils'
 
 const toast = useToast()
@@ -62,6 +61,10 @@ function exportVideos() {
   }
   if (currentChannel.value.startsWith('bbs_cn')) {
     toast.warning('米游社暂不支持导出视频下载任务')
+    return
+  }
+  if (mainStore.channelConfig.type === ChannelType.BILIBILI) {
+    toast.warning('哔哩哔哩暂不支持导出视频下载任务')
     return
   }
 

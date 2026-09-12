@@ -26,6 +26,13 @@ export const NEWS_LIST: Record<string, SourceInfo> = {
         newsDetailLink: 'https://www.miyoushe.com/ys/article/{id}',
         coverWidth: COVER_WIDTH.bbs,
       },
+      bilibili: {
+        displayName: '哔哩哔哩',
+        type: ChannelType.BILIBILI,
+        apiBase: API_ENDPOINT.CN,
+        newsDetailLink: 'https://www.bilibili.com/opus/{id}',
+        coverWidth: COVER_WIDTH.bbs_wiki,
+      },
       bbs_cn_1: {
         displayName: '米游社-公告',
         type: ChannelType.MIYOUSHE_NEWS_SUB,
@@ -72,6 +79,13 @@ export const NEWS_LIST: Record<string, SourceInfo> = {
         apiBase: API_ENDPOINT.CN,
         newsDetailLink: 'https://www.miyoushe.com/sr/article/{id}',
         coverWidth: COVER_WIDTH.bbs,
+      },
+      bilibili: {
+        displayName: '哔哩哔哩',
+        type: ChannelType.BILIBILI,
+        apiBase: API_ENDPOINT.CN,
+        newsDetailLink: 'https://www.bilibili.com/opus/{id}',
+        coverWidth: COVER_WIDTH.bbs_wiki,
       },
       bbs_cn_1: {
         displayName: '米游社-公告',
