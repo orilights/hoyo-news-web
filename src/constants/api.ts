@@ -87,6 +87,13 @@ export const NEWS_LIST: Record<string, SourceInfo> = {
         newsDetailLink: 'https://www.bilibili.com/opus/{id}',
         coverWidth: COVER_WIDTH.bbs_wiki,
       },
+      bilibili_pom: {
+        displayName: '哔哩哔哩-帕姆',
+        type: ChannelType.BILIBILI,
+        apiBase: API_ENDPOINT.CN,
+        newsDetailLink: 'https://www.bilibili.com/opus/{id}',
+        coverWidth: COVER_WIDTH.bbs_wiki,
+      },
       bbs_cn_1: {
         displayName: '米游社-公告',
         type: ChannelType.MIYOUSHE_NEWS_SUB,
@@ -132,6 +139,20 @@ export const NEWS_LIST: Record<string, SourceInfo> = {
         type: ChannelType.MIYOUSHE_BH3_WIKI,
         apiBase: API_ENDPOINT.CN,
         newsDetailLink: 'https://baike.mihoyo.com/bh3/wiki/content/{id}/detail?bbs_presentation_style=no_header',
+        coverWidth: COVER_WIDTH.bbs_wiki,
+      },
+      bilibili_ai: {
+        displayName: '哔哩哔哩-爱酱',
+        type: ChannelType.BILIBILI,
+        apiBase: API_ENDPOINT.CN,
+        newsDetailLink: 'https://www.bilibili.com/opus/{id}',
+        coverWidth: COVER_WIDTH.bbs_wiki,
+      },
+      bilibili_official: {
+        displayName: '哔哩哔哩-官号',
+        type: ChannelType.BILIBILI,
+        apiBase: API_ENDPOINT.CN,
+        newsDetailLink: 'https://www.bilibili.com/opus/{id}',
         coverWidth: COVER_WIDTH.bbs_wiki,
       },
       bbs_cn_1: {
@@ -195,6 +216,13 @@ export const NEWS_LIST: Record<string, SourceInfo> = {
         newsDetailLink: 'https://www.miyoushe.com/zzz/article/{id}',
         coverWidth: COVER_WIDTH.bbs,
       },
+      bilibili: {
+        displayName: '哔哩哔哩',
+        type: ChannelType.BILIBILI,
+        apiBase: API_ENDPOINT.CN,
+        newsDetailLink: 'https://www.bilibili.com/opus/{id}',
+        coverWidth: COVER_WIDTH.bbs_wiki,
+      },
       bbs_cn_1: {
         displayName: '米游社-公告',
         type: ChannelType.MIYOUSHE_NEWS_SUB,
@@ -235,6 +263,13 @@ export const NEWS_LIST: Record<string, SourceInfo> = {
         newsDetailLink: 'https://www.miyoushe.com/hna/article/{id}',
         coverWidth: COVER_WIDTH.bbs,
       },
+      bilibili: {
+        displayName: '哔哩哔哩',
+        type: ChannelType.BILIBILI,
+        apiBase: API_ENDPOINT.CN,
+        newsDetailLink: 'https://www.bilibili.com/opus/{id}',
+        coverWidth: COVER_WIDTH.bbs_wiki,
+      },
       bbs_cn_1: {
         displayName: '米游社-公告',
         type: ChannelType.MIYOUSHE_NEWS_SUB,
@@ -261,6 +296,13 @@ export const NEWS_LIST: Record<string, SourceInfo> = {
   planet: {
     displayName: '星布谷地',
     channels: {
+      web_cn: {
+        displayName: '官网',
+        type: ChannelType.WEBSITE_NEWS,
+        apiBase: API_ENDPOINT.CN,
+        newsDetailLink: 'https://planet.mihoyo.com/news/detail/{id}',
+        coverWidth: 266.66,
+      },
       bbs_cn_all: {
         displayName: '米游社',
         type: ChannelType.MIYOUSHE_NEWS,
@@ -268,12 +310,12 @@ export const NEWS_LIST: Record<string, SourceInfo> = {
         newsDetailLink: 'https://www.miyoushe.com/planet/article/{id}',
         coverWidth: COVER_WIDTH.bbs,
       },
-      web_cn: {
-        displayName: '官网',
-        type: ChannelType.WEBSITE_NEWS,
+      bilibili: {
+        displayName: '哔哩哔哩',
+        type: ChannelType.BILIBILI,
         apiBase: API_ENDPOINT.CN,
-        newsDetailLink: 'https://planet.mihoyo.com/news/detail/{id}',
-        coverWidth: 266.66,
+        newsDetailLink: 'https://www.bilibili.com/opus/{id}',
+        coverWidth: COVER_WIDTH.bbs_wiki,
       },
       bbs_cn_1: {
         displayName: '米游社-公告',
@@ -308,6 +350,13 @@ export const NEWS_LIST: Record<string, SourceInfo> = {
         newsDetailLink: 'https://nodusfall.mihoyo.com/news/{id}',
         coverWidth: 300.75,
       },
+      bilibili: {
+        displayName: '哔哩哔哩',
+        type: ChannelType.BILIBILI,
+        apiBase: API_ENDPOINT.CN,
+        newsDetailLink: 'https://www.bilibili.com/opus/{id}',
+        coverWidth: COVER_WIDTH.bbs_wiki,
+      },
       web_os: {
         displayName: '国际服 官网',
         type: ChannelType.WEBSITE_NEWS_OS,
@@ -326,6 +375,13 @@ export const NEWS_LIST: Record<string, SourceInfo> = {
         apiBase: API_ENDPOINT.CN,
         newsDetailLink: 'https://www.miyoushe.com/wd/article/{id}',
         coverWidth: COVER_WIDTH.bbs,
+      },
+      bilibili: {
+        displayName: '哔哩哔哩',
+        type: ChannelType.BILIBILI,
+        apiBase: API_ENDPOINT.CN,
+        newsDetailLink: 'https://www.bilibili.com/opus/{id}',
+        coverWidth: COVER_WIDTH.bbs_wiki,
       },
       web_cn: {
         displayName: '官网',
@@ -367,6 +423,13 @@ export const NEWS_LIST: Record<string, SourceInfo> = {
         newsDetailLink: 'https://www.miyoushe.com/bh2/article/{id}',
         coverWidth: COVER_WIDTH.bbs,
       },
+      bilibili: {
+        displayName: '哔哩哔哩',
+        type: ChannelType.BILIBILI,
+        apiBase: API_ENDPOINT.CN,
+        newsDetailLink: 'https://www.bilibili.com/opus/{id}',
+        coverWidth: COVER_WIDTH.bbs_wiki,
+      },
       bbs_cn_1: {
         displayName: '米游社-公告',
         type: ChannelType.MIYOUSHE_NEWS_SUB,
@@ -399,6 +462,20 @@ export const NEWS_LIST: Record<string, SourceInfo> = {
         apiBase: API_ENDPOINT.CN,
         newsDetailLink: 'https://www.mihoyo.com/news/{id}',
         coverWidth: 269.58,
+      },
+      bilibili: {
+        displayName: '哔哩哔哩',
+        type: ChannelType.BILIBILI,
+        apiBase: API_ENDPOINT.CN,
+        newsDetailLink: 'https://www.bilibili.com/opus/{id}',
+        coverWidth: COVER_WIDTH.bbs_wiki,
+      },
+      bilibili_legal: {
+        displayName: '哔哩哔哩-法务部',
+        type: ChannelType.BILIBILI,
+        apiBase: API_ENDPOINT.CN,
+        newsDetailLink: 'https://www.bilibili.com/opus/{id}',
+        coverWidth: COVER_WIDTH.bbs_wiki,
       },
       web_os: {
         displayName: 'Hoyoverse',
